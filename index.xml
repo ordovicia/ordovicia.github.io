@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>TIL</title>
+    <link>/</link>
+    <description>Recent content on TIL</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2017. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 26 May 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Fri, 26 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/about/</guid>
+      <description>Empty yet.</description>
+    </item>
+    
+    <item>
+      <title>Introducing xv6</title>
+      <link>/post/introducing_xv6/</link>
+      <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/introducing_xv6/</guid>
+      <description>xv6とは xv6は、MITで教材用に作られたコンパクトなOSです。 他のいくつかの大学でも使われているようです[xv6 - Wikipedia]。
+ANSI Cで書かれ、x86で動きます。マルチコアにも対応もしているようです。
+ソースコードはGitHubでMITライセンス下で公開されています。 PDF版もあります。
+xv6のコードと、OSの重要概念の解説や、 MITでの授業で使われた資料も入手できます。
+xv6のビルド このxv6をいじってみます。 基本的に、macOS 10.11.6上のQEMU上で動かします。
+macOSはx64でELFじゃないので、xv6のビルド・実行にはクロスコンパイルが必要です。 環境構築についてはこちらの方法がたいへん参考になります。 Homebrewを使う方法は依存関係がコンフリクトしていると言われ出来なかったので、binutilsとgccをビルドしました。</description>
+    </item>
+    
+  </channel>
+</rss>
