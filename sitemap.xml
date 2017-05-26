@@ -13,7 +13,187 @@
   </url>
   
   <url>
-    <loc>/tags/osdev/</loc>
+    <loc>/post/jetson_tx1_initial_setup/</loc>
+    <lastmod>2017-01-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/implementing_patricia_tree_in_rust/</loc>
+    <lastmod>2017-01-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/well_founded_induction/</loc>
+    <lastmod>2016-12-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/atomic_operation_overhead/</loc>
+    <lastmod>2016-12-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/lifetime/</loc>
+    <lastmod>2016-01-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/deref_coercions/</loc>
+    <lastmod>2016-01-03T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/operators_and_overloading/</loc>
+    <lastmod>2016-01-03T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/associated_types/</loc>
+    <lastmod>2016-01-02T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/misc/</loc>
+    <lastmod>2016-01-02T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/universal_function_call_syntax/</loc>
+    <lastmod>2016-01-01T14:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/closures/</loc>
+    <lastmod>2016-01-01T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/trait_objects/</loc>
+    <lastmod>2016-01-01T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/if_let/</loc>
+    <lastmod>2015-12-30T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/traits/</loc>
+    <lastmod>2015-12-30T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/generics/</loc>
+    <lastmod>2015-12-25T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/method_syntax/</loc>
+    <lastmod>2015-12-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/vectors_and_strings/</loc>
+    <lastmod>2015-12-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/gcc_build_boost_on_osx_yosemite/</loc>
+    <lastmod>2015-12-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/match_and_patterns/</loc>
+    <lastmod>2015-12-21T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/mutability/</loc>
+    <lastmod>2015-12-21T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/structs_and_enums/</loc>
+    <lastmod>2015-12-21T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/arch_raspi/devel_setup/</loc>
+    <lastmod>2015-12-21T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/arch_raspi/initial_setup/</loc>
+    <lastmod>2015-12-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/ownership/</loc>
+    <lastmod>2015-12-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/if_and_loops/</loc>
+    <lastmod>2015-11-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/primitive_types_and_comments/</loc>
+    <lastmod>2015-11-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/dining_philosophers/</loc>
+    <lastmod>2015-11-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/variable_bindings_and_functions/</loc>
+    <lastmod>2015-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/guessing_game/</loc>
+    <lastmod>2015-11-07T13:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/learning_rust/introduction/</loc>
+    <lastmod>2015-11-07T12:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/arch-linux/</loc>
+    <lastmod>2015-12-21T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/boost/</loc>
+    <lastmod>2015-12-22T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/gcc/</loc>
+    <lastmod>2015-12-22T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/jetson-tx1/</loc>
+    <lastmod>2017-01-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/macos/</loc>
+    <lastmod>2015-12-22T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/os-development/</loc>
     <lastmod>2017-04-24T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -25,8 +205,26 @@
   </url>
   
   <url>
+    <loc>/tags/program-semantics/</loc>
+    <lastmod>2016-12-31T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/programming/</loc>
-    <lastmod>2017-04-24T00:00:00+00:00</lastmod>
+    <lastmod>2017-01-09T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/raspberry-pi/</loc>
+    <lastmod>2015-12-21T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/rust/</loc>
+    <lastmod>2017-01-09T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -38,7 +236,7 @@
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2017-04-24T00:00:00+00:00</lastmod>
+    <lastmod>2015-12-21T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

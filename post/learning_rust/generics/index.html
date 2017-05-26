@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.21" />
+
+  <title>Learning Rust - Generics &middot; TIL</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Learning Rust - Generics</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>25 Dec 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+
+<p>今回はRustのジェネリクスのはなしです。
+ジェネリクスがでてくると、佳境に入った気がしますね。</p>
+
+<p>私はC++でテンプレートに慣れているので、
+Rustのジェネリクスもスムーズに学べました。</p>
+
+<h2 id="generics">Generics</h2>
+
+<p>Rustの標準ライブラリには、たとえば<code>Option&lt;T&gt;</code>という型があります。
+ある正常な値をもっているか、あるいは不正かの情報をもち、
+<code>Option&lt;T&gt;</code>をつかうとエラー処理に統一感がでます。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">enum</span> <span style="color: #f8f8f2">Option</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    Some(T),</span>
+<span style="color: #f8f8f2">    None,</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> x</span>: <span style="color: #f8f8f2">Option</span><span style="color: #f92672">&lt;</span><span style="color: #66d9ef">i32</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> Some(</span><span style="color: #ae81ff">5</span><span style="color: #f8f8f2">);</span>
+</pre></div>
+
+<p><code>&lt;T&gt;</code>がジェネリクスを表しています。
+このenumはいろんな型<code>T</code>のバージョンをつくることができるというわけです。
+正常な値をあらわす<code>Some</code>に、おなじ<code>T</code>型の値をいれます。</p>
+
+<p>標準ライブラリに、他には<code>Result&lt;T, E&gt;</code>という型もあります。
+これは<code>Option&lt;T&gt;</code>に使う場面が似ていますが、
+エラーだった場合の情報を増やすために、エラーを表すstructが、
+単なるunit-like structではなく、tuple structになっています。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">enum</span> <span style="color: #f8f8f2">Result</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T, E</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    Ok(T),</span>
+<span style="color: #f8f8f2">    Err(E),</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<p>このように、二つ以上のパラメータをもったジェネリクス型もつくれます。</p>
+
+<h3 id="generic-functions">Generic functions</h3>
+
+<p>Enumだけでなく、ジェネリックな関数もつくれます。
+Syntaxは以下です。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">takes_anything</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(x</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #75715e">// do something with x</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<p>もちろん複数の引数をとったり、パラメータが複数になったりもできます。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">takes_two_of_the_same_things</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(x</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">, y</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #75715e">// ...</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">takes_two_things</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T, U</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(x</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">, y</span>: <span style="color: #a6e22e">U</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #75715e">// ...</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<p>ジェネリックな関数を呼ぶときは、型は推論されるようです。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">main</span><span style="color: #f8f8f2">() {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">trait</span><span style="color: #f8f8f2"> Printable {</span>
+<span style="color: #f8f8f2">        </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">print</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self);</span>
+<span style="color: #f8f8f2">    }</span>
+
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">impl</span><span style="color: #f8f8f2"> Printable </span><span style="color: #66d9ef">for</span><span style="color: #f8f8f2"> </span><span style="color: #66d9ef">i32</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">        </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">print</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self) {</span>
+<span style="color: #f8f8f2">            println</span><span style="color: #f92672">!</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;{}&quot;</span><span style="color: #f8f8f2">, self);</span>
+<span style="color: #f8f8f2">        }</span>
+<span style="color: #f8f8f2">    }</span>
+
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">impl</span><span style="color: #f8f8f2"> Printable </span><span style="color: #66d9ef">for</span><span style="color: #f8f8f2"> </span><span style="color: #66d9ef">f64</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">        </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">print</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self) {</span>
+<span style="color: #f8f8f2">            println</span><span style="color: #f92672">!</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;{}&quot;</span><span style="color: #f8f8f2">, self);</span>
+<span style="color: #f8f8f2">        }</span>
+<span style="color: #f8f8f2">    }</span>
+
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">takes_anything</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span>: <span style="color: #a6e22e">Printable</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(x</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">        x.print();</span>
+<span style="color: #f8f8f2">    }</span>
+
+<span style="color: #f8f8f2">    takes_anything(</span><span style="color: #ae81ff">1</span><span style="color: #f8f8f2">);</span>
+<span style="color: #f8f8f2">    takes_anything(</span><span style="color: #ae81ff">1.0</span><span style="color: #f8f8f2">);</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<p>ただし、実際によぶときは多くの場合、
+上のコードのようにtraitの定義が必要でしょう。
+Traitについては次回に紹介します。</p>
+
+<h3 id="generic-structs">Generic structs</h3>
+
+<p>さらにstructもジェネリクスが可能です。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">struct</span> <span style="color: #a6e22e">Point</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    x</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">,</span>
+<span style="color: #f8f8f2">    y</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">,</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> int_origin </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> Point { x</span>: <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">, y</span>: <span style="color: #ae81ff">0</span><span style="color: #f8f8f2"> };</span>
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> float_origin </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> Point { x</span>: <span style="color: #ae81ff">0.0</span><span style="color: #f8f8f2">, y</span>: <span style="color: #ae81ff">0.0</span><span style="color: #f8f8f2"> };</span>
+</pre></div>
+
+<p>これもパラメータは推論されるようですね。</p>
+
+<p>メソッドを定義するときは、<code>impl&lt;T&gt;</code>と書きます。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">impl</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> Point</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">swap</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #66d9ef">mut</span><span style="color: #f8f8f2"> self) {</span>
+<span style="color: #f8f8f2">        std</span>::<span style="color: #f8f8f2">mem</span>::<span style="color: #f8f8f2">swap(</span><span style="color: #f92672">&amp;</span><span style="color: #66d9ef">mut</span><span style="color: #f8f8f2"> self.x, </span><span style="color: #f92672">&amp;</span><span style="color: #66d9ef">mut</span><span style="color: #f8f8f2"> self.y);</span>
+<span style="color: #f8f8f2">    }</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<hr />
+
+<p>ジェネリクスは強力で、なくてはならない機能ですが、
+一方であらゆる型を受け入れたりすると、すぐに「爆発」してしまいます。
+C++で、とんでもなく長くわかりにくい、
+テンプレートのエラーメッセージに遭遇したかたも多いでしょう。</p>
+
+<p>これを防ぐため、ジェネリクスが受け取れる型になんらかの条件を設定するのが、
+次回扱うtraitです。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learning_rust/method_syntax/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learning_rust/method_syntax/">Learning Rust - Method Syntax</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learning_rust/traits/">Learning Rust - Traits</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learning_rust/traits/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

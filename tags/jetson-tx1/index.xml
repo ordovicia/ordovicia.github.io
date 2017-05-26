@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Jetson Tx1 on TIL</title>
+    <link>/tags/jetson-tx1/</link>
+    <description>Recent content in Jetson Tx1 on TIL</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2017. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 20 Jan 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/jetson-tx1/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Jetson TX1 initial setup</title>
+      <link>/post/jetson_tx1_initial_setup/</link>
+      <pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/jetson_tx1_initial_setup/</guid>
+      <description>Jetson TX1を買いました。 セットアップの手順を記録しておきます。 JetPackを使ったインストール ホストOSはUbuntu14.04を使います。</description>
+    </item>
+    
+  </channel>
+</rss>

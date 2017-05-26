@@ -7,26 +7,98 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Mon, 24 Apr 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 21 Dec 2015 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Osdev</title>
-      <link>/tags/osdev/</link>
+      <title>Arch Linux</title>
+      <link>/tags/arch-linux/</link>
+      <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/arch-linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Boost</title>
+      <link>/tags/boost/</link>
+      <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/boost/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Gcc</title>
+      <link>/tags/gcc/</link>
+      <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/gcc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Jetson Tx1</title>
+      <link>/tags/jetson-tx1/</link>
+      <pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/jetson-tx1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Macos</title>
+      <link>/tags/macos/</link>
+      <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/macos/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Os Development</title>
+      <link>/tags/os-development/</link>
       <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
       
-      <guid>/tags/osdev/</guid>
+      <guid>/tags/os-development/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Program Semantics</title>
+      <link>/tags/program-semantics/</link>
+      <pubDate>Sat, 31 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/program-semantics/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Programming</title>
       <link>/tags/programming/</link>
-      <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
       
       <guid>/tags/programming/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Raspberry Pi</title>
+      <link>/tags/raspberry-pi/</link>
+      <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/raspberry-pi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Rust</title>
+      <link>/tags/rust/</link>
+      <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/rust/</guid>
       <description></description>
     </item>
     

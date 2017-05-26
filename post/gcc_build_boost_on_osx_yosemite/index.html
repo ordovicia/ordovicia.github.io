@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.21" />
+
+  <title>Building Boost with GCC on OSX Yosemite &middot; TIL</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Building Boost with GCC on OSX Yosemite</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>22 Dec 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/gcc">GCC</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/boost">Boost</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/macos">macOS</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<p>Mac OSX Yosemite(10.10.5)上で、
+Boost1.60.0をGCC5.3でビルドするのが大変だったので記録しておきます。</p>
+
+<h1 id="背景">背景</h1>
+
+<p>GCCでビルドしているプロジェクトがあって、
+それにBoost.Program_optionsをつかっています。
+HomebrewをつかえばBoostは簡単にインストールできます。
+しかし、HomebrewでインストールしたBoostは、Clangでビルドされていて、
+GCCでビルドしたコードとうまくリンクできませんでした。
+（参考：<a href="http://stackoverflow.com/questions/19912862/compiling-boostprogram-options-on-mac-os-x-with-g-4-8-mac-ports">Compiling boost::program_options on Mac OS X with g++ 4.8 (Mac Ports) &ndash; stackoverflow</a>)</p>
+
+<p>そこで、GCCをつかいBoostを自分でビルドすることにしました。</p>
+
+<p>なお、MacPortsを使っているかたは、参考に挙げたページに従えば、
+GCCでビルドされたBoostがインストールできるようです。</p>
+
+<p>Homebrewを使う方法はいくつか目にしたのですが、
+情報が古かったせいか、うまくいきませんでした。</p>
+
+<h1 id="手順">手順</h1>
+
+<h2 id="homebrewでインストールしたboostを削除">HomebrewでインストールしたBoostを削除</h2>
+
+<p>まず、HomebrewですでにインストールしてあるBoostがあったので、
+それをアンインストールします。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ brew uninstall boost
+</pre></div>
+
+<h2 id="boostダウンロード">Boostダウンロード</h2>
+
+<p>まずは<a href="http://www.Boost.org/">Boost公式ページ</a>から、最新版を落としてきます。
+この時点では1.60.0が最新でした。
+適当に展開します。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ tar xjvf boost_1_60_0.tar.bz2
+</pre></div>
+
+<p>（余談ですが、<code>tar</code>のオプションとか覚えきれないので、
+zshのsuffix aliasを使っています。
+そのため、実際には上のコマンドは打ち込んでいません。
+参考：<a href="http://itchyny.hatenablog.com/entry/20130227/1361933011">zshのalias -s (suffix alias)が神な件 &ndash; プログラムモグモグ</a>）</p>
+
+<h2 id="gccの確認">GCCの確認</h2>
+
+<p>GCC自体は、Homebrewでインストールしたものをつかっています。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ which g++
+g++: aliased to g++-5 -std<span style="color: #f92672">=</span>c++11 -Wall -Wextra -Wconversion
+
+$ g++-5 -v
+Using built-in specs.
+<span style="color: #f8f8f2">COLLECT_GCC</span><span style="color: #f92672">=</span>gcc-5
+<span style="color: #f8f8f2">COLLECT_LTO_WRAPPER</span><span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
+Target: x86_64-apple-darwin14.5.0
+Configured with: ../configure --build<span style="color: #f92672">=</span>x86_64-apple-darwin14.5.0 --prefix<span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0 --libdir<span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages<span style="color: #f92672">=</span>c,c++,objc,obj-c++,fortran --program-suffix<span style="color: #f92672">=</span>-5 --with-gmp<span style="color: #f92672">=</span>/usr/local/opt/gmp --with-mpfr<span style="color: #f92672">=</span>/usr/local/opt/mpfr --with-mpc<span style="color: #f92672">=</span>/usr/local/opt/libmpc --with-isl<span style="color: #f92672">=</span>/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time<span style="color: #f92672">=</span>yes --enable-stage1-checking --enable-checking<span style="color: #f92672">=</span>release --enable-lto --with-build-config<span style="color: #f92672">=</span>bootstrap-debug --disable-werror --with-pkgversion<span style="color: #f92672">=</span><span style="color: #e6db74">&#39;Homebrew gcc 5.3.0&#39;</span> --with-bugurl<span style="color: #f92672">=</span>https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
+Thread model: posix
+gcc version <span style="color: #ae81ff">5</span>.3.0 <span style="color: #f92672">(</span>Homebrew gcc <span style="color: #ae81ff">5</span>.3.0<span style="color: #f92672">)</span>
+</pre></div>
+
+<h2 id="gccでビルドするように設定">GCCでビルドするように設定</h2>
+
+<p>このままだとOSXにプリインストールされているclangでビルドされてしまうので、
+設定します。
+これが本当にわかりにくくて大変でした。</p>
+
+<p>まず、いま展開した<code>boost_1_60_0</code>ディレクトリにはいって、
+<code>tools/build/example/user-config.jam</code>を開きます
+（なんでこんなところに設定ファイルがあるんでしょうね）。</p>
+
+<p>40行目くらいに、<code>GCC configuration</code>の部分があるので、</p>
+
+<pre><code># ------------------
+# GCC configuration.
+# ------------------
+
+# Configure gcc (default version).
+# using gcc ;
+
+# Configure specific gcc version, giving alternative name to use.
+using gcc : 5 : g++-5 ;
+</code></pre>
+
+<p>のように、最後の行を書き換えます。</p>
+
+<h2 id="ビルド">ビルド</h2>
+
+<p><code>bootstrap.sh</code>に、ビルドにつかうコンパイラを教えます。
+<code>g++</code>ではなく<code>gcc</code>のようです。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ./bootstrap.sh --with-toolset<span style="color: #f92672">=</span>gcc --with-libraries<span style="color: #f92672">=</span>all
+</pre></div>
+
+<p>そしてビルドです。
+<code>toolset</code>にバージョンも合わせてコンパイラを指定します。
+ここでも<code>g++-5</code>ではなく、<code>gcc-5</code>のようです。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ./b2 <span style="color: #f8f8f2">toolset</span><span style="color: #f92672">=</span>gcc-5 <span style="color: #f8f8f2">cxxflags</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;-std=c++11&quot;</span> --with<span style="color: #f92672">=</span>all -link<span style="color: #f92672">=</span>static,shared runtime-link<span style="color: #f92672">=</span>shared <span style="color: #f8f8f2">threading</span><span style="color: #f92672">=</span>multi <span style="color: #f8f8f2">variant</span><span style="color: #f92672">=</span>release --stagedir<span style="color: #f92672">=</span><span style="color: #e6db74">&quot;stage/gcc&quot;</span> -j5
+</pre></div>
+
+<p><code>ps</code>してみて<code>g++-5</code>が使われているようだったら成功です。
+<code>-j5</code>したので15分くらいですみました。</p>
+
+<h2 id="インストール">インストール</h2>
+
+<p>最後にインストールです。
+<code>boost</code>ディレクトリにヘッダが、
+先ほど生成した<code>stages/gcc/lib</code>にライブラリがあるので、
+適当なところにコピーします。
+<code>$ ./b2 install</code>してもいいかもしれません。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learning_rust/match_and_patterns/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learning_rust/match_and_patterns/">Learning Rust - Match and Patterns</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learning_rust/vectors_and_strings/">Learning Rust - Vectors and Strings</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learning_rust/vectors_and_strings/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

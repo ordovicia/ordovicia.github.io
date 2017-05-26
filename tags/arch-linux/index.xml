@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Arch Linux on TIL</title>
+    <link>/tags/arch-linux/</link>
+    <description>Recent content in Arch Linux on TIL</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2017. All rights reserved.</copyright>
+    <lastBuildDate>Mon, 21 Dec 2015 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/arch-linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Arch Linux on Raspberry Pi 2 - Setup for Development</title>
+      <link>/post/arch_raspi/devel_setup/</link>
+      <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/arch_raspi/devel_setup/</guid>
+      <description>開発環境のセットアップ 前回作成したユーザーcyanで作業します。 基本的な開発用ソフトウェア群 まずは基本的なソフトウェア群をインストールします</description>
+    </item>
+    
+    <item>
+      <title>Arch Linux on Raspberry Pi 2 - Initial Setup</title>
+      <link>/post/arch_raspi/initial_setup/</link>
+      <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/arch_raspi/initial_setup/</guid>
+      <description>先日Raspberry Pi 2を買いました。 試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。 Arch Linux</description>
+    </item>
+    
+  </channel>
+</rss>

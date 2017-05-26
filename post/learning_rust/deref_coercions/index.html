@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.21" />
+
+  <title>Learning Rust - Deref Coercions &middot; TIL</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Learning Rust - Deref Coercions</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>03 Jan 2016</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+
+<h2 id="deref-coercions"><code>Deref</code> coercions</h2>
+
+<p>前回はtraitによる演算子のoverloadを扱いました。
+Overloadできる演算子には、間接参照演算子<code>*</code>を実装する、<code>Deref</code>traitがあります。
+この<code>Deref</code>traitはユーザー定義ポインタ型の間接参照に使えますが、
+すこし特別な機能も持っています。</p>
+
+<p>まずは普通の使いかたから。
+<code>DerefExample</code>というポインタっぽい型を定義し、<code>Deref</code>traitをimplします。
+間接参照先の型を<code>Target</code>というassociation typeに指定します。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">use</span><span style="color: #f8f8f2"> std</span>::<span style="color: #f8f8f2">ops</span>::<span style="color: #f8f8f2">Deref;</span>
+
+<span style="color: #66d9ef">struct</span> <span style="color: #a6e22e">DerefExample</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    value</span>: <span style="color: #a6e22e">T</span><span style="color: #f8f8f2">,</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">impl</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> Deref </span><span style="color: #66d9ef">for</span><span style="color: #f8f8f2"> DerefExample</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">T</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">type</span> <span style="color: #a6e22e">Target</span><span style="color: #f8f8f2"> </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> T;</span>
+
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">deref</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self) </span>-&gt; <span style="color: #66d9ef">&amp;</span><span style="color: #a6e22e">T</span><span style="color: #f8f8f2"> {</span>
+<span style="color: #f8f8f2">        </span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self.value</span>
+<span style="color: #f8f8f2">    }</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">main</span><span style="color: #f8f8f2">() {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> x </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> DerefExample { value</span>: <span style="color: #e6db74">&#39;a&#39;</span><span style="color: #f8f8f2"> };</span>
+<span style="color: #f8f8f2">    assert_eq</span><span style="color: #f92672">!</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&#39;a&#39;</span><span style="color: #f8f8f2">, </span><span style="color: #f92672">*</span><span style="color: #f8f8f2">x);</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+
+<p>それでは<code>Deref</code>の何が特別かというと、次のようなルールがあります。</p>
+
+<p>型<code>U</code>に対して、<code>Deref&lt;Target = T&gt;</code>をimplすると、<code>&amp;U</code>型の値は暗黙的に<code>&amp;T</code>に変換できる。</p>
+
+<p>例を見てみます。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">foo</span><span style="color: #f8f8f2">(s</span>: <span style="color: #66d9ef">&amp;str</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #75715e">//</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> owned </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> </span><span style="color: #e6db74">&quot;Hello&quot;</span><span style="color: #f8f8f2">.to_string(); </span><span style="color: #75715e">// owned: String</span>
+
+<span style="color: #75715e">// String implements Deref&lt;Target = str&gt;</span>
+<span style="color: #75715e">// Thus, &amp;String will coerced to &amp;str</span>
+<span style="color: #f8f8f2">foo(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">owned);</span>
+</pre></div>
+
+<p><code>String</code>は<code>Deref&lt;Target = str&gt;</code>をimplされているので、
+<code>&amp;String</code>は暗黙的に<code>&amp;str</code>に変換され、<code>foo()</code>に渡されます。</p>
+
+<p>他には、リファレンスカウンタをもつ<code>Rc&lt;T&gt;</code>型は、<code>Deref&lt;Target = T&gt;</code>をimplされています。
+よって、<code>&amp;Rc&lt;T&gt;</code>型の値は暗黙的に<code>&amp;T</code>型にキャストできます。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">use</span><span style="color: #f8f8f2"> std</span>::<span style="color: #f8f8f2">rc</span>::<span style="color: #f8f8f2">Rc;</span>
+
+<span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">foo</span><span style="color: #f8f8f2">(s</span>: <span style="color: #66d9ef">&amp;str</span><span style="color: #f8f8f2">) {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #75715e">//</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> owned </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> </span><span style="color: #e6db74">&quot;Hello&quot;</span><span style="color: #f8f8f2">.to_string(); </span><span style="color: #75715e">// owned: String</span>
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> counted </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> Rc</span>::<span style="color: #f8f8f2">new(owned); </span><span style="color: #75715e">// counted: Rc&lt;String&gt;</span>
+
+<span style="color: #f8f8f2">foo(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">counted); </span><span style="color: #75715e">// &amp;Rc&lt;String&gt; -&gt; &amp;String -&gt; &amp;str</span>
+</pre></div>
+
+<p>この例では、<code>&amp;Rc&lt;String&gt;</code>から<code>&amp;String</code>を経て<code>&amp;str</code>へ、二段階のキャストが起こっています。</p>
+
+<h3 id="deref-and-method-calls">Deref and method calls</h3>
+
+<p>もう一つ、<code>Deref</code>には特別な機能があります。
+それは、メソッドをよぶときは<code>*</code>を省略して、間接参照できるということです。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">struct</span> <span style="color: #a6e22e">Foo</span><span style="color: #f8f8f2">;</span>
+
+<span style="color: #66d9ef">impl</span><span style="color: #f8f8f2"> Foo {</span>
+<span style="color: #f8f8f2">    </span><span style="color: #66d9ef">fn</span> <span style="color: #a6e22e">foo</span><span style="color: #f8f8f2">(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">self) { println</span><span style="color: #f92672">!</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;Foo&quot;</span><span style="color: #f8f8f2">); }</span>
+<span style="color: #f8f8f2">}</span>
+
+<span style="color: #66d9ef">let</span><span style="color: #f8f8f2"> f </span><span style="color: #f92672">=</span><span style="color: #f8f8f2"> </span><span style="color: #f92672">&amp;&amp;</span><span style="color: #f8f8f2">Foo;</span>
+
+<span style="color: #f8f8f2">f.foo();</span>
+</pre></div>
+
+<p><code>f</code>は<code>&amp;&amp;Foo</code>型ですが、<code>&amp;Foo</code>をとるメソッドが呼べます。
+これは、コンパイラが自動的に<code>*</code>を挿入してくれるからです。
+<code>*</code>は必要なだけ挿入されるので、<code>(&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;f).foo()</code>みたいなのもコンパイルできます。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learning_rust/operators_and_overloading/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learning_rust/operators_and_overloading/">Learning Rust - Operators and Overloading</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learning_rust/lifetime/">Learning Rust - Lifetime</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learning_rust/lifetime/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

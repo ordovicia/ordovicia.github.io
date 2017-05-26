@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.21" />
+
+  <title>Jetson TX1 initial setup &middot; TIL</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Jetson TX1 initial setup</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>20 Jan 2017</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/jetson-tx1">Jetson TX1</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<p>Jetson TX1を買いました。
+セットアップの手順を記録しておきます。</p>
+
+<h1 id="jetpackを使ったインストール">JetPackを使ったインストール</h1>
+
+<p>ホストOSはUbuntu14.04を使います。
+最初Ubuntu16.04で試したのですが、OpenCV4Tegraのビルドに失敗したので、14.04で作業しました。</p>
+
+<p>ホストPCで、TX1用の最新のJetPackをダウンロードし、マニュアルに従ってインストールします。
+デフォルトの構成だと10GBほどダウンロードされるので、ネットワーク速度が十分な環境で作業しましょう。</p>
+
+<p>インストール後、Jetsonの電源を入れ直して、</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ssh ubuntu@tegra-ubuntu.local
+</pre></div>
+
+<p>でログインできればOKです。</p>
+
+<h1 id="リカバリー用sdカード作成">リカバリー用SDカード作成</h1>
+
+<p>SDカードをさし、マウントします。/dev/mmcblk1がSDカードになっています。
+ext4でフォーマットします。</p>
+
+<p><a href="https://developer.nvidia.com/embedded/downloads">NVIDIA</a>から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ sudo tar -vxjf &lt;Driver Package&gt;
+$ <span style="color: #f8f8f2">cd</span> Linux_for_Tegra/rootfs
+$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
+$ <span style="color: #f8f8f2">cd</span> ..
+$ sudo ./apply_binaries.sh
+</pre></div>
+
+<p>を実行します。
+SDカードにrootfs以下をまるごとコピーすると完了です。
+このときroot権限で操作しないと、sudoがつかえなくなって詰みます。</p>
+
+<p>JetsonTX1は、eMMCの/boot/extlinux/extlinux.confを読んでブートディスクを選択します。
+これを編集し、SDカードからブートするようにします。
+具体的には、<code>LABEL primary</code>以下をファイル末尾にコピペして、<code>LABEL sdcard</code>にかえ、最後のほうにある<code>root=/dev/mmcblk0p1</code>を、<code>root=/dev/mmcblk1p1</code>に変えます。
+最後に、二行目の<code>DEFAULT primary</code>を<code>DEFAULT sdcard</code>にして、再起動します。</p>
+
+<p>起動後、<code>df</code>などでディスクを確認しておきます。</p>
+
+<h1 id="ssdからのブート">SSDからのブート</h1>
+
+<p>SDカードからブートしたとき、eMMCには/dev/mmcblk0p1からアクセスできます。
+SATAポートに繋いだSSDは/dev/sdaに見えます。
+ともにマウントしたあと、/dev/mmcblk0p1を/dev/sda1にまるごとコピーして、eMMCの/boot/extlinux/extlinux.confを編集して終わりです。</p>
+
+<h1 id="wi-fiアクセスポイント設定">Wi-Fiアクセスポイント設定</h1>
+
+<p>JetsonTX1は、単体でWi-Fiのアクセスポイントになることが出来ます。
+<code>/etc/modprobe.d/bcmdhd.conf</code>に、</p>
+
+<pre><code>options bcmdhd op_mode=2
+</code></pre>
+
+<p>と追記してから、<a href="https://seravo.fi/2014/create-wireless-access-point-hostapd">これ</a>に従って設定します。
+パスフレーズを8文字以上にすることと、WPAをパーソナルモード(PSK, PSK-SHA-256)にすることに注意しましょう。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/implementing_patricia_tree_in_rust/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/implementing_patricia_tree_in_rust/">Implementing Patricia Tree in Rust</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/introducing_xv6/">Introducing xv6</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/introducing_xv6/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+
