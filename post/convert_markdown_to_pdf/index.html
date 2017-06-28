@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="generator" content="Hugo 0.24.1" />
 
-  <title>Well-founded ordered set &middot; TIL</title>
+  <title>Convert Markdown to PDF &middot; TIL</title>
 
   
   
@@ -196,7 +196,7 @@
 
 
 <div class="header">
-  <h1>Well-founded ordered set</h1>
+  <h1>Convert Markdown to PDF</h1>
   <h2></h2>
 </div>
 <div class="content">
@@ -205,7 +205,7 @@
 
   <div>
     <i class="fa fa-calendar fa-fw"></i>
-    <time>31 Dec 2016</time>
+    <time>29 Jun 2017</time>
   </div>
 
   
@@ -218,7 +218,7 @@
   <div>
     <i class="fa fa-tags fa-fw"></i>
     
-      <a class="post-taxonomy-tag" href="/tags/program-semantics">Program semantics</a>
+      <a class="post-taxonomy-tag" href="/tags/tools">Tools</a>
     
   </div>
   
@@ -228,111 +228,110 @@
 
   
 
-<p>五十嵐淳『プログラミング言語の基礎概念』を読んでいます。</p>
+<p><a href="https://hackmd.io">HackMD</a> というサービスをよく使っています。
+これで書いたものをPDF化したくなったことがあったので、その方法について調べたことをメモしておきます。</p>
 
-<h2 id="整礎順序集合">整礎順序集合</h2>
-
-<p>集合とその上の順序が整礎であるとは、（真の）無限降下列が存在しないことをいいます。
-厳密な定義は以下です。</p>
-
-<hr />
-
-<p>整礎順序集合(well-founded ordered set)とは、集合 $X$ とその上の二項関係 $\prec \subseteq X \times X$ の組 $(X, \prec)$ で、
-$X$ の任意の空でない部分集合 $S$ が、順序 $\prec$ について極小元をもつこと。</p>
+<p>もともとHackMDにはPDFでエクスポートする機能があったのですが、
+サーバー負荷が重かったため、現在は削除されています。
+PDF化機能を追加するという<a href="https://github.com/hackmdio/hackmd/issues/33">issue</a>は存在していて、
+開発は続けていらっしゃるようです。</p>
 
 <hr />
 
-<p>ちなみに、$x \in X$ が $\prec$ に関して $X$ の極小元であるとは、
-$\forall y \in X . y \nprec x$ であることを言います。</p>
+<p>HackMDにかぎらずMarkdownをPDF化する方法には、少なくとも以下のものがあります。
+このようなサービスやMarkdownエディタは数え切れないほどあり（逆に言うと標準的なのがないのですが）、
+方法は他にもたくさんあると思います。</p>
 
-<h2 id="整礎帰納法">整礎帰納法</h2>
+<h3 id="markdown-html">Markdown -&gt; HTML</h3>
 
-<p>整礎順序集合について、次のような帰納法を考えることが出来ます。</p>
+<ul>
+<li>Atomで開いてHTMLで保存
+
+<ul>
+<li>MathJaxが使る</li>
+<li>リアルタイムプレビュー</li>
+<li>ほかのMarkdownエディタも同じようなもの？</li>
+</ul></li>
+<li>Gist
+
+<ul>
+<li>数式が使えない</li>
+</ul></li>
+<li><a href="https://github.com/joeyespo/grip">grip</a>
+
+<ul>
+<li>GitHubのAPIに投げてレンダリングするので、結果はおよそGistと同じ</li>
+<li>だが、gripはソースをいじったりAPIを使ったりすることで自分でカスタマイズでき、例えばMathJaxを使ったりもできる</li>
+</ul></li>
+<li><a href="http://pandoc.org/">pandoc</a>
+
+<ul>
+<li>CSSで見た目をカスタマイズできる</li>
+<li>デフォルトだとあまり見栄えしない</li>
+<li>HackMDの拡張Markdow記法（の多く）が扱える</li>
+</ul></li>
+</ul>
+
+<h3 id="html-pdf">HTML -&gt; PDF</h3>
+
+<ul>
+<li>ブラウザの印刷機能
+
+<ul>
+<li>見た目が変わることがある</li>
+</ul></li>
+<li><a href="https://wkhtmltopdf.org/">wkhtmltopdf</a>
+
+<ul>
+<li>見た目が変わることがある</li>
+<li>動作が遅い</li>
+</ul></li>
+</ul>
+
+<h3 id="markdown-pdf">Markdown -&gt; PDF</h3>
+
+<ul>
+<li>pandoc + LaTeX</li>
+<li>pandoc + wkhtmltopdf</li>
+<li><a href="https://www.npmjs.com/package/markdown-pdf">markdown-pdf</a>
+
+<ul>
+<li>見た目の調整が面倒</li>
+</ul></li>
+</ul>
 
 <hr />
 
-<p>整礎帰納法の原理とは、整礎順序集合 $(X, \prec)$ と $X$ の元に関する述語 $P$ が与えられたとき、</p>
-
-<p>$$
-\forall x \in X . P(x) \Leftrightarrow
-\forall x \in X . (\forall y \in X . y \prec x \Rightarrow P(y)) \Rightarrow P(x)
-$$</p>
-
-<hr />
-
-<p>整礎順序集合について、</p>
+<p>いろいろ試したところでは、</p>
 
 <ul>
-<li>すべての元がある述語をみたすこと</li>
-<li>すべての元について、「その元より小さいすべての元が述語をみたすならば、その元についても述語が成り立つ」</li>
+<li>CSSで見た目を調節しながら、pandocでHTMLを出力し、</li>
+<li>ブラウザの印刷機能でPDFに変換する</li>
 </ul>
 
-<p>が同値だということです。無限降下列がないということが、この原理の正当性に重要な要素となっています。</p>
+<p>のがベストかなと思いました。
+この方法ならHackMDの拡張記法も扱えるようです。</p>
 
-<h2 id="整礎帰納法の特殊ケース">整礎帰納法の特殊ケース</h2>
+<p>CSSはよくわからないので、<a href="https://gist.github.com/andyferra/2554919">github.css</a> をそのまま使わせてもらいました。</p>
 
-<p>よく知られる数学的帰納法などは、この整礎帰納法の特別なケースとなっています。</p>
+<p>Pandocは次のように使います。</p>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ pandoc -s --mathjax -c github.css
+</pre></div>
 
-<h4 id="数学的帰納法">数学的帰納法</h4>
-
-<p>整礎帰納法の原理において、</p>
-
-<ul>
-<li>$X$ として自然数の集合（0を含む）</li>
-<li>$\prec$ として $n \prec m \Leftrightarrow m = n + 1$</li>
-</ul>
-
-<p>とすれば、</p>
-
-<ul>
-<li>$P(0)$ と、</li>
-<li>$P(k)$ を仮定した上での $P(k + 1)$</li>
-</ul>
-
-<p>を示すことで、任意の自然数について $P$ が成り立つことを証明する数学的帰納法となります。
-$(\mathbb{N}, \prec)$ が整礎順序集合となっていることが重要です。</p>
-
-<ul>
-<li>$\prec$ として自然数上の通常の大小関係</li>
-</ul>
-
-<p>をとれば、</p>
-
-<ul>
-<li>$P(0), P(1), \ldots , P(k)$ を仮定した上での $P(k + 1)$</li>
-</ul>
-
-<p>を示すことによる数学的帰納法となります。</p>
-
-<h4 id="構造に関する帰納法">構造に関する帰納法</h4>
-
-<p>ペアノ自然数</p>
-
-<p>$$
-n \in \mathrm{Nat} ::= Z\ |\ S(n)
-$$</p>
-
-<p>の構造に関して、</p>
-
-<ul>
-<li>$X$ として $\mathrm{Nat}$</li>
-<li>$\prec$ として $n \prec m \Leftrightarrow m \equiv S(n)$</li>
-</ul>
-
-<p>をとれば、ペアノ自然数の構造に関する帰納法となります。</p>
+<p>追加で、<code>--indented-code-classes</code> でコードハイライトを有効にしたり、<code>-H, -B, -A</code> でヘッダ・フッタを指定すると満足度の高いPDFが得られます。</p>
 
 
   
 <div class="prev-next-post pure-g">
   <div class="pure-u-1-24" style="text-align: left;">
     
-    <a href="/post/atomic_operation_overhead/"><i class="fa fa-chevron-left"></i></a>
+    <a href="/post/introducing_xv6/"><i class="fa fa-chevron-left"></i></a>
     
   </div>
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/atomic_operation_overhead/">Atomic operation overhead</a>
+      <a href="/post/introducing_xv6/">Introducing xv6</a>
     </nav>
     
   </div>
@@ -341,14 +340,8 @@ $$</p>
   </div>
   <div class="pure-u-10-24">
     
-    <nav class="next">
-      <a href="/post/implementing_patricia_tree_in_rust/">Implementing Patricia Tree in Rust</a>
-    </nav>
-    
   </div>
   <div class="pure-u-1-24" style="text-align: right;">
-    
-    <a href="/post/implementing_patricia_tree_in_rust/"><i class="fa fa-chevron-right"></i></a>
     
   </div>
 </div>
