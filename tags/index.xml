@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on TIL</title>
+    <title>Tags on 外部記憶</title>
     <link>/tags/</link>
-    <description>Recent content in Tags on TIL</description>
+    <description>Recent content in Tags on 外部記憶</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
@@ -27,6 +27,15 @@
       <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
       
       <guid>/tags/boost/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>/tags/c&#43;&#43;/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/c&#43;&#43;/</guid>
       <description></description>
     </item>
     
@@ -78,9 +87,18 @@
     <item>
       <title>Programming</title>
       <link>/tags/programming/</link>
-      <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
       
       <guid>/tags/programming/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Python</title>
+      <link>/tags/python/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/python/</guid>
       <description></description>
     </item>
     

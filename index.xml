@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>TIL</title>
+    <title>外部記憶</title>
     <link>/</link>
-    <description>Recent content on TIL</description>
+    <description>Recent content on 外部記憶</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Thu, 29 Jun 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 03 Jul 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>C&#43;&#43; - Python Interoperation</title>
+      <link>/post/cpp_python_interop/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/cpp_python_interop/</guid>
+      <description>C++とPythonを結ぶ方法について少し調べました。 コードは GitHub にあります。 バージョン情報 OS X El Capitan (10.11.6) CMake 3.8.2 g++ 7.1.0 Python 3.6.1 Boost 1.64.0 Call C++ from Python 主に二つの方法が</description>
+    </item>
     
     <item>
       <title>Convert Markdown to PDF</title>
