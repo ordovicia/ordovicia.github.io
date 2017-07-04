@@ -367,7 +367,7 @@ Python以外にも多くの言語に対応しています。</p>
 <p>ビルドにはCMakeを使うことにします。
 次のような<code>CMakeLists.txt</code>を用意してください。
 ここでは、<code>mod.cpp</code> をPythonモジュールとしてビルドし、<code>test_mod.py</code> から使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">cmake_minimum_required(</span><span style="color: #e6db74">VERSION</span> <span style="color: #e6db74">3.0.0</span><span style="color: #f8f8f2">)</span>
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">cmake_minimum_required(</span><span style="color: #e6db74">VERSION</span> <span style="color: #e6db74">3.8.0</span><span style="color: #f8f8f2">)</span>
 
 <span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">PythonInterp</span> <span style="color: #e6db74">3</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
 <span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">PythonLibs</span> <span style="color: #e6db74">3</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
