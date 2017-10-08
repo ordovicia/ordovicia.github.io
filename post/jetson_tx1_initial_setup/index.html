@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="generator" content="Hugo 0.29" />
 
-  <title>Jetson TX1 initial setup &middot; 外部記憶</title>
+  <title>Jetson TX1 initial setup &middot; External Storage</title>
 
   
   
@@ -246,7 +246,7 @@
 
 <h1 id="リカバリー用sdカード作成">リカバリー用SDカード作成</h1>
 
-<p>SDカードをさし、マウントします。/dev/mmcblk1がSDカードになっています。
+<p>SDカードをさし、マウントします。<code>/dev/mmcblk1</code>がSDカードになっています。
 ext4でフォーマットします。</p>
 
 <p><a href="https://developer.nvidia.com/embedded/downloads">NVIDIA</a>から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、</p>
@@ -257,21 +257,21 @@ ext4でフォーマットします。</p>
 </span><span style="">$ sudo ./apply_binaries.sh</span></code></pre>
 </div>
 <p>を実行します。
-SDカードにrootfs以下をまるごとコピーすると完了です。
+SDカードに<code>rootfs</code>以下をまるごとコピーすると完了です。
 このときroot権限で操作しないと、sudoがつかえなくなって詰みます。</p>
 
-<p>JetsonTX1は、eMMCの/boot/extlinux/extlinux.confを読んでブートディスクを選択します。
+<p>JetsonTX1は、eMMCの<code>/boot/extlinux/extlinux.conf</code>を読んでブートディスクを選択します。
 これを編集し、SDカードからブートするようにします。
 具体的には、<code>LABEL primary</code>以下をファイル末尾にコピペして、<code>LABEL sdcard</code>にかえ、最後のほうにある<code>root=/dev/mmcblk0p1</code>を、<code>root=/dev/mmcblk1p1</code>に変えます。
 最後に、二行目の<code>DEFAULT primary</code>を<code>DEFAULT sdcard</code>にして、再起動します。</p>
 
-<p>起動後、<code>df</code>などでディスクを確認しておきます。</p>
+<p>起動後、dfなどでディスクを確認しておきます。</p>
 
 <h1 id="ssdからのブート">SSDからのブート</h1>
 
-<p>SDカードからブートしたとき、eMMCには/dev/mmcblk0p1からアクセスできます。
-SATAポートに繋いだSSDは/dev/sdaに見えます。
-ともにマウントしたあと、/dev/mmcblk0p1を/dev/sda1にまるごとコピーして、eMMCの/boot/extlinux/extlinux.confを編集して終わりです。</p>
+<p>SDカードからブートしたとき、eMMCには<code>/dev/mmcblk0p1</code>からアクセスできます。
+SATAポートに繋いだSSDは<code>/dev/sda</code>に見えます。
+ともにマウントしたあと、<code>/dev/mmcblk0p1</code>を<code>/dev/sda1</code>にまるごとコピーして、eMMCの<code>/boot/extlinux/extlinux.conf</code>を編集して終わりです。</p>
 
 <h1 id="wi-fiアクセスポイント設定">Wi-Fiアクセスポイント設定</h1>
 
@@ -281,7 +281,7 @@ SATAポートに繋いだSSDは/dev/sdaに見えます。
 <pre><code>options bcmdhd op_mode=2
 </code></pre>
 
-<p>と追記してから、<a href="https://seravo.fi/2014/create-wireless-access-point-hostapd">これ</a>に従って設定します。
+<p>と追記してから、<a href="https://seravo.fi/2014/create-wireless-access-point-hostapd">こちら</a>に従って設定します。
 パスフレーズを8文字以上にすることと、WPAをパーソナルモード(PSK, PSK-SHA-256)にすることに注意しましょう。</p>
 
 
@@ -305,13 +305,13 @@ SATAポートに繋いだSSDは/dev/sdaに見えます。
   <div class="pure-u-10-24">
     
     <nav class="next">
-      <a href="/post/introducing_xv6/">Introducing xv6</a>
+      <a href="/post/convert_markdown_to_pdf/">Convert Markdown to PDF</a>
     </nav>
     
   </div>
   <div class="pure-u-1-24" style="text-align: right;">
     
-    <a href="/post/introducing_xv6/"><i class="fa fa-chevron-right"></i></a>
+    <a href="/post/convert_markdown_to_pdf/"><i class="fa fa-chevron-right"></i></a>
     
   </div>
 </div>

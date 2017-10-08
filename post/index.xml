@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 外部記憶</title>
+    <title>Posts on External Storage</title>
     <link>/post/</link>
-    <description>Recent content in Posts on 外部記憶</description>
+    <description>Recent content in Posts on External Storage</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
@@ -28,15 +28,6 @@
       
       <guid>/post/convert_markdown_to_pdf/</guid>
       <description>HackMD というサービスをよく使っています。 これで書いたものをPDF化したくなったことがあったので、その方法について調べたことをメモしておきます。 も</description>
-    </item>
-    
-    <item>
-      <title>Introducing xv6</title>
-      <link>/post/introducing_xv6/</link>
-      <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/post/introducing_xv6/</guid>
-      <description>xv6とは xv6は、MITで教材用に作られたコンパクトなOSです。 他のいくつかの大学でも使われているようです[xv6 - Wikipedia]。</description>
     </item>
     
     <item>
