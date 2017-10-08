@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.29" />
+
+  <title>Learning Rust - Variable Bindings and Functions &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Learning Rust - Variable Bindings and Functions</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>09 Nov 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+
+<p>前回に続いて、Rustのoverview的なチュートリアル&rdquo;Dining Philosophers&rdquo;を扱うつもりでしたが、
+&ldquo;Syntax and Semantics&rdquo;章も読み始め、そちらの記事を書いてしまったので、
+&ldquo;Dining Philosophers&rdquo;は次回に回します。</p>
+
+<p>というわけで、Rustの
+<a href="https://doc.rust-lang.org/book/syntax-and-semantics.html">syntaxとsemanticsを解説したページ</a>
+を読んでいきます。</p>
+
+<h2 id="variable-bindings">Variable Bindings</h2>
+
+<p>variable bindingについての節です。ややこしいところではないので簡単に読み進めます。</p>
+
+<p>variable bindingの宣言は、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span></code></pre>
+</div>
+<p>のようにlet statementをつかいます。<code>let</code>が受け入れるのは&rsquo;pattern&rsquo;であって、例えば</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">(</span><span style="">x</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">);</span></code></pre>
+</div>
+<p>のようにできます。このとき<code>x = 1, y = 2</code>となります。
+&lsquo;pattern&rsquo;については後の節で詳しく説明されるそうです。</p>
+
+<p>上の例では型を明示していませんでした。明示するには</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span></code></pre>
+</div>
+<p>のようにします。</p>
+
+<p>Rustのvariable bindingはデフォルトでimmutableなので、mutableにするには</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span></code></pre>
+</div>
+<p>のように<code>mut</code>指定します。不必要な<code>mut</code>指定があると、コンパイラが警告してくれるようです。</p>
+
+<p>最後に、Rustでは未初期化のvariable bindingはコンパイルエラーになります。例えば</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The value of x is: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">x</span><span style="">)</span></code></pre>
+</div>
+<p>はエラーです。</p>
+
+<p>以上でvariable bindingが簡単に説明されました。
+次に進みましょう。</p>
+
+<h2 id="functions">Functions</h2>
+
+<p>関数ですね。ここも難しい節ではないですが、Rustで重要な&rsquo;expressions&rsquo;と&rsquo;statements&rsquo;の
+違いが浮き彫りになってくるようです。</p>
+
+<p>関数は<code>fn</code>キーワードで宣言します。引数をとるには、関数名のあとの丸括弧<code>()</code>に名前と型を書きます。
+値を返すには<code>-&gt;</code>のあとに型を書きます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">sum</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">int32</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">int32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">x</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">y</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>といった具合です。
+Rustには型推論がありますが、引数の型は明示する必要があります。
+理由をはっきりと述べるのは難しいですが、関数がどんな型をうけとるかくらいはユーザーが
+予めわかっていたほうがいい、というの(が理由の一つなこと)はなんとなく理解できます。</p>
+
+<p>注目すべきは、<code>x + y</code>にセミコロン<code>;</code>がついていないことです。
+ここに、Rustがexpression-based languageであることが読み取れます。</p>
+
+<h3 id="expressions-vs-statements">Expressions vs. Statements</h3>
+
+<p>Rustはexpession-based languageです。statementには二種類あり、
+それ以外はすべてexpressionです。はじめにまとめておくと、次のようになるようです。</p>
+
+<ul>
+<li>expression</li>
+<li>statement
+
+<ul>
+<li>declaration statement</li>
+<li>expression statement</li>
+</ul></li>
+</ul>
+
+<p>違いを一言で言うと、expressionは値を返し、statementは返さない、ということらしいです。
+したがってstatementである<code>x + 1;</code>は値を返さず、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">add_one</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">x</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>はコンパイルエラーになります。</p>
+
+<p>まずはdeclaration statementについて、ドキュメントに載っている例を挙げてみます。</p>
+
+<ol>
+<li><code>let x = let y = 5</code>や<code>let x = (let y = 5);</code>はエラー</li>
+<li>宣言済みのvariable bindingへ再代入する、
+<code>rust
+let mut y = 5;
+let x = (y = 6);
+</code>
+はエラーではないが、<code>x</code>に空tuple<code>()</code>がassignされる。
+丸括弧<code>()</code>は必要ないので(コンパイル時に警告が出る)<code>let x = y = 6</code>とできるが、
+このときも<code>x</code>には空tupleがassignされる。
+<code>rust
+let mut x;
+x = y = 6;
+</code>
+も同様。</li>
+</ol>
+
+<p>まず1.について。let statementはstatementです。よって値を返さないので、
+他のlet statementに渡して代入することはできません。</p>
+
+<p>次に2.について。Rustではデータの所有権(ownership)を持つvariable bindingは一つのみです。
+よって<code>let x = (y = 6)</code>は、&rsquo;6&rsquo;のownershipを<code>x, y</code>両方に与えるのではなく
+<code>y</code>のみに与え、<code>x</code>にはexpressionである<code>y = 6</code>が返した<code>()</code>がassignされる、という
+仕組みのようです。</p>
+
+<p>なるほど、ややこしいですね。<code>x = y = 6</code>をエラーにせず、空tupleを代入する理由は何か
+あるのでしょうか？
+今のところはよくわかりませんが、ともかくownershipの概念が重要のようです。</p>
+
+<p>statementにはもう一種類あります。expresion statementです。
+これはexpressionをstatementに変換するもので、Rustコードのほとんどの行は
+statementでできている、と書いてありました。
+つまりexpressionをセミコロン<code>;</code>で区切ることでstatementにし、statementどうしを
+区別している、というわけです。
+これはC++などの言語でみられる文法ですね。</p>
+
+<p>そしてstatement以外がexpressionなのでした。
+上で述べたように、Rustコードのほとんどはstatementで、例外的なexpressionが、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">add_one</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">x</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>の<code>x + 1</code>という行です。もし<code>x + 1;</code>とすると、これはstatementになり、
+この関数は<code>()</code>を返すという意味になるそうです。</p>
+
+<p>そういえば私はRubyをすこし触ったことがあるのですが、
+Rubyでは関数の最後に評価された式の値が戻り値になるのでした。
+その話をきいたときは、Rubyは関数型の特徴ももっており、(引数でパラメータづけられた)関数は
+その戻り値と対応しているからそういう仕様なのか(あるいは単に利便性のためか)と考えていました。
+手続き型は<code>return</code>文という手続きを踏んで値を返し、関数型は関数と戻り値が等価なので
+戻り値を書くのみの文法にしている、という対応付けができそうだと思っています。</p>
+
+<h3 id="early-returns">Early returns</h3>
+
+<p>その<code>return</code>文ですが、マルチパラダイムなRustには当然用意されています。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="">x</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="color:#ae81ff">1</span><span style=""> </span><span style="color:#75715e">// we never run this line
+</span><span style="color:#75715e"></span><span style="">}</span></code></pre>
+</div>
+<p>このように書くと<code>return</code>で関数を抜けるという、慣れ親しんだ動作をするようです。</p>
+
+<h3 id="diverging-functions">Diverging functions</h3>
+
+<p>Rustには、&rsquo;diverging functions&rsquo;という特殊な関数があるそうです。
+まず、syntaxは以下のとおりです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">diverges</span><span style="">()</span><span style=""> </span><span style="">-&gt; </span><span style="color:#f92672">!</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">panic</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;This function never returns!&#34;</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>panic!()</code>はmacroの一つで、実行されるとそのスレッドがクラッシュします。
+この関数を呼ぶとクラッシュして値を返さないので、戻り値に<code>!</code>を書く、
+これが&rsquo;diverging functions&rsquo;というわけです。
+例外を投げるということでしょうね。catch方法はまだわかりませんが。</p>
+
+<p><code>panic!()</code>が実行されると、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"><span style="">thread ‘&lt;main&gt;’ panicked at ‘This function never returns!’, hello.rs:2</span></code></pre>
+</div>
+<p>のような出力を得ます。<code>panic!()</code>した、という情報だけでいいなら十分ですが、
+<code>RUST_BACKTRACE</code>という環境変数を設定すると、バックトレース情報がいっしょに出力されます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"><span style="">$ RUST_BACKTRACE=1 ./diverges
+</span><span style="">thread &#39;&lt;main&gt;&#39; panicked at &#39;This function never returns!&#39;, hello.rs:2
+</span><span style="">stack backtrace:
+</span><span style="">   1:     0x7f402773a829 - sys::backtrace::write::h0942de78b6c02817K8r
+</span><span style="">   2:     0x7f402773d7fc - panicking::on_panic::h3f23f9d0b5f4c91bu9w
+</span><span style="">   3:     0x7f402773960e - rt::unwind::begin_unwind_inner::h2844b8c5e81e79558Bw
+</span><span style="">   4:     0x7f4027738893 - rt::unwind::begin_unwind::h4375279447423903650
+</span><span style="">   5:     0x7f4027738809 - diverges::h2266b4c4b850236beaa
+</span><span style="">   6:     0x7f40277389e5 - main::h19bb1149c2f00ecfBaa
+</span><span style="">   7:     0x7f402773f514 - rt::unwind::try::try_fn::h13186883479104382231
+</span><span style="">   8:     0x7f402773d1d8 - __rust_try
+</span><span style="">   9:     0x7f402773f201 - rt::lang_start::ha172a3ce74bb453aK5w
+</span><span style="">  10:     0x7f4027738a19 - main
+</span><span style="">  11:     0x7f402694ab44 - __libc_start_main
+</span><span style="">  12:     0x7f40277386c8 - &lt;unknown&gt;
+</span><span style="">  13:                0x0 - &lt;unknown&gt;</span></code></pre>
+</div>
+<p><code>main()</code>から呼んだ<code>diverges()</code>で<code>panic!()</code>していることが読み取れます。
+この環境変数は<code>cargo run</code>にも使えるそうです。</p>
+
+<p>奇妙なことに、diverging functionはどんな型にも代入できるようです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">diverges</span><span style="">();</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="">String</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">diverges</span><span style="">();</span></code></pre>
+</div>
+<p>これどういう意味があるんでしょう？</p>
+
+<h3 id="function-pointers">Function pointers</h3>
+
+<p>関数をvariable bindingに代入することもできます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">plus_one</span><span style="">(</span><span style="">i</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">i</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">f</span><span style="">: </span><span style="color:#a6e22e">fn</span><span style="">(</span><span style="color:#66d9ef">i32</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">plus_one</span><span style="">;</span><span style=""> </span><span style="color:#75715e">// 明示的な型指定
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">f</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">plus_one</span><span style="">;</span><span style=""> </span><span style="color:#75715e">// 型推論
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">six</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">f</span><span style="">(</span><span style="color:#ae81ff">5</span><span style="">);</span></code></pre>
+</div>
+<p>簡単ですね。</p>
+
+<hr />
+
+<p>今回はこれで終わりです。</p>
+
+<p>すこしRustを書いていて感じたことに、コンパイラによる警告が優秀というのがあります。
+不必要なvariable bindingの宣言や<code>mut</code>指定はもちろんのこと、
+例えば <code>let mut x = 5; x = 6;</code>のように、代入した値を使わずすぐ代入しなおしているコードも
+拾って警告してくれました。
+最適化したコードを書く助けになりそうです。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learningrust/guessing_game/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learningrust/guessing_game/">Learning Rust - Guessing Game</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learningrust/dining_philosophers/">Learning Rust - Dining Philosophers</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learningrust/dining_philosophers/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

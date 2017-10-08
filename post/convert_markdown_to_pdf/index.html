@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.24.1" />
+  <meta name="generator" content="Hugo 0.29" />
 
   <title>Convert Markdown to PDF &middot; 外部記憶</title>
 
@@ -315,9 +315,8 @@ PDF化機能を追加するという<a href="https://github.com/hackmdio/hackmd/
 <p>CSSはよくわからないので、<a href="https://gist.github.com/andyferra/2554919">github.css</a> をそのまま使わせてもらいました。</p>
 
 <p>Pandocは次のように使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ pandoc -s --mathjax -c github.css
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"><span style="">$ pandoc -s --mathjax -c github.css</span></code></pre>
+</div>
 <p>追加で、<code>--indented-code-classes</code> でコードハイライトを有効にしたり、<code>-H, -B, -A</code> でヘッダ・フッタを指定すると満足度の高いPDFが得られます。</p>
 
 

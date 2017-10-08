@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.24.1" />
+  <meta name="generator" content="Hugo 0.29" />
 
   <title>Building Boost with GCC on OSX Yosemite &middot; 外部記憶</title>
 
@@ -260,17 +260,15 @@ GCCでビルドされたBoostがインストールできるようです。</p>
 
 <p>まず、HomebrewですでにインストールしてあるBoostがあったので、
 それをアンインストールします。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ brew uninstall boost
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ brew uninstall boost</span></code></pre>
+</div>
 <h2 id="boostダウンロード">Boostダウンロード</h2>
 
 <p>まずは<a href="http://www.Boost.org/">Boost公式ページ</a>から、最新版を落としてきます。
 この時点では1.60.0が最新でした。
 適当に展開します。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ tar xjvf boost_1_60_0.tar.bz2
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ tar xjvf boost_1_60_0.tar.bz2</span></code></pre>
+</div>
 <p>（余談ですが、<code>tar</code>のオプションとか覚えきれないので、
 zshのsuffix aliasを使っています。
 そのため、実際には上のコマンドは打ち込んでいません。
@@ -279,19 +277,18 @@ zshのsuffix aliasを使っています。
 <h2 id="gccの確認">GCCの確認</h2>
 
 <p>GCC自体は、Homebrewでインストールしたものをつかっています。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ which g++
-g++: aliased to g++-5 -std<span style="color: #f92672">=</span>c++11 -Wall -Wextra -Wconversion
-
-$ g++-5 -v
-Using built-in specs.
-<span style="color: #f8f8f2">COLLECT_GCC</span><span style="color: #f92672">=</span>gcc-5
-<span style="color: #f8f8f2">COLLECT_LTO_WRAPPER</span><span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
-Target: x86_64-apple-darwin14.5.0
-Configured with: ../configure --build<span style="color: #f92672">=</span>x86_64-apple-darwin14.5.0 --prefix<span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0 --libdir<span style="color: #f92672">=</span>/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages<span style="color: #f92672">=</span>c,c++,objc,obj-c++,fortran --program-suffix<span style="color: #f92672">=</span>-5 --with-gmp<span style="color: #f92672">=</span>/usr/local/opt/gmp --with-mpfr<span style="color: #f92672">=</span>/usr/local/opt/mpfr --with-mpc<span style="color: #f92672">=</span>/usr/local/opt/libmpc --with-isl<span style="color: #f92672">=</span>/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time<span style="color: #f92672">=</span>yes --enable-stage1-checking --enable-checking<span style="color: #f92672">=</span>release --enable-lto --with-build-config<span style="color: #f92672">=</span>bootstrap-debug --disable-werror --with-pkgversion<span style="color: #f92672">=</span><span style="color: #e6db74">&#39;Homebrew gcc 5.3.0&#39;</span> --with-bugurl<span style="color: #f92672">=</span>https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
-Thread model: posix
-gcc version <span style="color: #ae81ff">5</span>.3.0 <span style="color: #f92672">(</span>Homebrew gcc <span style="color: #ae81ff">5</span>.3.0<span style="color: #f92672">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ which g++
+</span><span style="">g++: aliased to g++-5 -std</span><span style="color:#f92672">=</span><span style="">c++11 -Wall -Wextra -Wconversion
+</span><span style="">
+</span><span style="">$ g++-5 -v
+</span><span style="">Using built-in specs.
+</span><span style=""></span><span style="">COLLECT_GCC</span><span style=""></span><span style="color:#f92672">=</span><span style="">gcc-5
+</span><span style=""></span><span style="">COLLECT_LTO_WRAPPER</span><span style=""></span><span style="color:#f92672">=</span><span style="">/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
+</span><span style="">Target: x86_64-apple-darwin14.5.0
+</span><span style="">Configured with: ../configure --build</span><span style="color:#f92672">=</span><span style="">x86_64-apple-darwin14.5.0 --prefix</span><span style="color:#f92672">=</span><span style="">/usr/local/Cellar/gcc/5.3.0 --libdir</span><span style="color:#f92672">=</span><span style="">/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages</span><span style="color:#f92672">=</span><span style="">c,c++,objc,obj-c++,fortran --program-suffix</span><span style="color:#f92672">=</span><span style="">-5 --with-gmp</span><span style="color:#f92672">=</span><span style="">/usr/local/opt/gmp --with-mpfr</span><span style="color:#f92672">=</span><span style="">/usr/local/opt/mpfr --with-mpc</span><span style="color:#f92672">=</span><span style="">/usr/local/opt/libmpc --with-isl</span><span style="color:#f92672">=</span><span style="">/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time</span><span style="color:#f92672">=</span><span style="">yes --enable-stage1-checking --enable-checking</span><span style="color:#f92672">=</span><span style="">release --enable-lto --with-build-config</span><span style="color:#f92672">=</span><span style="">bootstrap-debug --disable-werror --with-pkgversion</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Homebrew gcc 5.3.0&#39;</span><span style=""> --with-bugurl</span><span style="color:#f92672">=</span><span style="">https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
+</span><span style="">Thread model: posix
+</span><span style="">gcc version </span><span style="color:#ae81ff">5</span><span style="">.3.0 </span><span style="color:#f92672">(</span><span style="">Homebrew gcc </span><span style="color:#ae81ff">5</span><span style="">.3.0</span><span style="color:#f92672">)</span></code></pre>
+</div>
 <h2 id="gccでビルドするように設定">GCCでビルドするように設定</h2>
 
 <p>このままだとOSXにプリインストールされているclangでビルドされてしまうので、
@@ -321,15 +318,13 @@ using gcc : 5 : g++-5 ;
 
 <p><code>bootstrap.sh</code>に、ビルドにつかうコンパイラを教えます。
 <code>g++</code>ではなく<code>gcc</code>のようです。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ./bootstrap.sh --with-toolset<span style="color: #f92672">=</span>gcc --with-libraries<span style="color: #f92672">=</span>all
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ ./bootstrap.sh --with-toolset</span><span style="color:#f92672">=</span><span style="">gcc --with-libraries</span><span style="color:#f92672">=</span><span style="">all</span></code></pre>
+</div>
 <p>そしてビルドです。
 <code>toolset</code>にバージョンも合わせてコンパイラを指定します。
 ここでも<code>g++-5</code>ではなく、<code>gcc-5</code>のようです。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ./b2 <span style="color: #f8f8f2">toolset</span><span style="color: #f92672">=</span>gcc-5 <span style="color: #f8f8f2">cxxflags</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;-std=c++11&quot;</span> --with<span style="color: #f92672">=</span>all -link<span style="color: #f92672">=</span>static,shared runtime-link<span style="color: #f92672">=</span>shared <span style="color: #f8f8f2">threading</span><span style="color: #f92672">=</span>multi <span style="color: #f8f8f2">variant</span><span style="color: #f92672">=</span>release --stagedir<span style="color: #f92672">=</span><span style="color: #e6db74">&quot;stage/gcc&quot;</span> -j5
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ ./b2 </span><span style="">toolset</span><span style=""></span><span style="color:#f92672">=</span><span style="">gcc-5 </span><span style="">cxxflags</span><span style=""></span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-std=c++11&#34;</span><span style=""> --with</span><span style="color:#f92672">=</span><span style="">all -link</span><span style="color:#f92672">=</span><span style="">static,shared runtime-link</span><span style="color:#f92672">=</span><span style="">shared </span><span style="">threading</span><span style=""></span><span style="color:#f92672">=</span><span style="">multi </span><span style="">variant</span><span style=""></span><span style="color:#f92672">=</span><span style="">release --stagedir</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;stage/gcc&#34;</span><span style=""> -j5</span></code></pre>
+</div>
 <p><code>ps</code>してみて<code>g++-5</code>が使われているようだったら成功です。
 <code>-j5</code>したので15分くらいですみました。</p>
 
@@ -346,13 +341,13 @@ using gcc : 5 : g++-5 ;
 <div class="prev-next-post pure-g">
   <div class="pure-u-1-24" style="text-align: left;">
     
-    <a href="/post/learning_rust/match_and_patterns/"><i class="fa fa-chevron-left"></i></a>
+    <a href="/post/learningrust/match_and_patterns/"><i class="fa fa-chevron-left"></i></a>
     
   </div>
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/learning_rust/match_and_patterns/">Learning Rust - Match and Patterns</a>
+      <a href="/post/learningrust/match_and_patterns/">Learning Rust - Match and Patterns</a>
     </nav>
     
   </div>
@@ -362,13 +357,13 @@ using gcc : 5 : g++-5 ;
   <div class="pure-u-10-24">
     
     <nav class="next">
-      <a href="/post/learning_rust/vectors_and_strings/">Learning Rust - Vectors and Strings</a>
+      <a href="/post/learningrust/vectors_and_strings/">Learning Rust - Vectors and Strings</a>
     </nav>
     
   </div>
   <div class="pure-u-1-24" style="text-align: right;">
     
-    <a href="/post/learning_rust/vectors_and_strings/"><i class="fa fa-chevron-right"></i></a>
+    <a href="/post/learningrust/vectors_and_strings/"><i class="fa fa-chevron-right"></i></a>
     
   </div>
 </div>

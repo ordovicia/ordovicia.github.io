@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.29" />
+
+  <title>Learning Rust - Guessing Game &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Learning Rust - Guessing Game</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>07 Nov 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<p><a href="https://doc.rust-lang.org/book/README.html">公式ドキュメント</a>
+にしたがってRustを学んでいこうと思います。</p>
+
+<h1 id="learn-rust">Learn Rust</h1>
+
+<p>Rustのoverview的なチュートリアルです。</p>
+
+<ul>
+<li>Guessing Game</li>
+<li>Dining Philosophers</li>
+<li>Rust Inside Other Language</li>
+</ul>
+
+<p>という3つの節がありますが、このうち最初の二つを読んでみます。
+今回はGuessing Gameです。</p>
+
+<h2 id="guessing-game">Guessing Game</h2>
+
+<p>よくある、ランダムな数値をあてるゲームですね。
+数値を推測して入力するごとに、答えより大きい・小さいかが出力されるようにします。</p>
+
+<h3 id="processing-a-guess">Processing a Guess</h3>
+
+<p>まずはユーザーが入力した数値を出力してみます。コードは以下のようになります。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">io</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Guess the number!&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Please input your guess.&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">String</span><span style="">::</span><span style="">new</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">io</span><span style="">::</span><span style="">stdin</span><span style="">().</span><span style="">read_line</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style="">)</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;Failed to read line&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You guessed: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">guess</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>C++とあんまり変わりませんね。</p>
+
+<p>variable binding(変数、と言ってしまうとRustでのデータの扱いを正しく表現できないので、
+     無理に訳さずそのままの名前をつかいます)をつくるにはlet statementを使います。
+Rustでのvariable bindingはデフォルトでconstantなので、<code>guess</code>は明示的に<code>mut</code>指定
+します。</p>
+
+<p>入力を受付けているところ、<code>read_line(&amp;mut guess)</code>についてですが、この関数は
+<code>&amp;mut String</code>を引数にとるようです。
+mutableな<code>String</code>の参照ということらしいです。</p>
+
+<p>Rustではデータのownershipという概念が重要で、あるデータをownするvariable binding
+はたったひとつしか許されないということのようです。
+強い制約ですが安全性の強化や内部でのメモリ管理に役立っているのでしょう。</p>
+
+<p><code>read_line()</code>の戻り値にさらにメソッドを作用させています。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style=""></span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;Failed to read line&#34;</span><span style="">);</span></code></pre>
+</div>
+<p>なんでしょうねこれ。一見すると例外処理のようですが。
+ドキュメントを読み進めると、まさにその通りでした。</p>
+
+<p><code>read_line()</code>関数は<code>io::Result</code>という型の値を返します。
+この型は<code>ok()</code>メソッドをもっていて、受け取った値が&rsquo;ok&rsquo;でなければ<code>expect()</code>によって
+プログラムが終了し例外メッセージが吐かれる、ということのようです。</p>
+
+<p>最後の行です。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You guessed: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">guess</span><span style="">);</span></code></pre>
+</div>
+<p>出力しています。<code>println!()</code>はmacroで、<code>!</code>がmacroであることの印である、
+と書いてありました。
+ただしCのようなmacroではなく、型安全性に不安をもつ必要はないそうです。</p>
+
+<p><code>{}</code>がplaceholderで、ここに<code>guess</code>の中身が挿入されるというわけらしいです。
+フォーマットが書きやすい<code>printf()</code>と、型推論してくれる<code>std::cout &lt;&lt;</code>の
+いいとこ取りと言った感じですね。</p>
+
+<p>ここまででvariable bindingの作り方と入出力がわかりました。
+次はランダムな数値を作って当てるまでループしてみます。</p>
+
+<h3 id="generating-a-secret-number">Generating a secret number</h3>
+
+<p>ランダムな数値を生成するには、開発チームが提供しているパッケージを使います。
+rand crateといって、crateはRustコードのパッケージを意味するそうです。</p>
+
+<p>ビルドツールCargoの設定ファイル、<code>Cargo.toml</code>に以下のように書きます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">[</span><span style="">dependencies</span><span style="">]</span><span style="">
+</span><span style=""></span><span style="">rand</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0.3.0&#34;</span></code></pre>
+</div>
+<p>そして<code>cargo build</code>するとrand crateとそれが依存しているパッケージが
+githubから落ちてきました。crateはgithub上にあるんですね。おもしろいです。</p>
+
+<p>ランダムな数値を生成したコードが以下になります。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span><span style=""> </span><span style="color:#66d9ef">crate</span><span style=""> </span><span style="">rand</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">io</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">Rng</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Guess the number!&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">secret_number</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">thread_rng</span><span style="">().</span><span style="">gen_range</span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">101</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The secret number is: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">secret_number</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#75715e">// 略
+</span><span style="color:#75715e"></span><span style="">}</span></code></pre>
+</div>
+<p>crateを使うには<code>extern crate rand;</code>などと書くようですね。</p>
+
+<p><code>use rand::Rng</code>という行が加わっています。<code>std::io</code>についてはコード中に<code>io::stdin()</code>が
+あったのでnamespaceのようなものかな、と思っていたのですが、<code>Rng</code>の記述はありません。
+ドキュメントには&rsquo;traits&rsquo;をscope内にいれる、といったことが書いてあるのですが、
+ここではおまじないとしておきます。</p>
+
+<p>ランダムな数値を生成しているのが、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">secret_number</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">thread_rng</span><span style="">().</span><span style="">gen_range</span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">101</span><span style="">);</span></code></pre>
+</div>
+<p>という行のようです。<code>rand::thread_rng()</code>でmain threadに乱数生成器をコピーしている
+とのことです。そして<code>use rand::Rng</code>しているので<code>gen_range()</code>関数が使えると
+書いてありました。
+この時点で&rsquo;traits&rsquo;がなんなのかよくわかりませんが、とりあえず[1, 101)の乱数が
+得られて<code>secret_number</code>にbindされていることは推測できます。</p>
+
+<h3 id="comparing-guesses">Comparing guesses</h3>
+
+<p>さて、入力した数値と答えを比較してみます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span><span style=""> </span><span style="color:#66d9ef">crate</span><span style=""> </span><span style="">rand</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">io</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">cmp</span><span style="">::</span><span style="">Ordering</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">Rng</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Guess the number!&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">secret_number</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">thread_rng</span><span style="">().</span><span style="">gen_range</span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">101</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The secret number is: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">secret_number</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Please input your guess.&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">String</span><span style="">::</span><span style="">new</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">io</span><span style="">::</span><span style="">stdin</span><span style="">().</span><span style="">read_line</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style="">)</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;failed to read line&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You guessed: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">guess</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">match</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">cmp</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">secret_number</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Ordering</span><span style="">::</span><span style="">Less</span><span style="">    </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too small!&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Ordering</span><span style="">::</span><span style="">Greater</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too big!&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Ordering</span><span style="">::</span><span style="">Equal</span><span style="">   </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You win!&#34;</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>std::cmp::Ordering</code>という型をscopeにいれました。これで<code>Ordering::Less</code>などの
+値が使えるようになります。</p>
+
+<p>Rustにはパターンマッチ構文が用意されています。それが最後の5行です。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">cmp</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">secret_number</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">Ordering</span><span style="">::</span><span style="">Less</span><span style="">    </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too small!&#34;</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Ordering</span><span style="">::</span><span style="">Greater</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too big!&#34;</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Ordering</span><span style="">::</span><span style="">Equal</span><span style="">   </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You win!&#34;</span><span style="">),</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>guess</code>を<code>secret_number</code>の参照と<code>cmp</code>して、その戻り値を<code>match</code>構文でパターンマッチ
+しているようです。
+<code>Ordering</code>はEnumで、その要素には<code>Ordering::Less</code>のようにアクセスすることがわかります。
+C++の<code>enum class</code>と同じですね。</p>
+
+<p>実はこのコードはコンパイルエラーになります。エラーメッセージは、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"><span style="">src/main.rs:24:21: 24:35 error: mismatched types:
+</span><span style=""> expected `&amp;collections::string::String`,
+</span><span style="">    found `&amp;_`
+</span><span style="">(expected struct `collections::string::String`,
+</span><span style="">    found integral variable) [E0308]
+</span><span style="">src/main.rs:24     match guess.cmp(&amp;secret_number) {
+</span><span style="">                                   ^~~~~~~~~~~~~~
+</span><span style="">src/main.rs:24:21: 24:35 help: run `rustc --explain E0308` to see a detailed explanation
+</span><span style="">error: aborting due to previous error
+</span><span style="">Could not compile `guessing_game`.
+</span><span style="">
+</span><span style="">To learn more, run the command again with --verbose.</span></code></pre>
+</div>
+<p>のようになります。<code>guess.cmp()</code>で<code>mismathed types</code>と言われています。
+<code>guess</code>は<code>String</code>型なのに、数値である<code>&amp;secret_number</code>と比較しているのが原因のようです。</p>
+
+<p>ちなみに<code>secret_number</code>は型を明示していませんでしたが、Rustには型推論があり、
+ここではおそらく<code>i32</code>型になっています。
+Rustの整数型には他に<code>i64, u32, u64</code>などがあるようです。</p>
+
+<p><code>guess</code>を整数に変換してみます。<code>read_line()</code>で読み込んだ後につぎの処理を加えます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">guess</span><span style="">: </span><span style="color:#66d9ef">u32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">trim</span><span style="">().</span><span style="">parse</span><span style="">()</span><span style="">
+</span><span style="">    </span><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style="">    </span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;Please type a number!&#34;</span><span style="">);</span></code></pre>
+</div>
+<p>なんと<code>guess</code>をもういちど作っています。Rustでは同名のvariable bindingを作ることができ、
+古いものを隠せるようです。便利ですね。</p>
+
+<p>ここでは型を明示して<code>guess</code>を作っています。<code>let guess: u32</code>のように、コロン<code>:</code>のあとに
+型を書くようです。Haskellを思い出しました。</p>
+
+<p>数値に変換するには<code>trim().parse()</code>します。<code>trim()</code>で文字列前後の空白や改行文字を取り除き、
+<code>parse()</code>で変換しているようです。
+<code>parse()</code>も失敗することがあるので、<code>read_line()</code>と同じく例外処理をおこなっています。</p>
+
+<p>これでコンパイルエラーが直りました。<code>cargo run</code>で実行してみると、答えと入力に合わせて
+<code>Too small!</code>, <code>Too big!</code>, <code>You win!</code>のどれかが正しく表示されているのがわかります。</p>
+
+<h3 id="looping">Looping</h3>
+
+<p>最後に、正解するまでループするようにしてみましょう。
+<code>loop</code>キーワードを使うと無限ループを作ることができます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span><span style=""> </span><span style="color:#66d9ef">crate</span><span style=""> </span><span style="">rand</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">io</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">cmp</span><span style="">::</span><span style="">Ordering</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">use</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">Rng</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Guess the number!&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">secret_number</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">rand</span><span style="">::</span><span style="">thread_rng</span><span style="">().</span><span style="">gen_range</span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">101</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The secret number is: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">secret_number</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">loop</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Please input your guess.&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">String</span><span style="">::</span><span style="">new</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">io</span><span style="">::</span><span style="">stdin</span><span style="">().</span><span style="">read_line</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">guess</span><span style="">)</span><span style="">
+</span><span style="">            </span><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style="">            </span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;failed to read line&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">guess</span><span style="">: </span><span style="color:#66d9ef">u32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">trim</span><span style="">().</span><span style="">parse</span><span style="">()</span><span style="">
+</span><span style="">            </span><span style="">.</span><span style="">ok</span><span style="">()</span><span style="">
+</span><span style="">            </span><span style="">.</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;Please type a number!&#34;</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You guessed: {}&#34;</span><span style="">,</span><span style=""> </span><span style="">guess</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">match</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">cmp</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">secret_number</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">Ordering</span><span style="">::</span><span style="">Less</span><span style="">    </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too small!&#34;</span><span style="">),</span><span style="">
+</span><span style="">            </span><span style="">Ordering</span><span style="">::</span><span style="">Greater</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Too big!&#34;</span><span style="">),</span><span style="">
+</span><span style="">            </span><span style="">Ordering</span><span style="">::</span><span style="">Equal</span><span style="">   </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">                </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;You win!&#34;</span><span style="">);</span><span style="">
+</span><span style="">                </span><span style="color:#66d9ef">break</span><span style=""></span><span style=""></span><span style="">;</span><span style="">
+</span><span style="">            </span><span style="">}</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>波括弧<code>{}</code>を使うのはC++と同じですね。
+パターンマッチのところで、<code>Ordering::Equal</code>にマッチしたら<code>break</code>するようにしました。
+簡単ですね。</p>
+
+<p>入力をparseするところの例外処理を少し変更してみます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">guess</span><span style="">: </span><span style="color:#66d9ef">u32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#66d9ef">match</span><span style=""> </span><span style="">guess</span><span style="">.</span><span style="">trim</span><span style="">().</span><span style="">parse</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">Ok</span><span style="">(</span><span style="">num</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">num</span><span style="">,</span><span style="">
+</span><span style="">    </span><span style="">Err</span><span style="">(</span><span style="">_</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="color:#66d9ef">continue</span><span style=""></span><span style=""></span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">};</span></code></pre>
+</div>
+<p>ここでもパターンマッチを使います。<code>parse()</code>の戻り値<code>Result</code>型はEnumで、<code>Ok</code>と<code>Err</code>という
+値をもっているようです。でも値がまた<code>num</code>などの引数をとるのでしょうか？
+Haskellの型コンストラクタのようなものでしょうか？</p>
+
+<p><code>_</code>は、その中身は気にしないので単に<code>_</code>として捨てています。
+<code>Err</code>だった場合は<code>continue</code>してもう一度入力を受け付ける、というわけです。</p>
+
+<p>最後にひとつ、これまでデバッグ用に答えである<code>secret_number</code>を表示していましたが、
+これではゲームになりません。出力していた行を消しておきます。
+最終的なコードは次のようになります。</p>
+
+<script src="https://gist.github.com/ordovicia/9a689a281a432cfb2c2e.js"></script>
+
+<p>完成しました。実行してみるとちゃんと動いていることがわかります。
+これにてめでたくRustデビューです。</p>
+
+<p>最後にC++で書いたコードを載せておきます。</p>
+
+<script src="https://gist.github.com/ordovicia/7ed8c35ad2ea7deb0476.js"></script>
+
+<p>C++だと入力がおかしかったときの例外処理がややこしいですね。
+また、Rustにはパターンマッチがあるので 条件分岐がわかりやすいと思います。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learningrust/introduction/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learningrust/introduction/">Learning Rust - Introduction</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learningrust/variable_bindings_and_functions/">Learning Rust - Variable Bindings and Functions</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learningrust/variable_bindings_and_functions/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

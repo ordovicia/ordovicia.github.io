@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.24.1" />
+  <meta name="generator" content="Hugo 0.29" />
 
   <title>Atomic operation overhead &middot; 外部記憶</title>
 
@@ -271,88 +271,81 @@ atomic変数の操作にともなうオーバーヘッドは大きめ、とい�
 </ul>
 
 <p>でコンパイルしました。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// atomic.cpp</span>
-
-<span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;atomic&gt;</span>
-
-<span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">atomic</span><span style="color: #f92672">&lt;</span><span style="color: #66d9ef">int</span><span style="color: #f92672">&gt;</span> <span style="color: #f8f8f2">i{</span><span style="color: #ae81ff">1</span><span style="color: #f8f8f2">};</span>
-
-<span style="color: #66d9ef">void</span> <span style="color: #a6e22e">f</span><span style="color: #f8f8f2">()</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">j</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">i.load();</span>
-    <span style="color: #f8f8f2">i.store(j</span> <span style="color: #f92672">*</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">);</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// nonatomic.cpp</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">i</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">;</span>
-
-<span style="color: #66d9ef">void</span> <span style="color: #a6e22e">f</span><span style="color: #f8f8f2">()</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">j</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">i;</span>
-    <span style="color: #f8f8f2">i</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">j</span> <span style="color: #f92672">*</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// atomic.cpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;atomic&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="">std</span><span style="color:#f92672">::</span><span style="">atomic</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">i</span><span style="">{</span><span style="color:#ae81ff">1</span><span style="">};</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">void</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">()</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">j</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">i</span><span style="">.</span><span style="">load</span><span style="">();</span><span style="">
+</span><span style="">    </span><span style="">i</span><span style="">.</span><span style="">store</span><span style="">(</span><span style="">j</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// nonatomic.cpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">i</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">void</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">()</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">j</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">i</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="">i</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">j</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>結果が以下になりました。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e"># x86_64_atomic.s</span>
-
-<span style="color: #f8f8f2">__Z1fv:</span>
-<span style="color: #f8f8f2">LFB325:</span>
-	<span style="color: #a6e22e">movl</span>	<span style="color: #66d9ef">_i</span><span style="color: #f8f8f2">(%rip),</span> <span style="color: #f8f8f2">%eax</span>
-	<span style="color: #a6e22e">addl</span>	<span style="color: #f8f8f2">%eax,</span> <span style="color: #f8f8f2">%eax</span>
-	<span style="color: #a6e22e">movl</span>	<span style="color: #f8f8f2">%eax,</span> <span style="color: #66d9ef">_i</span><span style="color: #f8f8f2">(%rip)</span>
-	<span style="color: #a6e22e">mfence</span>
-	<span style="color: #a6e22e">ret</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e"># x86_64_nonatomic.s</span>
-
-<span style="color: #f8f8f2">__Z1fv:</span>
-<span style="color: #f8f8f2">LFB0:</span>
-	<span style="color: #a6e22e">sall</span>	<span style="color: #66d9ef">_i</span><span style="color: #f8f8f2">(%rip)</span>
-	<span style="color: #a6e22e">ret</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e"># arm_atomic.s</span>
-
-<span style="color: #f8f8f2">_Z1fv:</span>
-	<span style="color: #a6e22e">.fnstart</span>
-<span style="color: #f8f8f2">.LFB328:</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">args</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">pretend</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">frame</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">frame_needed</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">uses_anonymous_args</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">link</span> <span style="color: #66d9ef">register</span> <span style="color: #66d9ef">save</span> <span style="color: #66d9ef">eliminated.</span>
-	<span style="color: #a6e22e">ldr</span>	<span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">.L2</span>
-	<span style="color: #a6e22e">dmb</span>	<span style="color: #66d9ef">sy</span>
-	<span style="color: #a6e22e">ldr</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">[</span><span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">]</span>
-	<span style="color: #a6e22e">dmb</span>	<span style="color: #66d9ef">sy</span>
-	<span style="color: #a6e22e">lsls</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #75715e">#1</span>
-	<span style="color: #66d9ef">dmb</span>	<span style="color: #66d9ef">sy</span>
-	<span style="color: #a6e22e">str</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">[</span><span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">]</span>
-	<span style="color: #a6e22e">dmb</span>	<span style="color: #66d9ef">sy</span>
-	<span style="color: #a6e22e">bx</span>	<span style="color: #66d9ef">lr</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e"># arm_nonatomic.s</span>
-
-<span style="color: #f8f8f2">_Z1fv:</span>
-	<span style="color: #a6e22e">.fnstart</span>
-<span style="color: #f8f8f2">.LFB0:</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">args</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">pretend</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">frame</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">frame_needed</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">uses_anonymous_args</span> <span style="color: #960050; background-color: #1e0010">=</span> <span style="color: #ae81ff">0</span>
-	<span style="color: #960050; background-color: #1e0010">@</span> <span style="color: #a6e22e">link</span> <span style="color: #66d9ef">register</span> <span style="color: #66d9ef">save</span> <span style="color: #66d9ef">eliminated.</span>
-	<span style="color: #a6e22e">ldr</span>	<span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">.L2</span>
-	<span style="color: #a6e22e">ldr</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">[</span><span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">]</span>
-	<span style="color: #a6e22e">lsls</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #75715e">#1</span>
-	<span style="color: #66d9ef">str</span>	<span style="color: #66d9ef">r3</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">[</span><span style="color: #66d9ef">r2</span><span style="color: #f8f8f2">]</span>
-	<span style="color: #a6e22e">bx</span>	<span style="color: #66d9ef">lr</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#75715e"># x86_64_atomic.s
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="">__Z1fv:</span><span style="">
+</span><span style=""></span><span style="">LFB325:</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">movl</span><span style="">	</span><span style="color:#66d9ef">_i</span><span style="">(</span><span style="">%rip</span><span style="">),</span><span style=""> </span><span style="">%eax</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">addl</span><span style="">	</span><span style="">%eax</span><span style="">,</span><span style=""> </span><span style="">%eax</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">movl</span><span style="">	</span><span style="">%eax</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">_i</span><span style="">(</span><span style="">%rip</span><span style="">)</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">mfence</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ret</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#75715e"># x86_64_nonatomic.s
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="">__Z1fv:</span><span style="">
+</span><span style=""></span><span style="">LFB0:</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">sall</span><span style="">	</span><span style="color:#66d9ef">_i</span><span style="">(</span><span style="">%rip</span><span style="">)</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ret</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#75715e"># arm_atomic.s
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="">_Z1fv:</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">.fnstart</span><span style="">
+</span><span style=""></span><span style="">.LFB328:</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">args</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">pretend</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">frame</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">frame_needed</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">uses_anonymous_args</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">link</span><span style=""> </span><span style="color:#66d9ef">register</span><span style=""> </span><span style="color:#66d9ef">save</span><span style=""> </span><span style="color:#66d9ef">eliminated.</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ldr</span><span style="">	</span><span style="color:#66d9ef">r2</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">.L2</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">dmb</span><span style="">	</span><span style="color:#66d9ef">sy</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ldr</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="">[</span><span style="color:#66d9ef">r2</span><span style="">]</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">dmb</span><span style="">	</span><span style="color:#66d9ef">sy</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">lsls</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="color:#75715e">#1
+</span><span style="color:#75715e"></span><span style="">	</span><span style="color:#66d9ef">dmb</span><span style="">	</span><span style="color:#66d9ef">sy</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">str</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="">[</span><span style="color:#66d9ef">r2</span><span style="">]</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">dmb</span><span style="">	</span><span style="color:#66d9ef">sy</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">bx</span><span style="">	</span><span style="color:#66d9ef">lr</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#75715e"># arm_nonatomic.s
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="">_Z1fv:</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">.fnstart</span><span style="">
+</span><span style=""></span><span style="">.LFB0:</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">args</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">pretend</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">frame</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">frame_needed</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">uses_anonymous_args</span><span style=""> </span><span style="color:#960050;background-color:#1e0010">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">
+</span><span style="">	</span><span style="color:#960050;background-color:#1e0010">@</span><span style=""> </span><span style="color:#a6e22e">link</span><span style=""> </span><span style="color:#66d9ef">register</span><span style=""> </span><span style="color:#66d9ef">save</span><span style=""> </span><span style="color:#66d9ef">eliminated.</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ldr</span><span style="">	</span><span style="color:#66d9ef">r2</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">.L2</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">ldr</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="">[</span><span style="color:#66d9ef">r2</span><span style="">]</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">lsls</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="color:#75715e">#1
+</span><span style="color:#75715e"></span><span style="">	</span><span style="color:#66d9ef">str</span><span style="">	</span><span style="color:#66d9ef">r3</span><span style="">,</span><span style=""> </span><span style="">[</span><span style="color:#66d9ef">r2</span><span style="">]</span><span style="">
+</span><span style="">	</span><span style="color:#a6e22e">bx</span><span style="">	</span><span style="color:#66d9ef">lr</span></code></pre>
+</div>
 <p>x86の非atomic版は<code>i</code>を二倍するだけに最適化されてしまいましたね。</p>
 
 <p>最適化無しで計算すると、</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #a6e22e">movl</span>	<span style="color: #66d9ef">_i</span><span style="color: #f8f8f2">(%rip),</span> <span style="color: #f8f8f2">%eax</span>
-<span style="color: #a6e22e">addl</span>	<span style="color: #f8f8f2">%eax,</span> <span style="color: #f8f8f2">%eax</span>
-<span style="color: #a6e22e">movl</span>	<span style="color: #f8f8f2">%eax,</span> <span style="color: #66d9ef">_i</span><span style="color: #f8f8f2">(%rip)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-asm" data-lang="asm"><span style="color:#a6e22e">movl</span><span style="">	</span><span style="color:#66d9ef">_i</span><span style="">(</span><span style="">%rip</span><span style="">),</span><span style=""> </span><span style="">%eax</span><span style="">
+</span><span style=""></span><span style="color:#a6e22e">addl</span><span style="">	</span><span style="">%eax</span><span style="">,</span><span style=""> </span><span style="">%eax</span><span style="">
+</span><span style=""></span><span style="color:#a6e22e">movl</span><span style="">	</span><span style="">%eax</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">_i</span><span style="">(</span><span style="">%rip</span><span style="">)</span></code></pre>
+</div>
 <p>になるのでしょう。この最後に<code>mfence</code>命令を挿入したのが、x86のatomic版の結果です。
 <code>xchg</code>ではなくてメモリバリア命令が使われてしまいましたが、
 一行目での、atomic変数の読み込み後にメモリバリアが発行されないことから、
@@ -399,13 +392,13 @@ storeのみを待つモードもあるので、load前にはこっちを使っ�
 <div class="prev-next-post pure-g">
   <div class="pure-u-1-24" style="text-align: left;">
     
-    <a href="/post/learning_rust/lifetime/"><i class="fa fa-chevron-left"></i></a>
+    <a href="/post/learningrust/lifetime/"><i class="fa fa-chevron-left"></i></a>
     
   </div>
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/learning_rust/lifetime/">Learning Rust - Lifetime</a>
+      <a href="/post/learningrust/lifetime/">Learning Rust - Lifetime</a>
     </nav>
     
   </div>

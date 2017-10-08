@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.24.1" />
+  <meta name="generator" content="Hugo 0.29" />
 
   <title>Jetson TX1 initial setup &middot; 外部記憶</title>
 
@@ -240,9 +240,8 @@
 デフォルトの構成だと10GBほどダウンロードされるので、ネットワーク速度が十分な環境で作業しましょう。</p>
 
 <p>インストール後、Jetsonの電源を入れ直して、</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ ssh ubuntu@tegra-ubuntu.local
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ ssh ubuntu@tegra-ubuntu.local</span></code></pre>
+</div>
 <p>でログインできればOKです。</p>
 
 <h1 id="リカバリー用sdカード作成">リカバリー用SDカード作成</h1>
@@ -251,13 +250,12 @@
 ext4でフォーマットします。</p>
 
 <p><a href="https://developer.nvidia.com/embedded/downloads">NVIDIA</a>から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ sudo tar -vxjf &lt;Driver Package&gt;
-$ <span style="color: #f8f8f2">cd</span> Linux_for_Tegra/rootfs
-$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
-$ <span style="color: #f8f8f2">cd</span> ..
-$ sudo ./apply_binaries.sh
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ sudo tar -vxjf &lt;Driver Package&gt;
+</span><span style="">$ </span><span style="">cd</span><span style=""> Linux_for_Tegra/rootfs
+</span><span style="">$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
+</span><span style="">$ </span><span style="">cd</span><span style=""> ..
+</span><span style="">$ sudo ./apply_binaries.sh</span></code></pre>
+</div>
 <p>を実行します。
 SDカードにrootfs以下をまるごとコピーすると完了です。
 このときroot権限で操作しないと、sudoがつかえなくなって詰みます。</p>

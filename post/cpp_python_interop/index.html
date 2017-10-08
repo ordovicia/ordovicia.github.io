@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.24.1" />
+  <meta name="generator" content="Hugo 0.29" />
 
   <title>C&#43;&#43; - Python Interoperation &middot; 外部記憶</title>
 
@@ -263,87 +263,81 @@ Python以外にも多くの言語に対応しています。</p>
 <p>詳細は、<a href="http://www.swig.org/doc.html">公式ドキュメント</a> を参照してください。</p>
 
 <p>以下のC++（実質C言語）プログラムを例に取ります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// example.hpp</span>
-
-<span style="color: #75715e">#pragma once</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #a6e22e">fact</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">n);</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// example.cpp</span>
-
-<span style="color: #75715e">#include</span> <span style="color: #75715e">&quot;example.hpp&quot;</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #a6e22e">fact</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">n)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">n</span> <span style="color: #f92672">&lt;=</span> <span style="color: #ae81ff">0</span> <span style="color: #f92672">?</span> <span style="color: #ae81ff">1</span> <span style="color: #f92672">:</span> <span style="color: #f8f8f2">n</span> <span style="color: #f92672">*</span> <span style="color: #f8f8f2">fact(n</span> <span style="color: #f92672">-</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">);</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// example.hpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#75715e">#pragma once
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">fact</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">n</span><span style="">);</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// example.cpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&#34;example.hpp&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">fact</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">n</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">n</span><span style=""> </span><span style="color:#f92672">&lt;=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="color:#f92672">?</span><span style=""> </span><span style="color:#ae81ff">1</span><span style=""> </span><span style="color:#f92672">:</span><span style=""> </span><span style="">n</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">fact</span><span style="">(</span><span style="">n</span><span style=""> </span><span style="color:#f92672">-</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>SWIGでは、「インターフェイスファイル」というものを作ります。
 上のプログラムのインターフェイスファイルは次のようになります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// example.i</span>
-
-<span style="color: #a6e22e">%module</span> <span style="color: #f8f8f2">example</span>
-
-<span style="color: #f92672">%</span><span style="color: #f8f8f2">{</span>
-
-<span style="color: #75715e">#define SWIG_FILE_WITH_INIT</span>
-<span style="color: #75715e">#include</span> <span style="color: #75715e">&quot;example.hpp&quot;</span>
-
-<span style="color: #f92672">%</span><span style="color: #f8f8f2">}</span>
-
-<span style="color: #a6e22e">%include</span> <span style="color: #e6db74">&quot;example.hpp&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swig" data-lang="swig"><span style="">// example.i
+</span><span style="">
+</span><span style="">%module example
+</span><span style="">
+</span><span style="">%{
+</span><span style="">
+</span><span style="">#define SWIG_FILE_WITH_INIT
+</span><span style="">#include &#34;example.hpp&#34;
+</span><span style="">
+</span><span style="">%}
+</span><span style="">
+</span><span style="">%include &#34;example.hpp&#34;</span></code></pre>
+</div>
 <p>基本的には、</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #a6e22e">%module</span> <span style="color: #f8f8f2">module_name</span>
-
-<span style="color: #f92672">%</span><span style="color: #f8f8f2">{</span>
-<span style="color: #75715e">#define SWIG_FILE_WITH_INIT</span>
-<span style="color: #75715e">#include</span> <span style="color: #75715e">module_header</span>
-<span style="color: #f92672">%</span><span style="color: #f8f8f2">}</span>
-
-<span style="color: #a6e22e">%include</span> <span style="color: #f8f8f2">module_header</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swig" data-lang="swig"><span style="">%module module_name
+</span><span style="">
+</span><span style="">%{
+</span><span style="">#define SWIG_FILE_WITH_INIT
+</span><span style="">#include module_header
+</span><span style="">%}
+</span><span style="">
+</span><span style="">%include module_header</span></code></pre>
+</div>
 <p>と書きます。</p>
 
 <p>ビルドにはdistutilを使うのが一般的だと思いますが、ここではCMakeを使ってみます。
 次のような <code>CMakeLists.txt</code> を用意します。
 ファイル名が変わってもそのまま使えるようになっています。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">cmake_minimum_required(</span><span style="color: #e6db74">VERSION</span> <span style="color: #e6db74">3.8.0</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">SWIG</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">include(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">SWIG_USE_FILE</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">PythonLibs</span> <span style="color: #e6db74">3</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">include_directories(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">PYTHON_INCLUDE_PATH</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">include_directories(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">CMAKE_CURRENT_SOURCE_DIR</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">set(</span><span style="color: #e6db74">CMAKE_SWIG_FLAGS</span> <span style="color: #e6db74">&quot;&quot;</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">file(</span><span style="color: #e6db74">GLOB</span> <span style="color: #e6db74">SWIG_FILES</span> <span style="color: #e6db74">*.i</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">file(</span><span style="color: #e6db74">GLOB</span> <span style="color: #e6db74">SRC_FILES</span> <span style="color: #e6db74">*.cpp</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">set_source_files_properties(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">SWIG_FILES</span><span style="color: #f92672">}</span> <span style="color: #e6db74">PROPERTIES</span> <span style="color: #e6db74">CPLUSPLUS</span> <span style="color: #e6db74">ON</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">set_source_files_properties(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">SWIG_FILES</span><span style="color: #f92672">}</span> <span style="color: #e6db74">PROPERTIES</span> <span style="color: #e6db74">SWIG_FLAGS</span> <span style="color: #e6db74">&quot;-includeall&quot;</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">swig_add_library(</span><span style="color: #e6db74">example</span>
-    <span style="color: #e6db74">LANGUAGE</span> <span style="color: #e6db74">python</span>
-    <span style="color: #e6db74">SOURCES</span> <span style="color: #f92672">${</span><span style="color: #f8f8f2">SWIG_FILES</span><span style="color: #f92672">}</span> <span style="color: #f92672">${</span><span style="color: #f8f8f2">SRC_FILES</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">swig_link_libraries(</span><span style="color: #e6db74">example</span> <span style="color: #f92672">${</span><span style="color: #f8f8f2">PYTHON_LIBRARIES</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="">cmake_minimum_required</span><span style=""></span><span style="">(</span><span style="color:#e6db74">VERSION</span><span style=""> </span><span style="color:#e6db74">3.8.0</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">find_package</span><span style=""></span><span style="">(</span><span style="color:#e6db74">SWIG</span><span style=""> </span><span style="color:#e6db74">REQUIRED</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">include</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">SWIG_USE_FILE</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">find_package</span><span style=""></span><span style="">(</span><span style="color:#e6db74">PythonLibs</span><span style=""> </span><span style="color:#e6db74">3</span><span style=""> </span><span style="color:#e6db74">REQUIRED</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">include_directories</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">PYTHON_INCLUDE_PATH</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">include_directories</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">CMAKE_CURRENT_SOURCE_DIR</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">set</span><span style=""></span><span style="">(</span><span style="color:#e6db74">CMAKE_SWIG_FLAGS</span><span style=""> </span><span style="color:#e6db74">&#34;&#34;</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">file</span><span style=""></span><span style="">(</span><span style="color:#e6db74">GLOB</span><span style=""> </span><span style="color:#e6db74">SWIG_FILES</span><span style=""> </span><span style="color:#e6db74">*.i</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">file</span><span style=""></span><span style="">(</span><span style="color:#e6db74">GLOB</span><span style=""> </span><span style="color:#e6db74">SRC_FILES</span><span style=""> </span><span style="color:#e6db74">*.cpp</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">set_source_files_properties</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">SWIG_FILES</span><span style="color:#f92672">}</span><span style=""> </span><span style="color:#e6db74">PROPERTIES</span><span style=""> </span><span style="color:#e6db74">CPLUSPLUS</span><span style=""> </span><span style="color:#e6db74">ON</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">set_source_files_properties</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">SWIG_FILES</span><span style="color:#f92672">}</span><span style=""> </span><span style="color:#e6db74">PROPERTIES</span><span style=""> </span><span style="color:#e6db74">SWIG_FLAGS</span><span style=""> </span><span style="color:#e6db74">&#34;-includeall&#34;</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">swig_add_library</span><span style=""></span><span style="">(</span><span style="color:#e6db74">example</span><span style="">
+</span><span style="">    </span><span style="color:#e6db74">LANGUAGE</span><span style=""> </span><span style="color:#e6db74">python</span><span style="">
+</span><span style="">    </span><span style="color:#e6db74">SOURCES</span><span style=""> </span><span style="color:#f92672">${</span><span style="">SWIG_FILES</span><span style="color:#f92672">}</span><span style=""> </span><span style="color:#f92672">${</span><span style="">SRC_FILES</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">swig_link_libraries</span><span style=""></span><span style="">(</span><span style="color:#e6db74">example</span><span style=""> </span><span style="color:#f92672">${</span><span style="">PYTHON_LIBRARIES</span><span style="color:#f92672">}</span><span style="">)</span></code></pre>
+</div>
 <p>（CMakeが3.8より古いと <code>swig_add_library</code> ではなく <code>swig_add_module</code> を使う必要があります。その際 <code>LANGUAGE</code>, <code>SOURCES</code> は除いてください。）</p>
 
 <p>あとは <code>cmake, make</code> すれば <code>_example.so</code> が生成され、Pythonからインポートして使えます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f92672">import</span> <span style="color: #f8f8f2">example</span>
-
-<span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">i</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">range(</span><span style="color: #ae81ff">10</span><span style="color: #f8f8f2">):</span>
-    <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(example</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">fact(i))</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span><span style=""> </span><span style="">example</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">i</span><span style=""> </span><span style="color:#f92672">in</span><span style=""> </span><span style="">range</span><span style="">(</span><span style="color:#ae81ff">10</span><span style="">):</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">print</span><span style="">(</span><span style="">example</span><span style="color:#f92672">.</span><span style="">fact</span><span style="">(</span><span style="">i</span><span style="">))</span></code></pre>
+</div>
 <h3 id="boost-python">Boost.Python</h3>
 
 <p>詳細は <a href="http://www.boost.org/doc/libs/1_64_0/libs/python/doc/html/index.html">公式ドキュメント</a> を参照してください。
@@ -359,27 +353,25 @@ Python以外にも多くの言語に対応しています。</p>
 <p>macOSでのPython3を対象とします。</p>
 
 <p>まず、Boost.PythonをHomebrewでインストールするのですが、Python3に対応させるために、<code>--with-python3</code> オプションを付けます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>$ brew install boost-python --with-python3 --c++11
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"><span style="">$ brew install boost-python --with-python3 --c++11</span></code></pre>
+</div>
 <p>GCCを使いたい場合は <code>--cc=gcc-7</code> のようなオプションを追加してください。</p>
 
 <p>ビルドにはCMakeを使うことにします。
 次のような<code>CMakeLists.txt</code>を用意してください。
 ここでは、<code>mod.cpp</code> をPythonモジュールとしてビルドし、<code>test_mod.py</code> から使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">cmake_minimum_required(</span><span style="color: #e6db74">VERSION</span> <span style="color: #e6db74">3.8.0</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">PythonInterp</span> <span style="color: #e6db74">3</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">PythonLibs</span> <span style="color: #e6db74">3</span> <span style="color: #e6db74">REQUIRED</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">find_package(</span><span style="color: #e6db74">Boost</span> <span style="color: #e6db74">COMPONENTS</span> <span style="color: #e6db74">python3</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">include_directories(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">Boost_INCLUDE_DIRS</span><span style="color: #f92672">}</span> <span style="color: #f92672">${</span><span style="color: #f8f8f2">PYTHON_INCLUDE_DIRS</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">link_libraries(</span><span style="color: #f92672">${</span><span style="color: #f8f8f2">Boost_LIBRARIES</span><span style="color: #f92672">}</span> <span style="color: #f92672">${</span><span style="color: #f8f8f2">PYTHON_LIBRARIES</span><span style="color: #f92672">}</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">python_add_module(</span><span style="color: #e6db74">mod</span> <span style="color: #e6db74">mod.cpp</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">file(</span><span style="color: #e6db74">COPY</span> <span style="color: #e6db74">test_mod.py</span> <span style="color: #e6db74">DESTINATION</span> <span style="color: #e6db74">.</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="">cmake_minimum_required</span><span style=""></span><span style="">(</span><span style="color:#e6db74">VERSION</span><span style=""> </span><span style="color:#e6db74">3.8.0</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">find_package</span><span style=""></span><span style="">(</span><span style="color:#e6db74">PythonInterp</span><span style=""> </span><span style="color:#e6db74">3</span><span style=""> </span><span style="color:#e6db74">REQUIRED</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">find_package</span><span style=""></span><span style="">(</span><span style="color:#e6db74">PythonLibs</span><span style=""> </span><span style="color:#e6db74">3</span><span style=""> </span><span style="color:#e6db74">REQUIRED</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">find_package</span><span style=""></span><span style="">(</span><span style="color:#e6db74">Boost</span><span style=""> </span><span style="color:#e6db74">COMPONENTS</span><span style=""> </span><span style="color:#e6db74">python3</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">include_directories</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">Boost_INCLUDE_DIRS</span><span style="color:#f92672">}</span><span style=""> </span><span style="color:#f92672">${</span><span style="">PYTHON_INCLUDE_DIRS</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">link_libraries</span><span style=""></span><span style="">(</span><span style="color:#f92672">${</span><span style="">Boost_LIBRARIES</span><span style="color:#f92672">}</span><span style=""> </span><span style="color:#f92672">${</span><span style="">PYTHON_LIBRARIES</span><span style="color:#f92672">}</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">python_add_module</span><span style=""></span><span style="">(</span><span style="color:#e6db74">mod</span><span style=""> </span><span style="color:#e6db74">mod.cpp</span><span style="">)</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="">file</span><span style=""></span><span style="">(</span><span style="color:#e6db74">COPY</span><span style=""> </span><span style="color:#e6db74">test_mod.py</span><span style=""> </span><span style="color:#e6db74">DESTINATION</span><span style=""> </span><span style="color:#e6db74">.</span><span style="">)</span></code></pre>
+</div>
 <p><code>cmake</code> を実行すると <code>FindBoost.cmake</code> がwarningを吐きますが、とりあえず気にしないでいいようです。</p>
 
 <h4 id="c-の関数を公開する">C++の関数を公開する</h4>
@@ -387,25 +379,23 @@ Python以外にも多くの言語に対応しています。</p>
 <h5 id="基本">基本</h5>
 
 <p>例えば、次の関数 <code>mult2()</code> をPythonから使えるようにしてみます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// fn.cpp</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #a6e22e">mult2</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">x)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x</span> <span style="color: #f92672">*</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// fn.cpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">mult2</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">x</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>次の記述を加えるだけで完了です。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;boost/python.hpp&gt;</span>
-
-<span style="color: #66d9ef">using</span> <span style="color: #66d9ef">namespace</span> <span style="color: #f8f8f2">boost</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">python;</span>
-
-<span style="color: #f8f8f2">BOOST_PYTHON_MODULE(fn)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;mult2&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">mult2);</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">using</span><span style=""> </span><span style="color:#66d9ef">namespace</span><span style=""> </span><span style="">boost</span><span style="color:#f92672">::</span><span style="">python</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">fn</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;mult2&#34;</span><span style="">,</span><span style=""> </span><span style="">mult2</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p><code>BOOST_PYTHON_MODULE</code> マクロでPythonモジュールを作っています。
 ここでは <code>fn</code> モジュールと名付けました。</p>
 
@@ -413,21 +403,19 @@ Python以外にも多くの言語に対応しています。</p>
 関数名はPython側で使いたいものなので好きに設定できます。</p>
 
 <p>Python側では次のように使えます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f92672">import</span> <span style="color: #f8f8f2">fn</span>
-
-<span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">i</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">range(</span><span style="color: #ae81ff">100</span><span style="color: #f8f8f2">):</span>
-    <span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">mult2(i)</span> <span style="color: #f92672">==</span> <span style="color: #f8f8f2">i</span> <span style="color: #f92672">*</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span><span style=""> </span><span style="">fn</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">i</span><span style=""> </span><span style="color:#f92672">in</span><span style=""> </span><span style="">range</span><span style="">(</span><span style="color:#ae81ff">100</span><span style="">):</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">mult2</span><span style="">(</span><span style="">i</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="">i</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">)</span></code></pre>
+</div>
 <h5 id="デフォルト引数">デフォルト引数</h5>
 
 <p>デフォルト引数を持つ、次の関数を考えます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">int</span> <span style="color: #a6e22e">sum</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">x,</span> <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">y</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x</span> <span style="color: #f92672">+</span> <span style="color: #f8f8f2">y;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">sum</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">x</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">y</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>これを公開するには、<code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを使うのが便利です。
 このマクロに</p>
 
@@ -438,92 +426,83 @@ Python以外にも多くの言語に対応しています。</p>
 </ul>
 
 <p>を渡し、<code>def()</code> を下の例のように呼びます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">BOOST_PYTHON_FUNCTION_OVERLOADS(sum_overloads,</span> <span style="color: #f8f8f2">sum,</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">BOOST_PYTHON_MODULE(fn)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;sum&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">sum,</span> <span style="color: #f8f8f2">sum_overloads());</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">BOOST_PYTHON_FUNCTION_OVERLOADS</span><span style="">(</span><span style="">sum_overloads</span><span style="">,</span><span style=""> </span><span style="">sum</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">)</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">fn</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;sum&#34;</span><span style="">,</span><span style=""> </span><span style="">sum</span><span style="">,</span><span style=""> </span><span style="">sum_overloads</span><span style="">());</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>Python側で、デフォルト引数が使えていることが確認できます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sum(</span><span style="color: #ae81ff">2</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">)</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sum(</span><span style="color: #ae81ff">2</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">3</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">5</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">sum</span><span style="">(</span><span style="color:#ae81ff">2</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">sum</span><span style="">(</span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">)</span></code></pre>
+</div>
 <h5 id="オーバーロード">オーバーロード</h5>
 
 <p>関数オーバーロードでも、<code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを使うのが便利です。
 次の関数群 <code>sub()</code> を考えます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">int</span> <span style="color: #a6e22e">sub</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">x)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x;</span>
-<span style="color: #f8f8f2">}</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #a6e22e">sub</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">x,</span> <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">y)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x</span> <span style="color: #f92672">-</span> <span style="color: #f8f8f2">y;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">sub</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">x</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">sub</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">x</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">y</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">-</span><span style=""> </span><span style="">y</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p><code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを、デフォルト引数のときと同じように使います。</p>
 
 <p><code>def()</code> の記述は少し変わっています。
 第二引数に、最も多くの引数をとる関数シグネチャを次のように書きます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">BOOST_PYTHON_FUNCTION_OVERLOADS(sub_overloads,</span> <span style="color: #f8f8f2">sub,</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">2</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #f8f8f2">BOOST_PYTHON_MODULE(fn)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;sub&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">(</span><span style="color: #f92672">*</span><span style="color: #f8f8f2">)(</span><span style="color: #66d9ef">int</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">int</span><span style="color: #f8f8f2">))</span><span style="color: #ae81ff">0</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">sub_overloads());</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">BOOST_PYTHON_FUNCTION_OVERLOADS</span><span style="">(</span><span style="">sub_overloads</span><span style="">,</span><span style=""> </span><span style="">sub</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">)</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">fn</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;sub&#34;</span><span style="">,</span><span style=""> </span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">(</span><span style="color:#f92672">*</span><span style="">)(</span><span style="color:#66d9ef">int</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">int</span><span style="">))</span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">sub_overloads</span><span style="">());</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <h5 id="手動オーバーロード解決">手動オーバーロード解決</h5>
 
 <p><code>sub()</code> の例では、すべての関数オーバーロードのシグネチャが、最も多くの引数をとる関数シグネチャに含まれるという形をとっていました。
 これが成り立たないようなオーバーロードは、現時点では自動では扱えないため、手動でラッパーを書く必要があります。</p>
 
 <p>例えば、次の関数を加えたいとします。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">double</span> <span style="color: #a6e22e">sub</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">x)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x;</span>
-<span style="color: #f8f8f2">}</span>
-
-<span style="color: #66d9ef">double</span> <span style="color: #a6e22e">sub</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">x,</span> <span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">y)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">x</span> <span style="color: #f92672">-</span> <span style="color: #f8f8f2">y;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">double</span><span style=""> </span><span style="color:#a6e22e">sub</span><span style="">(</span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">x</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">double</span><span style=""> </span><span style="color:#a6e22e">sub</span><span style="">(</span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">x</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">y</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">-</span><span style=""> </span><span style="">y</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p>これを <code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> で扱うことはできないため、次のように別名を付けてやります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">BOOST_PYTHON_MODULE(fn)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">(</span><span style="color: #f92672">*</span><span style="color: #f8f8f2">sub_double_1)(</span><span style="color: #66d9ef">double</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">sub;</span>
-    <span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">(</span><span style="color: #f92672">*</span><span style="color: #f8f8f2">sub_double_2)(</span><span style="color: #66d9ef">double</span><span style="color: #f8f8f2">,</span> <span style="color: #66d9ef">double</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">sub;</span>
-
-    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;sub&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">sub_double_1);</span>
-    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;sub&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">sub_double_2);</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">fn</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">(</span><span style="color:#f92672">*</span><span style="">sub_double_1</span><span style="">)(</span><span style="color:#66d9ef">double</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">sub</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">(</span><span style="color:#f92672">*</span><span style="">sub_double_2</span><span style="">)(</span><span style="color:#66d9ef">double</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">double</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">sub</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;sub&#34;</span><span style="">,</span><span style=""> </span><span style="">sub_double_1</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;sub&#34;</span><span style="">,</span><span style=""> </span><span style="">sub_double_2</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <h5 id="キーワード引数">キーワード引数</h5>
 
 <p>C++の関数を、Python側でキーワード引数が使えるようにして公開することができます。
 次の関数を例に取ります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">double</span> <span style="color: #a6e22e">my_div</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">dividend,</span> <span style="color: #66d9ef">double</span> <span style="color: #f8f8f2">divisor)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">dividend</span> <span style="color: #f92672">/</span> <span style="color: #f8f8f2">divisor;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">double</span><span style=""> </span><span style="color:#a6e22e">my_div</span><span style="">(</span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">dividend</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">double</span><span style=""> </span><span style="">divisor</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">dividend</span><span style=""> </span><span style="color:#f92672">/</span><span style=""> </span><span style="">divisor</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p><code>BOOST_PYTHON_MODULE</code> 内に以下のように記述すると、キーワード引数が使えるようになります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">def(</span><span style="color: #e6db74">&quot;div&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">my_div,</span> <span style="color: #f8f8f2">(arg(</span><span style="color: #e6db74">&quot;dividend&quot;</span><span style="color: #f8f8f2">),</span> <span style="color: #e6db74">&quot;divisor&quot;</span><span style="color: #f8f8f2">));</span>
-</pre></div>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">div(</span><span style="color: #ae81ff">3.0</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">2.0</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">1.5</span><span style="color: #f8f8f2">)</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">div(dividend</span><span style="color: #f92672">=</span><span style="color: #ae81ff">3.0</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">divisor</span><span style="color: #f92672">=</span><span style="color: #ae81ff">2.0</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">1.5</span><span style="color: #f8f8f2">)</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(fn</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">div(divisor</span><span style="color: #f92672">=</span><span style="color: #ae81ff">2.0</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">dividend</span><span style="color: #f92672">=</span><span style="color: #ae81ff">3.0</span><span style="color: #f8f8f2">)</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">1.5</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;div&#34;</span><span style="">,</span><span style=""> </span><span style="">my_div</span><span style="">,</span><span style=""> </span><span style="">(</span><span style="">arg</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;dividend&#34;</span><span style="">),</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;divisor&#34;</span><span style="">));</span></code></pre>
+</div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">div</span><span style="">(</span><span style="color:#ae81ff">3.0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2.0</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">1.5</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">div</span><span style="">(</span><span style="">dividend</span><span style="color:#f92672">=</span><span style="color:#ae81ff">3.0</span><span style="">,</span><span style=""> </span><span style="">divisor</span><span style="color:#f92672">=</span><span style="color:#ae81ff">2.0</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">1.5</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">fn</span><span style="color:#f92672">.</span><span style="">div</span><span style="">(</span><span style="">divisor</span><span style="color:#f92672">=</span><span style="color:#ae81ff">2.0</span><span style="">,</span><span style=""> </span><span style="">dividend</span><span style="color:#f92672">=</span><span style="color:#ae81ff">3.0</span><span style="">)</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">1.5</span><span style="">)</span></code></pre>
+</div>
 <p>ちなみに、<code>arg(&quot;dividend&quot;) = 0</code> のように書くとデフォルト引数になります。</p>
 
 <h4 id="c-のクラスを公開する">C++のクラスを公開する</h4>
@@ -531,30 +510,28 @@ Python以外にも多くの言語に対応しています。</p>
 <h5 id="基本-1">基本</h5>
 
 <p>例えば、次の <code>Person</code> クラスをPythonから使えるようにします。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">// cls.cpp</span>
-
-<span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;string&gt;</span>
-
-<span style="color: #66d9ef">struct</span> <span style="color: #f8f8f2">Person</span> <span style="color: #f8f8f2">{</span>
-<span style="color: #66d9ef">public</span><span style="color: #f92672">:</span>
-    <span style="color: #66d9ef">explicit</span> <span style="color: #f8f8f2">Person(std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">name)</span> <span style="color: #f92672">:</span> <span style="color: #f8f8f2">name(name)</span> <span style="color: #f8f8f2">{}</span>
-    <span style="color: #66d9ef">const</span> <span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">name;</span>
-
-    <span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">greet()</span> <span style="color: #66d9ef">const</span> <span style="color: #f8f8f2">{</span> <span style="color: #66d9ef">return</span> <span style="color: #e6db74">&quot;My name is &quot;</span> <span style="color: #f92672">+</span> <span style="color: #f8f8f2">name;</span> <span style="color: #f8f8f2">}</span>
-<span style="color: #f8f8f2">};</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// cls.cpp
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="">Person</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">explicit</span><span style=""> </span><span style="">Person</span><span style="">(</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">name</span><span style="">)</span><span style=""> </span><span style="color:#f92672">:</span><span style=""> </span><span style="">name</span><span style="">(</span><span style="">name</span><span style="">)</span><span style=""> </span><span style="">{}</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">const</span><span style=""> </span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">name</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">greet</span><span style="">()</span><span style=""> </span><span style="color:#66d9ef">const</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;My name is &#34;</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">name</span><span style="">;</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">};</span></code></pre>
+</div>
 <p>関数のときと同じように、次の記述を加えて完了です。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;boost/python.hpp&gt;</span>
-<span style="color: #66d9ef">using</span> <span style="color: #66d9ef">namespace</span> <span style="color: #f8f8f2">boost</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">python;</span>
-
-<span style="color: #f8f8f2">BOOST_PYTHON_MODULE(cls)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">class_</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;Person&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">init</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">())</span>
-        <span style="color: #f8f8f2">.def(</span><span style="color: #e6db74">&quot;greet&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">greet);</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span><span style=""> </span><span style="color:#66d9ef">namespace</span><span style=""> </span><span style="">boost</span><span style="color:#f92672">::</span><span style="">python</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">cls</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">class_</span><span style="color:#f92672">&lt;</span><span style="">Person</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Person&#34;</span><span style="">,</span><span style=""> </span><span style="">init</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">())</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;greet&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">greet</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 <p><code>class_</code> 関数テンプレートを、公開するクラスを型引数、名前を引数にして呼び出します。
 名前とともに <code>init</code> を渡すと、それがコンストラクタになります。</p>
 
@@ -562,109 +539,100 @@ Python以外にも多くの言語に対応しています。</p>
 ここでは <code>Person::greet()</code> 関数を <code>greet</code> という名前で公開しています。</p>
 
 <p>すると、Pythonからは次のように使うことができます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f92672">import</span> <span style="color: #f8f8f2">cls</span>
-
-<span style="color: #f8f8f2">p</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">cls</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">Person(</span><span style="color: #e6db74">&quot;pohe&quot;</span><span style="color: #f8f8f2">)</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">greet()</span> <span style="color: #f92672">==</span> <span style="color: #e6db74">&quot;My name is pohe&quot;</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span><span style=""> </span><span style="">cls</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">p</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">cls</span><span style="color:#f92672">.</span><span style="">Person</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;pohe&#34;</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">greet</span><span style="">()</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;My name is pohe&#34;</span><span style="">)</span></code></pre>
+</div>
 <h5 id="コンストラクタ">コンストラクタ</h5>
 
 <p>上述のようにコンストラクタを公開できましたが、オーバーロードするには、<code>def()</code> に <code>init</code> を渡していきます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">...</span>
-
-    <span style="color: #66d9ef">explicit</span> <span style="color: #f8f8f2">Person(std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">name,</span> <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">age)</span> <span style="color: #f92672">:</span> <span style="color: #f8f8f2">name(name),</span> <span style="color: #f8f8f2">age(age)</span> <span style="color: #f8f8f2">{}</span>
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">age</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">;</span>
-    <span style="color: #66d9ef">void</span> <span style="color: #a6e22e">grow</span><span style="color: #f8f8f2">()</span> <span style="color: #f8f8f2">{</span> <span style="color: #f8f8f2">age</span><span style="color: #f92672">++</span><span style="color: #f8f8f2">;</span> <span style="color: #f8f8f2">}</span>
-
-    <span style="color: #f8f8f2">...</span>
-
-<span style="color: #f8f8f2">BOOST_PYTHON_MODULE(cls)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">class_</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;Person&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">init</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">())</span>
-        <span style="color: #f8f8f2">.def(init</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string,</span> <span style="color: #66d9ef">int</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">())</span>
-        <span style="color: #f8f8f2">.def(</span><span style="color: #e6db74">&quot;greet&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">greet);</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">explicit</span><span style=""> </span><span style="">Person</span><span style="">(</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">name</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">age</span><span style="">)</span><span style=""> </span><span style="color:#f92672">:</span><span style=""> </span><span style="">name</span><span style="">(</span><span style="">name</span><span style="">),</span><span style=""> </span><span style="">age</span><span style="">(</span><span style="">age</span><span style="">)</span><span style=""> </span><span style="">{}</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">age</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">void</span><span style=""> </span><span style="color:#a6e22e">grow</span><span style="">()</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">age</span><span style="color:#f92672">++</span><span style="">;</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">BOOST_PYTHON_MODULE</span><span style="">(</span><span style="">cls</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">class_</span><span style="color:#f92672">&lt;</span><span style="">Person</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Person&#34;</span><span style="">,</span><span style=""> </span><span style="">init</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">())</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="">init</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span><span style="">())</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;greet&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">greet</span><span style="">);</span></code></pre>
+</div>
 <p>なお、コンストラクタを定義しない抽象クラスの場合は、<code>init</code> の代わりに <code>no_init</code> という変数を渡すようです。</p>
 
 <h5 id="メンバ変数">メンバ変数</h5>
 
 <p>先程の例で <code>age</code> メンバ変数（と <code>grow()</code> メンバ関数）を追加しました。
 メンバ変数は以下のように <code>def()</code> チェーンにつなげていくことで公開できます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">...</span>
-
-        <span style="color: #f8f8f2">.def_readwrite(</span><span style="color: #e6db74">&quot;age&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">age)</span>
-        <span style="color: #f8f8f2">.def(</span><span style="color: #e6db74">&quot;grow&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">grow);</span>
-
-        <span style="color: #f8f8f2">...</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def_readwrite</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;age&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">age</span><span style="">)</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;grow&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">grow</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">...</span></code></pre>
+</div>
 <p><code>def_readwrite()</code> を使うと、メンバ変数が読み込み・書き込みともに可能な状態でPythonから扱えるようになります。
 <code>def_readonly()</code> を使うと、読み込みのみ可能にできます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">p</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">cls</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">Person(</span><span style="color: #e6db74">&quot;fuga&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">)</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">age</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">age</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">10</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">age</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">10</span><span style="color: #f8f8f2">)</span>
-<span style="color: #f8f8f2">p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">grow()</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">age</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">11</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="">p</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">cls</span><span style="color:#f92672">.</span><span style="">Person</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;fuga&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">age</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">p</span><span style="color:#f92672">.</span><span style="">age</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">10</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">age</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">10</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">p</span><span style="color:#f92672">.</span><span style="">grow</span><span style="">()</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">age</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">11</span><span style="">)</span></code></pre>
+</div>
 <h5 id="プロパティ">プロパティ</h5>
 
 <p>実際のC++では、メンバ変数はprivateにし、getter, setterを定義することが多いでしょう。</p>
 
 <p>上の例に <code>m_height</code>, <code>m_weight</code> メンバ変数を追加し、<code>m_height</code> のgetterとsetter, <code>m_weight</code> のgetterを定義します。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">...</span>
-
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">getHeight()</span> <span style="color: #66d9ef">const</span> <span style="color: #f8f8f2">{</span> <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">m_height;</span> <span style="color: #f8f8f2">}</span>
-    <span style="color: #66d9ef">void</span> <span style="color: #f8f8f2">setHeight(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">height)</span> <span style="color: #f8f8f2">{</span> <span style="color: #f8f8f2">m_height</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">height;</span> <span style="color: #f8f8f2">}</span>
-
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">getWeight()</span> <span style="color: #66d9ef">const</span> <span style="color: #f8f8f2">{</span> <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">m_weight;</span> <span style="color: #f8f8f2">}</span>
-
-<span style="color: #66d9ef">private</span><span style="color: #f92672">:</span>
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">m_height</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">;</span>
-    <span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">m_weight</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">50</span><span style="color: #f8f8f2">;</span>
-<span style="color: #f8f8f2">};</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">getHeight</span><span style="">()</span><span style=""> </span><span style="color:#66d9ef">const</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">m_height</span><span style="">;</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">void</span><span style=""> </span><span style="">setHeight</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">height</span><span style="">)</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">m_height</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">height</span><span style="">;</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">getWeight</span><span style="">()</span><span style=""> </span><span style="color:#66d9ef">const</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">m_weight</span><span style="">;</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">private</span><span style="color:#f92672">:</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">m_height</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">m_weight</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">50</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">};</span></code></pre>
+</div>
 <p>Python側に公開するには、<code>add_property()</code> 関数を <code>def()</code> チェーンにつなげていきます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">...</span>
-
-        <span style="color: #f8f8f2">.add_property(</span><span style="color: #e6db74">&quot;height&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">getHeight,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">setHeight)</span>
-        <span style="color: #f8f8f2">.add_property(</span><span style="color: #e6db74">&quot;weight&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">getWeight);</span>
-
-        <span style="color: #f8f8f2">...</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">add_property</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;height&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">getHeight</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">setHeight</span><span style="">)</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">add_property</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;weight&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">getWeight</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">...</span></code></pre>
+</div>
 <p><code>add_property()</code> 関数に、プロパティ名、getter, setterを渡します。
 setterを省略すると読み込み専用になります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">height</span> <span style="color: #f92672">=</span> <span style="color: #ae81ff">150</span>
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">height</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">150</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #66d9ef">assert</span><span style="color: #f8f8f2">(p</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">weight</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">50</span><span style="color: #f8f8f2">)</span>
-<span style="color: #75715e"># p.weight = 100 # error</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="">p</span><span style="color:#f92672">.</span><span style="">height</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">150</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">height</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">150</span><span style="">)</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">assert</span><span style="">(</span><span style="">p</span><span style="color:#f92672">.</span><span style="">weight</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">50</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="color:#75715e"># p.weight = 100 # error</span></code></pre>
+</div>
 <h5 id="オペレータ">オペレータ</h5>
 
 <p>C++でのクラスに対する、<code>opeartor+</code> などのオペレータをPythonでも使えるようにします。
 次の <code>Person::opeartor+=</code> を例にします。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">Person</span><span style="color: #f92672">&amp;</span> <span style="color: #66d9ef">operator</span><span style="color: #f92672">+=</span><span style="color: #f8f8f2">(</span><span style="color: #66d9ef">int</span> <span style="color: #f8f8f2">age)</span>
-    <span style="color: #f8f8f2">{</span>
-        <span style="color: #66d9ef">this</span><span style="color: #f92672">-&gt;</span><span style="color: #f8f8f2">age</span> <span style="color: #f92672">+=</span> <span style="color: #f8f8f2">age;</span>
-        <span style="color: #66d9ef">return</span> <span style="color: #f92672">*</span><span style="color: #66d9ef">this</span><span style="color: #f8f8f2">;</span>
-    <span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">Person</span><span style="color:#f92672">&amp;</span><span style=""> </span><span style="color:#66d9ef">operator</span><span style="color:#f92672">+=</span><span style="">(</span><span style="color:#66d9ef">int</span><span style=""> </span><span style="">age</span><span style="">)</span><span style="">
+</span><span style="">    </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span><span style="">age</span><span style=""> </span><span style="color:#f92672">+=</span><span style=""> </span><span style="">age</span><span style="">;</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="color:#f92672">*</span><span style="color:#66d9ef">this</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="">}</span></code></pre>
+</div>
 <p>これを公開するには、<code>def()</code> チェーンに次を追加するだけです。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">...</span>
-
-    <span style="color: #f8f8f2">.def(self</span> <span style="color: #f92672">+=</span> <span style="color: #66d9ef">int</span><span style="color: #f8f8f2">())</span>
-
-    <span style="color: #f8f8f2">...</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="">self</span><span style=""> </span><span style="color:#f92672">+=</span><span style=""> </span><span style="color:#66d9ef">int</span><span style="">())</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">...</span></code></pre>
+</div>
 <p><code>self</code> が <code>Person</code>, <code>int()</code> が <code>operator+=</code> の引数に対応しています。
 他のオペレータでも同様に書けます。</p>
 
@@ -675,19 +643,18 @@ setterを省略すると読み込み専用になります。</p>
 
 <p>C++から公開するクラスに <code>___str__()</code> メソッドを定義したいとき、まずC++で <code>operator&lt;&lt;</code> を定義します。
 そして、<code>self_ns::str(self_ns::self)</code> を<code>def()</code> チェーンにわたします。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">ostream</span><span style="color: #f92672">&amp;</span> <span style="color: #66d9ef">operator</span><span style="color: #f92672">&lt;&lt;</span><span style="color: #f8f8f2">(std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">ostream</span><span style="color: #f92672">&amp;</span> <span style="color: #f8f8f2">os,</span> <span style="color: #f8f8f2">Person</span> <span style="color: #f8f8f2">p)</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #f8f8f2">os</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">p.name;</span>
-    <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">os;</span>
-<span style="color: #f8f8f2">}</span>
-
-<span style="color: #f8f8f2">...</span>
-
-        <span style="color: #f8f8f2">.def(self_ns</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">str(self_ns</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">self))</span>
-
-        <span style="color: #f8f8f2">...</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">std</span><span style="color:#f92672">::</span><span style="">ostream</span><span style="color:#f92672">&amp;</span><span style=""> </span><span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;&lt;</span><span style="">(</span><span style="">std</span><span style="color:#f92672">::</span><span style="">ostream</span><span style="color:#f92672">&amp;</span><span style=""> </span><span style="">os</span><span style="">,</span><span style=""> </span><span style="">Person</span><span style=""> </span><span style="">p</span><span style="">)</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">os</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">p</span><span style="">.</span><span style="">name</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">os</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="">self_ns</span><span style="color:#f92672">::</span><span style="">str</span><span style="">(</span><span style="">self_ns</span><span style="color:#f92672">::</span><span style="">self</span><span style="">))</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">...</span></code></pre>
+</div>
 <p>現時点での公式ドキュメントでは、<code>.def(str(self))</code> のように <code>self_ns</code> 名前空間の指定が書かれていませんが、これがないとコンパイルエラーになります。</p>
 
 <p>これによりPython側で <code>__str__()</code> メソッドが定義され、<code>print()</code> で好きな文字列を表示したりできます。</p>
@@ -698,23 +665,21 @@ setterを省略すると読み込み専用になります。</p>
 あまりいい例ではないですが、<code>Person::name</code> を一文字ずつ走査するイテレータを考えます。</p>
 
 <p>Person<code>クラスにイテレータの最初と最後を返すメンバ関数を定義し、</code>def()` チェーンに次のように渡します。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">...</span>
-
-    <span style="color: #66d9ef">auto</span> <span style="color: #f8f8f2">begin()</span> <span style="color: #f8f8f2">{</span> <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">name.begin();</span> <span style="color: #f8f8f2">}</span>
-    <span style="color: #66d9ef">auto</span> <span style="color: #f8f8f2">end()</span> <span style="color: #f8f8f2">{</span> <span style="color: #66d9ef">return</span> <span style="color: #f8f8f2">name.end();</span> <span style="color: #f8f8f2">}</span>
-
-    <span style="color: #f8f8f2">...</span>
-
-        <span style="color: #f8f8f2">.def(</span><span style="color: #e6db74">&quot;__iter__&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">range(</span><span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">begin,</span> <span style="color: #f92672">&amp;</span><span style="color: #f8f8f2">Person</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">end));</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">auto</span><span style=""> </span><span style="">begin</span><span style="">()</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">name</span><span style="">.</span><span style="">begin</span><span style="">();</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">auto</span><span style=""> </span><span style="">end</span><span style="">()</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="">name</span><span style="">.</span><span style="">end</span><span style="">();</span><span style=""> </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">...</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">.</span><span style="">def</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;__iter__&#34;</span><span style="">,</span><span style=""> </span><span style="">range</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">begin</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Person</span><span style="color:#f92672">::</span><span style="">end</span><span style="">));</span></code></pre>
+</div>
 <p><code>range()</code> にイテレータの最初と最後を渡しています。
 <code>__iter__</code> という名前にすることで、Pythonでのfor文に <code>Person</code> 型が渡せるようになっていますが、
 別の名前にすれば、その名前のメソッドがイテレータを返すようになります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">s</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">p:</span>
-    <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(s)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">for</span><span style=""> </span><span style="">s</span><span style=""> </span><span style="color:#f92672">in</span><span style=""> </span><span style="">p</span><span style="">:</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">print</span><span style="">(</span><span style="">s</span><span style="">)</span></code></pre>
+</div>
 <p>ちなみに、<code>vector</code> など</p>
 
 <ul>
@@ -750,18 +715,17 @@ Boost.Pythonがこれを引き受けてくれるのが助かります。</p>
 <h3 id="準備">準備</h3>
 
 <p>C++側で <code>boost/python.hpp</code> をインクルードし、<code>Py_Initialize()</code> を呼んで初期化します。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;iostream&gt;</span>
-<span style="color: #75715e">#include</span> <span style="color: #75715e">&lt;boost/python.hpp&gt;</span>
-
-<span style="color: #66d9ef">int</span> <span style="color: #a6e22e">main</span><span style="color: #f8f8f2">()</span>
-<span style="color: #f8f8f2">{</span>
-    <span style="color: #66d9ef">using</span> <span style="color: #66d9ef">namespace</span> <span style="color: #f8f8f2">std;</span>
-    <span style="color: #66d9ef">namespace</span> <span style="color: #f8f8f2">bp</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">boost</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">python;</span>
-
-    <span style="color: #66d9ef">try</span> <span style="color: #f8f8f2">{</span>
-        <span style="color: #f8f8f2">Py_Initialize();</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style=""> </span><span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">int</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style="">
+</span><span style=""></span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">using</span><span style=""> </span><span style="color:#66d9ef">namespace</span><span style=""> </span><span style="">std</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">namespace</span><span style=""> </span><span style="">bp</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">boost</span><span style="color:#f92672">::</span><span style="">python</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">try</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Py_Initialize</span><span style="">();</span></code></pre>
+</div>
 <h3 id="モジュールの読み込みと操作">モジュールの読み込みと操作</h3>
 
 <p><code>import()</code> 関数にPythonモジュール名を渡すと、そのモジュールが読み込まれます。
@@ -770,40 +734,36 @@ Boost.Pythonがこれを引き受けてくれるのが助かります。</p>
 
 <p>モジュールの <code>__dict__</code> 属性を辞書として参照することで、そのモジュールの名前空間が得られます。
 Boost.Pythonの <code>extract()</code> 関数テンプレートは、PythonオブジェクトからC++側で使うある値を取り出すときに使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">object</span> <span style="color: #f8f8f2">py_main_module</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">import(</span><span style="color: #e6db74">&quot;__main__&quot;</span><span style="color: #f8f8f2">);</span>
-        <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">dict</span> <span style="color: #f8f8f2">py_main_namespace</span>
-            <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">dict</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_main_module.attr(</span><span style="color: #e6db74">&quot;__dict__&quot;</span><span style="color: #f8f8f2">));</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">object</span><span style=""> </span><span style="">py_main_module</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">import</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;__main__&#34;</span><span style="">);</span><span style="">
+</span><span style="">        </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">dict</span><span style=""> </span><span style="">py_main_namespace</span><span style="">
+</span><span style="">            </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">bp</span><span style="color:#f92672">::</span><span style="">dict</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_main_module</span><span style="">.</span><span style="">attr</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;__dict__&#34;</span><span style="">));</span></code></pre>
+</div>
 <p>ちなみに、<code>__main__</code> 以外のモジュールは、相対パスの場合 <code>PYTHONPATH</code> 環境変数からのパスが使われるので、<code>setenv()</code> などでの設定が必要です。</p>
 
 <p>名前空間（実体は辞書）に、C++側で値の追加・変更ができます。
 辞書なので名前をキーとして <code>[]</code> でアクセスして代入するだけです。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">py_main_namespace[</span><span style="color: #e6db74">&quot;p&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #e6db74">&quot;po&quot;</span><span style="color: #f8f8f2">;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">py_main_namespace</span><span style="">[</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;p&#34;</span><span style="">]</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;po&#34;</span><span style="">;</span></code></pre>
+</div>
 <p>PythonオブジェクトからC++での値を取り出すには、先述した <code>extract()</code> 関数テンプレートを使います。
 テンプレート引数にC++での型を指定します。</p>
 
 <p>ここで注意なのが、文字列(<code>std::string</code>)を取り出す際、<code>auto</code> で受けると他の型になってしまうので、戻り値の型を明示的に <code>std::string</code> に指定します。
 <code>int</code> や <code>double</code> などプリミティブな型は <code>auto</code> で大丈夫なようです。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">p</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_main_namespace[</span><span style="color: #e6db74">&quot;p&quot;</span><span style="color: #f8f8f2">]);</span>
-        <span style="color: #f8f8f2">cout</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;Defined &#39;p = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">po</span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&#39;</span><span style="color: #ae81ff">\n</span><span style="color: #e6db74">&quot;</span>
-             <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) p = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">p</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\&quot;\n</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_main_namespace</span><span style="">[</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;p&#34;</span><span style="">]);</span><span style="">
+</span><span style="">        </span><span style="">cout</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Defined &#39;p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">po</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="">
+</span><span style="">             </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span></code></pre>
+</div>
 <h3 id="pythonの呼び出し">Pythonの呼び出し</h3>
 
 <p>さて、C++からPythonを呼び出してみましょう。
 まずは、式を文字列で渡してPythonインタプリタで評価してみます。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">object</span> <span style="color: #f8f8f2">py_s2</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">eval(</span><span style="color: #e6db74">&quot;p + p&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">py_main_namespace);</span>
-        <span style="color: #f8f8f2">p</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_main_namespace[</span><span style="color: #e6db74">&quot;p&quot;</span><span style="color: #f8f8f2">]);</span>
-        <span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">pp</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_s2);</span>
-        <span style="color: #f8f8f2">cout</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;Evaluated &#39;p + p&#39;; resulting in &#39;pp&#39;</span><span style="color: #ae81ff">\n</span><span style="color: #e6db74">&quot;</span>
-             <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) p = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">p</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\&quot;\n</span><span style="color: #e6db74">&quot;</span>
-             <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) pp = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">pp</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\&quot;\n</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">object</span><span style=""> </span><span style="">py_s2</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">eval</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;p + p&#34;</span><span style="">,</span><span style=""> </span><span style="">py_main_namespace</span><span style="">);</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_main_namespace</span><span style="">[</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;p&#34;</span><span style="">]);</span><span style="">
+</span><span style="">        </span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">pp</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_s2</span><span style="">);</span><span style="">
+</span><span style="">        </span><span style="">cout</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Evaluated &#39;p + p&#39;; resulting in &#39;pp&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="">
+</span><span style="">             </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span><span style="">
+</span><span style="">             </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) pp = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">pp</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span></code></pre>
+</div>
 <p><code>eval()</code> 関数にPythonの式を渡すと、評価結果がPythonオブジェクト（<code>boost::python::object</code>）で返ってきます。
 <code>eval()</code> 関数の引数は、</p>
 
@@ -831,20 +791,19 @@ Boost.Pythonの <code>extract()</code> 関数テンプレートは、Pythonオ�
 
 <p>次に、文を実行してみます。
 これには <code>exec()</code> 関数を使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">exec(</span><span style="color: #e6db74">R&quot;(</span>
-<span style="color: #e6db74">def f():</span>
-<span style="color: #e6db74">    global p</span>
-<span style="color: #e6db74">    p = p + p</span>
-<span style="color: #e6db74">    return p</span>
-
-<span style="color: #e6db74">f()</span>
-<span style="color: #e6db74">)&quot;</span><span style="color: #f8f8f2">,</span>
-            <span style="color: #f8f8f2">py_main_namespace);</span>
-        <span style="color: #f8f8f2">p</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_main_namespace[</span><span style="color: #e6db74">&quot;p&quot;</span><span style="color: #f8f8f2">]);</span>
-        <span style="color: #f8f8f2">cout</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;Executed &#39;p = p + p&#39;</span><span style="color: #ae81ff">\n</span><span style="color: #e6db74">&quot;</span>
-             <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) p = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">p</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\&quot;\n</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">exec</span><span style="">(</span><span style="">R</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">def f():</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    global p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    p = p + p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    return p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">f()</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">)&#34;</span><span style="">,</span><span style="">
+</span><span style="">            </span><span style="">py_main_namespace</span><span style="">);</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_main_namespace</span><span style="">[</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;p&#34;</span><span style="">]);</span><span style="">
+</span><span style="">        </span><span style="">cout</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Executed &#39;p = p + p&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="">
+</span><span style="">             </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span></code></pre>
+</div>
 <p><code>exec()</code> にPythonの文を渡すと、Pythonインタプリタで実行されます。
 第二、第三引数の仕様は <code>eval()</code> と同様です
 （<code>exec()</code> もPythonオブジェクトを返すのですが、文の実行結果なので <code>None</code> であり、これを使うことはないと思います）。</p>
@@ -853,18 +812,16 @@ Boost.Pythonの <code>extract()</code> 関数テンプレートは、Pythonオ�
 
 <p>最後に、Pythonスクリプトファイルを読み込んで実行します。
 今回は、次のファイルを使います。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span><span style="color: #f8f8f2">ppp</span> <span style="color: #f92672">=</span> <span style="color: #e6db74">&quot;po &quot;</span> <span style="color: #f92672">+</span> <span style="color: #f8f8f2">p</span>
-<span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;(Python) ppp = &quot;</span> <span style="color: #f92672">+</span> <span style="color: #f8f8f2">ppp)</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="">ppp</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;po &#34;</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">p</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">print</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(Python) ppp = &#34;</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">ppp</span><span style="">)</span></code></pre>
+</div>
 <p><code>exec_file()</code> にファイル名（相対パスの場合、実行している場所から）を渡すと、それが読み込まれて実行されます。
 第二、第三引数の仕様は <code>exec()</code> などと同様です。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>        <span style="color: #f8f8f2">cout</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;Executing &#39;embedding.py&#39;&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-        <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">exec_file(</span><span style="color: #e6db74">&quot;embedding.py&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">py_main_namespace);</span>
-        <span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span> <span style="color: #f8f8f2">ppp</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">extract</span><span style="color: #f92672">&lt;</span><span style="color: #f8f8f2">std</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">string</span><span style="color: #f92672">&gt;</span><span style="color: #f8f8f2">(py_main_namespace[</span><span style="color: #e6db74">&quot;ppp&quot;</span><span style="color: #f8f8f2">]);</span>
-        <span style="color: #f8f8f2">cout</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) ppp = </span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">ppp</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\&quot;\n</span><span style="color: #e6db74">&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">        </span><span style="">cout</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;Executing &#39;embedding.py&#39;&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span><span style="">
+</span><span style="">        </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">exec_file</span><span style="">(</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;embedding.py&#34;</span><span style="">,</span><span style=""> </span><span style="">py_main_namespace</span><span style="">);</span><span style="">
+</span><span style="">        </span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style=""> </span><span style="">ppp</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">extract</span><span style="color:#f92672">&lt;</span><span style="">std</span><span style="color:#f92672">::</span><span style="">string</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">py_main_namespace</span><span style="">[</span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;ppp&#34;</span><span style="">]);</span><span style="">
+</span><span style="">        </span><span style="">cout</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) ppp = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">ppp</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span></code></pre>
+</div>
 <p>ファイルが存在しない場合、<code>std::invalid_argument</code> 例外が投げられます。</p>
 
 <h3 id="pythonの例外">Pythonの例外</h3>
@@ -879,18 +836,17 @@ Boost.Pythonの <code>extract()</code> 関数テンプレートは、Pythonオ�
 </ul>
 
 <p>といったAPIがあります。</p>
-<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span></span>    <span style="color: #f8f8f2">}</span> <span style="color: #66d9ef">catch</span> <span style="color: #f8f8f2">(</span><span style="color: #66d9ef">const</span> <span style="color: #f8f8f2">bp</span><span style="color: #f92672">::</span><span style="color: #f8f8f2">error_already_set</span><span style="color: #f92672">&amp;</span> <span style="color: #f8f8f2">e)</span> <span style="color: #f8f8f2">{</span>
-        <span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">(PyErr_ExceptionMatches(PyExc_ZeroDivisionError))</span> <span style="color: #f8f8f2">{</span>
-            <span style="color: #f8f8f2">cerr</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #e6db74">&quot;(C++) ZeroDivisionError&quot;</span> <span style="color: #f92672">&lt;&lt;</span> <span style="color: #f8f8f2">endl;</span>
-        <span style="color: #f8f8f2">}</span>
-        <span style="color: #f8f8f2">PyErr_Print();</span>
-        <span style="color: #66d9ef">return</span> <span style="color: #ae81ff">1</span><span style="color: #f8f8f2">;</span>
-    <span style="color: #f8f8f2">}</span>
-
-    <span style="color: #66d9ef">return</span> <span style="color: #ae81ff">0</span><span style="color: #f8f8f2">;</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="">    </span><span style="">}</span><span style=""> </span><span style="color:#66d9ef">catch</span><span style=""> </span><span style="">(</span><span style="color:#66d9ef">const</span><span style=""> </span><span style="">bp</span><span style="color:#f92672">::</span><span style="">error_already_set</span><span style="color:#f92672">&amp;</span><span style=""> </span><span style="">e</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">if</span><span style=""> </span><span style="">(</span><span style="">PyErr_ExceptionMatches</span><span style="">(</span><span style="">PyExc_ZeroDivisionError</span><span style="">))</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">cerr</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="color:#e6db74"></span><span style="color:#e6db74">&#34;(C++) ZeroDivisionError&#34;</span><span style=""> </span><span style="color:#f92672">&lt;&lt;</span><span style=""> </span><span style="">endl</span><span style="">;</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">        </span><span style="">PyErr_Print</span><span style="">();</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">;</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">return</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">;</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
 
   
 <div class="prev-next-post pure-g">

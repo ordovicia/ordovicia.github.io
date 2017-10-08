@@ -86,118 +86,118 @@
     
     <item>
       <title>Learning Rust - Lifetime</title>
-      <link>/post/learning_rust/lifetime/</link>
+      <link>/post/learningrust/lifetime/</link>
       <pubDate>Wed, 06 Jan 2016 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/lifetime/</guid>
+      <guid>/post/learningrust/lifetime/</guid>
       <description>Syntax and Semantics Lifetimes ずっと後回しにしてきましたが、今回はlifetimeを扱います。 Rustのlifetimeは、リソースの寿命に名前をつけて明確にし、</description>
     </item>
     
     <item>
       <title>Learning Rust - Deref Coercions</title>
-      <link>/post/learning_rust/deref_coercions/</link>
+      <link>/post/learningrust/deref_coercions/</link>
       <pubDate>Sun, 03 Jan 2016 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/deref_coercions/</guid>
+      <guid>/post/learningrust/deref_coercions/</guid>
       <description>Syntax and Semantics Deref coercions 前回はtraitによる演算子のoverloadを扱いました。 Overloadできる演算子には、間接参照演算子*を実装する、Dere</description>
     </item>
     
     <item>
       <title>Learning Rust - Operators and Overloading</title>
-      <link>/post/learning_rust/operators_and_overloading/</link>
+      <link>/post/learningrust/operators_and_overloading/</link>
       <pubDate>Sun, 03 Jan 2016 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/operators_and_overloading/</guid>
+      <guid>/post/learningrust/operators_and_overloading/</guid>
       <description>Syntax and Semantics Operators and Overloading Rustには一般的な関数のoverload機能はありませんが、 いくつかの演算子はoverloadすることができます。 演算子のov</description>
     </item>
     
     <item>
       <title>Learning Rust - Associated Types</title>
-      <link>/post/learning_rust/associated_types/</link>
+      <link>/post/learningrust/associated_types/</link>
       <pubDate>Sat, 02 Jan 2016 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/associated_types/</guid>
+      <guid>/post/learningrust/associated_types/</guid>
       <description>Syntax and Semantics Associated Types いきなりですが、抽象的なグラフに関するtraitを作りたいとします。 例えば以下のように書きますよね。 Nがnode, Eがedgeです</description>
     </item>
     
     <item>
       <title>Learning Rust - Misc.</title>
-      <link>/post/learning_rust/misc/</link>
+      <link>/post/learningrust/misc/</link>
       <pubDate>Sat, 02 Jan 2016 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/misc/</guid>
+      <guid>/post/learningrust/misc/</guid>
       <description>Syntax and Semantics Rustのsyntaxとsemanticsについて、いくつか細かい事項をまとめて紹介します。 const and static Const変数とstatic変数は、</description>
     </item>
     
     <item>
       <title>Learning Rust - Universal Function Call Syntax</title>
-      <link>/post/learning_rust/universal_function_call_syntax/</link>
+      <link>/post/learningrust/universal_function_call_syntax/</link>
       <pubDate>Fri, 01 Jan 2016 14:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/universal_function_call_syntax/</guid>
-      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fn main() { traitFoo { fn f(&amp;amp;self); } traitBar { fn f(&amp;amp;self); } struct Baz; implFoo forBaz { fn f(&amp;amp;self) { println!(&amp;quo</description>
+      <guid>/post/learningrust/universal_function_call_syntax/</guid>
+      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fnmain(){traitFoo{fnf(&amp;amp;self);}</description>
     </item>
     
     <item>
       <title>Learning Rust - Closures</title>
-      <link>/post/learning_rust/closures/</link>
+      <link>/post/learningrust/closures/</link>
       <pubDate>Fri, 01 Jan 2016 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/closures/</guid>
+      <guid>/post/learningrust/closures/</guid>
       <description>Syntax and Semantics Closures Rustにも言語レベルでclosureの機能があります。 今回はそのclosureを学びます。 Syntax まず、closureの基本的なsynt</description>
     </item>
     
     <item>
       <title>Learning Rust - Trait Objects</title>
-      <link>/post/learning_rust/trait_objects/</link>
+      <link>/post/learningrust/trait_objects/</link>
       <pubDate>Fri, 01 Jan 2016 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/trait_objects/</guid>
+      <guid>/post/learningrust/trait_objects/</guid>
       <description>Syntax and Semantics Trait objects 関数に多相性をもたせるときは、実際にその関数はなんの型について実行されているのか判定され、 適切なバージョンの関数が呼ばれなければい</description>
     </item>
     
     <item>
       <title>Learning Rust - If let</title>
-      <link>/post/learning_rust/if_let/</link>
+      <link>/post/learningrust/if_let/</link>
       <pubDate>Wed, 30 Dec 2015 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/if_let/</guid>
-      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 matchoption { Some(x) =&amp;gt;{ foo(x) }, None =&amp;gt;{}, } のように、あ</description>
+      <guid>/post/learningrust/if_let/</guid>
+      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 matchoption{Some(x)=&amp;gt;{foo(x)},None=&amp;gt;{},} のように、あるパターンにマッ</description>
     </item>
     
     <item>
       <title>Learning Rust - Traits</title>
-      <link>/post/learning_rust/traits/</link>
+      <link>/post/learningrust/traits/</link>
       <pubDate>Wed, 30 Dec 2015 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/traits/</guid>
+      <guid>/post/learningrust/traits/</guid>
       <description>Syntax and Semantics Traits Traitは、Haskellでいう型クラスであり、 C++でいうコンセプト(C++14時点では提案のみっぽいですが)です。 ジェネリクス</description>
     </item>
     
     <item>
       <title>Learning Rust - Generics</title>
-      <link>/post/learning_rust/generics/</link>
+      <link>/post/learningrust/generics/</link>
       <pubDate>Fri, 25 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/generics/</guid>
+      <guid>/post/learningrust/generics/</guid>
       <description>Syntax and Semantics 今回はRustのジェネリクスのはなしです。 ジェネリクスがでてくると、佳境に入った気がしますね。 私はC++でテンプレートに慣れているので</description>
     </item>
     
     <item>
       <title>Learning Rust - Method Syntax</title>
-      <link>/post/learning_rust/method_syntax/</link>
+      <link>/post/learningrust/method_syntax/</link>
       <pubDate>Wed, 23 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/method_syntax/</guid>
+      <guid>/post/learningrust/method_syntax/</guid>
       <description>Syntax and Semantics Method syntax Rustでのメソッドのsyntaxについて学びます。 まず、Rustにはclassはありません。 が、オブジェクト指向プログラミングは</description>
     </item>
     
     <item>
       <title>Learning Rust - Vectors and Strings</title>
-      <link>/post/learning_rust/vectors_and_strings/</link>
+      <link>/post/learningrust/vectors_and_strings/</link>
       <pubDate>Wed, 23 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/vectors_and_strings/</guid>
+      <guid>/post/learningrust/vectors_and_strings/</guid>
       <description>Syntax and Semantics 今回は、Rustのvectorと文字列を学びます。 Vectorの使いかたはわかりやすいですが、Rustの文字列は他の言語とすこし違うよ</description>
     </item>
     
@@ -212,109 +212,109 @@
     
     <item>
       <title>Learning Rust - Match and Patterns</title>
-      <link>/post/learning_rust/match_and_patterns/</link>
+      <link>/post/learningrust/match_and_patterns/</link>
       <pubDate>Mon, 21 Dec 2015 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/match_and_patterns/</guid>
+      <guid>/post/learningrust/match_and_patterns/</guid>
       <description>Syntax and Semantics Rustには強力なパターンマッチがあります。 今回はその紹介です。 Match まずは簡単な例から。matchのsyntaxは以下のようになっていま</description>
     </item>
     
     <item>
       <title>Learning Rust - Mutability</title>
-      <link>/post/learning_rust/mutability/</link>
+      <link>/post/learningrust/mutability/</link>
       <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/mutability/</guid>
+      <guid>/post/learningrust/mutability/</guid>
       <description>Syntax and Semantics Mutability これまで話してきたとおり、Rustはデフォルトでimmutableです。 今回は、Rustのmutabilityについて確認しておきま</description>
     </item>
     
     <item>
       <title>Learning Rust - Structs and Enums</title>
-      <link>/post/learning_rust/structs_and_enums/</link>
+      <link>/post/learningrust/structs_and_enums/</link>
       <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/structs_and_enums/</guid>
-      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 struct Point{ x: i32, y: i32, }</description>
+      <guid>/post/learningrust/structs_and_enums/</guid>
+      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 structPoint{x: i32,y: i32,}fnmain(){letorigin=Point{x: 0,y: 0};println!(&amp;#34;The origin is</description>
     </item>
     
     <item>
       <title>Arch Linux on Raspberry Pi 2 - Setup for Development</title>
-      <link>/post/arch_raspi/devel_setup/</link>
+      <link>/post/archlinuxonraspi/devel_setup/</link>
       <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/arch_raspi/devel_setup/</guid>
+      <guid>/post/archlinuxonraspi/devel_setup/</guid>
       <description>開発環境のセットアップ 前回作成したユーザーcyanで作業します。 基本的な開発用ソフトウェア群 まずは基本的なソフトウェア群をインストールします</description>
     </item>
     
     <item>
       <title>Arch Linux on Raspberry Pi 2 - Initial Setup</title>
-      <link>/post/arch_raspi/initial_setup/</link>
+      <link>/post/archlinuxonraspi/initial_setup/</link>
       <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/arch_raspi/initial_setup/</guid>
+      <guid>/post/archlinuxonraspi/initial_setup/</guid>
       <description>先日Raspberry Pi 2を買いました。 試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。 Arch Linux</description>
     </item>
     
     <item>
       <title>Learning Rust - Ownership</title>
-      <link>/post/learning_rust/ownership/</link>
+      <link>/post/learningrust/ownership/</link>
       <pubDate>Thu, 03 Dec 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/ownership/</guid>
+      <guid>/post/learningrust/ownership/</guid>
       <description>Syntax and Semantics 今回扱うのは、Rustのリソース管理システムであるownershipの概念です。 このシステムによる解析はすべてコンパイル時におこなわれ</description>
     </item>
     
     <item>
       <title>Learning Rust - If and Loops</title>
-      <link>/post/learning_rust/if_and_loops/</link>
+      <link>/post/learningrust/if_and_loops/</link>
       <pubDate>Tue, 24 Nov 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/if_and_loops/</guid>
+      <guid>/post/learningrust/if_and_loops/</guid>
       <description>ひさびさのRustです。 というか最近更新サボり気味ですね。 Syntax and Semantics 引き続いてRustのsyntaxとsemanticsを学びます。 If 条件分岐で</description>
     </item>
     
     <item>
       <title>Learning Rust - Primitive Types and Comments</title>
-      <link>/post/learning_rust/primitive_types_and_comments/</link>
+      <link>/post/learningrust/primitive_types_and_comments/</link>
       <pubDate>Thu, 12 Nov 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/primitive_types_and_comments/</guid>
+      <guid>/post/learningrust/primitive_types_and_comments/</guid>
       <description>Syntax and Semantics 前々回につづけて、 syntaxとsemanticsのドキュメント を読んでいきます。 Primitive Types 組み込み型の紹介です。 よくある型に加えて、Rus</description>
     </item>
     
     <item>
       <title>Learning Rust - Dining Philosophers</title>
-      <link>/post/learning_rust/dining_philosophers/</link>
+      <link>/post/learningrust/dining_philosophers/</link>
       <pubDate>Wed, 11 Nov 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/dining_philosophers/</guid>
+      <guid>/post/learningrust/dining_philosophers/</guid>
       <description>Learn Rust 前回扱うつもりで飛ばしてしまった、overview的なチュートリアル&amp;rdquo;Dining Philosophers&amp;rdquo; を扱います。 Dining Philosophers 並列計算に関する問題です</description>
     </item>
     
     <item>
       <title>Learning Rust - Variable Bindings and Functions</title>
-      <link>/post/learning_rust/variable_bindings_and_functions/</link>
+      <link>/post/learningrust/variable_bindings_and_functions/</link>
       <pubDate>Mon, 09 Nov 2015 00:00:00 +0000</pubDate>
       
-      <guid>/post/learning_rust/variable_bindings_and_functions/</guid>
+      <guid>/post/learningrust/variable_bindings_and_functions/</guid>
       <description>Syntax and Semantics 前回に続いて、Rustのoverview的なチュートリアル&amp;rdquo;Dining Philosophers&amp;rdquo;を扱うつもり</description>
     </item>
     
     <item>
       <title>Learning Rust - Guessing Game</title>
-      <link>/post/learning_rust/guessing_game/</link>
+      <link>/post/learningrust/guessing_game/</link>
       <pubDate>Sat, 07 Nov 2015 13:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/guessing_game/</guid>
+      <guid>/post/learningrust/guessing_game/</guid>
       <description>公式ドキュメント にしたがってRustを学んでいこうと思います。 Learn Rust Rustのoverview的なチュートリアルです。 Guessing Game Dining Philosophers Rust Inside Other Language という3</description>
     </item>
     
     <item>
       <title>Learning Rust - Introduction</title>
-      <link>/post/learning_rust/introduction/</link>
+      <link>/post/learningrust/introduction/</link>
       <pubDate>Sat, 07 Nov 2015 12:00:00 +0900</pubDate>
       
-      <guid>/post/learning_rust/introduction/</guid>
+      <guid>/post/learningrust/introduction/</guid>
       <description>Rustというプログラミング言語があります。 Mozillaによって開発中で、1.0が2015年5月16日にリリースされました。 syntaxは</description>
     </item>
     

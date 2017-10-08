@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.29" />
+
+  <title>Learning Rust - Dining Philosophers &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Learning Rust - Dining Philosophers</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>11 Nov 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h1 id="learn-rust">Learn Rust</h1>
+
+<p>前回扱うつもりで飛ばしてしまった、overview的なチュートリアル&rdquo;Dining Philosophers&rdquo;
+を扱います。</p>
+
+<h2 id="dining-philosophers">Dining Philosophers</h2>
+
+<p>並列計算に関する問題です。かのDijkstraの提示した問題をもとにした有名な話ですが、
+設定を確認しておきます。</p>
+
+<blockquote>
+<p>In ancient times, a wealthy philanthropist endowed a College to accommodate five eminent philosophers. Each philosopher had a room in which they could engage in their professional activity of thinking; there was also a common dining room, furnished with a circular table, surrounded by five chairs, each labelled by the name of the philosopher who was to sit in it. They sat anticlockwise around the table. To the left of each philosopher there was laid a golden fork, and in the centre stood a large bowl of spaghetti, which was constantly replenished. A philosopher was expected to spend most of their time thinking; but when they felt hungry, they went to the dining room, sat down in their own chair, picked up their own fork on their left, and plunged it into the spaghetti. But such is the tangled nature of spaghetti that a second fork is required to carry it to the mouth. The philosopher therefore had also to pick up the fork on their right. When they were finished they would put down both their forks, get up from their chair, and continue thinking. Of course, a fork can be used by only one philosopher at a time. If the other philosopher wants it, they just have to wait until the fork is available again.
+&mdash; <a href="http://www.usingcsp.com/cspbook.pdf">C.A.R.Hoare <em>Communicating Sequential Process</em> June 21, 2004</a></p>
+</blockquote>
+
+<p>テーブルを5人の哲学者が囲んでいます。
+各人の左にはフォークが一つずつ、合計5本置いてあります。
+彼らはこれを一本使って、テーブル中央におかれたスパゲッティ皿からフォークを使って手元に運び、
+さらにもう一本で口に運びます。
+哲学者は満腹になったらフォークをおき、部屋に戻って思索に耽ります。
+もちろんそれぞれのフォークはひとりずつしか使えないので、
+使おうとしたフォークが別の哲学者に使われていた場合、
+フォークがまた使えるようになるまで待たなくてはなりません。</p>
+
+<p>哲学者が食事を続けられるようにするためにはどうすればいいでしょうか。
+単純なアルゴリズムとして、次が考えられます。</p>
+
+<ol>
+<li>哲学者が左にあるフォークを取る。</li>
+<li>続いて右にあるフォークを取る。</li>
+<li>食事をする。</li>
+<li>終わったら2本のフォークを置く。</li>
+</ol>
+
+<p>このアルゴリズムはちゃんと動くでしょうか？
+例えば次のような場合を考えてみましょう。</p>
+
+<ol>
+<li>哲学者1が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者2が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者3が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者4が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者5が食事を始める。彼は左にあるフォークを取る。</li>
+<li>&hellip;？誰もが右側のフォークを求めて待ち続けるようになってしまいました。</li>
+</ol>
+
+<p>この問題の解決策はいくつかあります。たとえば<a href="https://ja.wikipedia.org/wiki/%E9%A3%9F%E4%BA%8B%E3%81%99%E3%82%8B%E5%93%B2%E5%AD%A6%E8%80%85%E3%81%AE%E5%95%8F%E9%A1%8C#cite_note-1">Wikipedia</a>
+を見てください。</p>
+
+<p>このチュートリアルでは独自の解放をとっているようです。
+まずは問題をモデル化していきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p1</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Baruch Spinoza&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p2</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p3</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p4</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Friedrich Nietzsche&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p5</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>哲学者を表す構造体を作っているようです。
+<code>struct</code>と<code>impl</code>がありますが、<code>structは</code>メンバ変数だけ、
+<code>impl</code>はメンバ関数を定義しています。
+このように、構造と定義を別々に書くことができるということでしょうか？</p>
+
+<p>ともかく、<code>Philosopher</code>構造体は、<code>String</code>型の<code>name</code>メンバと
+<code>new()</code>メンバ関数をもっていることがわかります。</p>
+
+<p>C++に引っ張られてメンバ関数と言ってしまいましたが、<code>new()</code>は&rsquo;associated function&rsquo;と呼ぶようです。
+staticメンバ関数のようなものでしょうか。
+<code>new()</code>関数は<code>&amp;str</code>つまり文字列の参照を受け取り、
+<code>to_string()</code>によってそのコピーを取り、<code>name</code>に代入しています。
+<code>new</code>という名前は構造体の新しいインスタンスを作るときによく使われるそうです。といっても、Pythonのように名前が限定されているわけではないようです。あくまで習慣というわけですね。</p>
+
+<p><code>String</code>を直接受け取らないのは、
+呼び出し元で<code>to_string()</code>を呼ばなくていいようにするためだそうです。</p>
+
+<p>この関数でも、<code>return</code>は使わずexpressionを最後に書いて戻り値としていますね。</p>
+
+<p>そして<code>main()</code>で<code>new()</code>を呼び、哲学者を5人登場させています。
+構造体のassociated functionにアクセスするときは<code>::</code>を使うようです。</p>
+
+<p>基礎となる構造ができたので、実際の動作を付け加えていきます。</p>
+
+<p>まずは哲学者に食事をさせるところからです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">thread</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">thread</span><span style="">::</span><span style="">sleep_ms</span><span style="">(</span><span style="color:#ae81ff">1000</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is done eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Judith Butler&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Emma Goldman&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">];</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#66d9ef">in</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">philosophers</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>まず<code>main()</code>を見てみると、哲学者たちを<code>vec!</code>で作ることにしました。
+<code>vec!</code>はmacroの一つで、<code>Vec&lt;T&gt;</code>という型のvectorを作るようです。
+おそらく<code>&lt;T&gt;</code>はC++のtemplateのようなものでしょうね。
+このvectorを<code>for</code>ループで走査し、<code>p</code>に参照を代入しています。</p>
+
+<p><code>Philosopher</code>構造体に新たに<code>eat()</code>関数をつくりました。
+Rustではassociated functionでなく、インスタンスに紐付いたmethodを作る場合、
+<code>self</code>の参照を明示的に受け取るようにするようです。
+<code>eat()</code>関数のなかでは、<code>self</code>を通して<code>name</code>にアクセスしています。</p>
+
+<p>さらに、<code>eat()</code>に時間をかけて実際に食べているようにするために、
+<code>thread::sleep_ms()</code>関数を使いました。
+これを使うためには、<code>use std::thread;</code>としてincludeする必要があるようです。</p>
+
+<p>このコードはまだシングルスレッドです。
+つまり哲学者たちはひとりずつしか食事ができません。
+マルチスレッドにしてみましょう。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="color:#75715e">// 略
+</span><span style="color:#75715e"></span><span style="">];</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">handles</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">_</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style="">    </span><span style="">})</span><span style="">
+</span><span style=""></span><span style="">}).</span><span style="">collect</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">h</span><span style=""> </span><span style="color:#66d9ef">in</span><span style=""> </span><span style="">handles</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">h</span><span style="">.</span><span style="">join</span><span style="">.</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>handles</code>というvariable bindingをつくっています。
+新しく作ったスレッドを扱うハンドルという意味だそうです。</p>
+
+<p>少しずつ見ていきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span></code></pre>
+</div>
+<p><code>into_iter()</code>関数は、哲学者のownershipをとるイテレータを生成します。
+さらに各イテレータに対して<code>map()</code>関数でclosureを渡し、呼び出しているようです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style=""></span><span style="">})</span></code></pre>
+</div>
+<p>ここでスレッドが作られ、並列に実行されます。
+<code>thread::spawn()</code>関数はclosureを一つとり、新しいスレッドをつくってそれを実行するそうです。
+ここでは<code>move</code>というアノテーションを書いています。
+これによって、キャプチャした値、すなわち<code>p</code>のownershipがclosure内に移動するようです。</p>
+
+<p>ここでも<code>thread::spawn()</code>にセミコロン<code>;</code>をつけず、expressionとして戻り値を返しています。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">}).</span><span style="">collect</span><span style="">();</span></code></pre>
+</div>
+<p>最後に<code>collect()</code>を呼んでいます。
+この関数は<code>map()</code>の結果をまとめ、&rsquo;collection of some kind&rsquo;を作りますが、
+どんな型にまとめるかの情報が必要になります。
+それが<code>handles</code>を定義するときに型注釈として書いた<code>Vec&lt;_&gt;</code>というわけです。
+<code>collect()</code>の戻り値をvectorに指定するが、その内部の型はRustの型推論で決めよ、ということらしいです。</p>
+
+<p><code>for</code>ループも変わっています。
+操作するのはスレッドを扱う<code>handles</code>になり、ループ内部ではそれを<code>join()</code>しています。
+<code>unwrap()</code>については現時点ではよくわかりません。</p>
+
+<p>ともかく、これでマルチスレッドができました。
+実行してみると、例えば以下のような出力になり、並列に実行されていることが確認できます。</p>
+
+<pre><code>Judith Butler is eating.
+Gilles Deleuze is eating.
+Karl Marx is eating.
+Emma Goldman is eating.
+Michel Foucault is eating.
+Judith Butler is done eating.
+Gilles Deleuze is done eating.
+Karl Marx is done eating.
+Emma Goldman is done eating.
+Michel Foucault is done eating.
+</code></pre>
+
+<p>さて、フォークをモデル化するのを忘れていました。
+新しい<code>struct</code>を追加します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">sync</span><span style="">::</span><span style="">Mutec</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Table</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">forks</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">Mutex</span><span style="color:#f92672">&lt;</span><span style="">()</span><span style="color:#f92672">&gt;&gt;</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>フォークをmutexとみなし、それが置いてある<code>Table</code>をつくりました。
+<code>Mutex</code>には内部の型を指定するようですが、今回は内部の値を使用するわけではないので、単に空tuple<code>()</code>としています。</p>
+
+<p>この<code>Table</code>を組み込みましょう。</p>
+
+<script src="https://gist.github.com/ordovicia/dc901d08604244798219.js"></script>
+
+<p>順に見ていきます。</p>
+
+<p>まず<code>std::sync::Arc</code>もincludeします。
+<code>std::sync</code>内のものを複数includeするときはこんな書き方もできるんですね。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style="">    </span><span style="">left</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style="">
+</span><span style="">    </span><span style="">right</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>Philosopher</code>構造体に二つのフィールドを追加しました。
+<code>left, right</code>がそれぞれフォークを表します。
+型が<code>usize</code>となっているのは、フォークのvectorのindexを受け取るためのようです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">,</span><span style=""> </span><span style="">left</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style=""> </span><span style="">right</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">            </span><span style="">left</span><span style="">: </span><span style="color:#a6e22e">left</span><span style="">,</span><span style="">
+</span><span style="">            </span><span style="">right</span><span style="">: </span><span style="color:#a6e22e">right</span><span style="">,</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span></code></pre>
+</div>
+<p><code>Philosopher::new()</code>も書き直します。使用するフォークのindexをとるようにしました。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">,</span><span style=""> </span><span style="">table</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Table</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">_left</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">forks</span><span style="">[</span><span style="">self</span><span style="">.</span><span style="">left</span><span style="">].</span><span style="">lock</span><span style="">().</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">_right</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">forks</span><span style="">[</span><span style="">self</span><span style="">.</span><span style="">right</span><span style="">].</span><span style="">lock</span><span style="">().</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">thread</span><span style="">::</span><span style="">sleep_ms</span><span style="">(</span><span style="color:#ae81ff">1000</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is done eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">}</span></code></pre>
+</div>
+<p><code>eat()</code>関数は、フォークの<code>Table</code>の参照をとって、先ほど追加した<code>left, right</code>をindexとするmutexを<code>lock()</code>するようにしました。
+また<code>unwrap()</code>がでてきましたが、詳しい説明はされていませんでした。</p>
+
+<p>さて、こうして得たロックを<code>_left, _right</code>というvariable bindingに代入しています。
+アンダーバー<code>_</code>をつけると、このvariable bindingは未使用であるとの印になり、
+コンパイラの警告を抑制できると書いてありました。</p>
+
+<p>そしてロック解除は、スコープを抜けて<code>_left, _right</code>が破棄されるとき自動でおこなわれるようです。
+C++でいうデストラクタの処理ですね。</p>
+
+<p><code>main()</code>内に入っていきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">table</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Arc</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="">Table</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">forks</span><span style="">: </span><span style="color:#a6e22e">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style=""></span><span style="">]});</span></code></pre>
+</div>
+<p><code>Table</code>構造体のインスタンス<code>table</code>をつくりました。
+&lsquo;arc&rsquo;は&rsquo;atomic reference count&rsquo;の略で、<code>table</code>を複数スレッドで扱うため、
+<code>Arc</code>としてつくっているようです。
+<code>table</code>を共有するごとに参照カウンタが増え、スレッドを抜けると減る、という仕組みです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Judith Butler&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Emma Goldman&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">4</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">4</span><span style="">),</span><span style="">
+</span><span style=""></span><span style="">];</span></code></pre>
+</div>
+<p><code>Philosopher::new()</code>にフォークのindexも加えて渡すようにしました。
+ここで注意したいのが、最後の<code>Michel Foucault</code>に渡すindexが、
+<code>4, 0</code>ではなく<code>0, 4</code>になっていることです。
+もし<code>4, 0</code>にすると、冒頭のデッドロックが起きてしまいます。</p>
+
+<h1 id="learn-rust-1">Learn Rust</h1>
+
+<p>前回扱うつもりで飛ばしてしまった、overview的なチュートリアル&rdquo;Dining Philosophers&rdquo;
+を扱います。</p>
+
+<h2 id="dining-philosophers-1">Dining Philosophers</h2>
+
+<p>並列計算に関する問題です。かのDijkstraの提示した問題をもとにした有名な話ですが、
+設定を確認しておきます。</p>
+
+<blockquote>
+<p>In ancient times, a wealthy philanthropist endowed a College to accommodate five eminent philosophers. Each philosopher had a room in which they could engage in their professional activity of thinking; there was also a common dining room, furnished with a circular table, surrounded by five chairs, each labelled by the name of the philosopher who was to sit in it. They sat anticlockwise around the table. To the left of each philosopher there was laid a golden fork, and in the centre stood a large bowl of spaghetti, which was constantly replenished. A philosopher was expected to spend most of their time thinking; but when they felt hungry, they went to the dining room, sat down in their own chair, picked up their own fork on their left, and plunged it into the spaghetti. But such is the tangled nature of spaghetti that a second fork is required to carry it to the mouth. The philosopher therefore had also to pick up the fork on their right. When they were finished they would put down both their forks, get up from their chair, and continue thinking. Of course, a fork can be used by only one philosopher at a time. If the other philosopher wants it, they just have to wait until the fork is available again.
+&mdash; <a href="http://www.usingcsp.com/cspbook.pdf">C.A.R.Hoare <em>Communicating Sequential Process</em> June 21, 2004</a></p>
+</blockquote>
+
+<p>テーブルを5人の哲学者が囲んでいます。
+各人の左にはフォークが一つずつ、合計5本置いてあります。
+彼らはこれを一本使って、テーブル中央におかれたスパゲッティ皿からフォークを使って手元に運び、
+さらにもう一本で口に運びます。
+哲学者は満腹になったらフォークをおき、部屋に戻って思索に耽ります。
+もちろんそれぞれのフォークはひとりずつしか使えないので、
+使おうとしたフォークが別の哲学者に使われていた場合、
+フォークがまた使えるようになるまで待たなくてはなりません。</p>
+
+<p>哲学者が食事を続けられるようにするためにはどうすればいいでしょうか。
+単純なアルゴリズムとして、次が考えられます。</p>
+
+<ol>
+<li>哲学者が左にあるフォークを取る。</li>
+<li>続いて右にあるフォークを取る。</li>
+<li>食事をする。</li>
+<li>終わったら2本のフォークを置く。</li>
+</ol>
+
+<p>このアルゴリズムはちゃんと動くでしょうか？
+例えば次のような場合を考えてみましょう。</p>
+
+<ol>
+<li>哲学者1が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者2が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者3が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者4が食事を始める。彼は左にあるフォークを取る。</li>
+<li>哲学者5が食事を始める。彼は左にあるフォークを取る。</li>
+<li>&hellip;？誰もが右側のフォークを求めて待ち続けるようになってしまいました。</li>
+</ol>
+
+<p>この問題の解決策はいくつかあります。たとえば<a href="https://ja.wikipedia.org/wiki/%E9%A3%9F%E4%BA%8B%E3%81%99%E3%82%8B%E5%93%B2%E5%AD%A6%E8%80%85%E3%81%AE%E5%95%8F%E9%A1%8C#cite_note-1">Wikipedia</a>
+を見てください。</p>
+
+<p>このチュートリアルでは独自の解放をとっているようです。
+まずは問題をモデル化していきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p1</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Baruch Spinoza&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p2</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p3</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p4</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Friedrich Nietzsche&#34;</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">p5</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">);</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>哲学者を表す構造体を作っているようです。
+<code>struct</code>と<code>impl</code>がありますが、<code>structは</code>メンバ変数だけ、
+<code>impl</code>はメンバ関数を定義しています。
+このように、構造と定義を別々に書くことができるということでしょうか？</p>
+
+<p>ともかく、<code>Philosopher</code>構造体は、<code>String</code>型の<code>name</code>メンバと
+<code>new()</code>メンバ関数をもっていることがわかります。</p>
+
+<p>C++に引っ張られてメンバ関数と言ってしまいましたが、<code>new()</code>は&rsquo;associated function&rsquo;と呼ぶようです。
+staticメンバ関数のようなものでしょうか。
+<code>new()</code>関数は<code>&amp;str</code>つまり文字列の参照を受け取り、
+<code>to_string()</code>によってそのコピーを取り、<code>name</code>に代入しています。
+<code>new</code>という名前は構造体の新しいインスタンスを作るときによく使われるそうです。といっても、Pythonのように名前が限定されているわけではないようです。あくまで習慣というわけですね。</p>
+
+<p><code>String</code>を直接受け取らないのは、
+呼び出し元で<code>to_string()</code>を呼ばなくていいようにするためだそうです。</p>
+
+<p>この関数でも、<code>return</code>は使わずexpressionを最後に書いて戻り値としていますね。</p>
+
+<p>そして<code>main()</code>で<code>new()</code>を呼び、哲学者を5人登場させています。
+構造体のassociated functionにアクセスするときは<code>::</code>を使うようです。</p>
+
+<p>基礎となる構造ができたので、実際の動作を付け加えていきます。</p>
+
+<p>まずは哲学者に食事をさせるところからです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">thread</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">thread</span><span style="">::</span><span style="">sleep_ms</span><span style="">(</span><span style="color:#ae81ff">1000</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is done eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Judith Butler&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Emma Goldman&#34;</span><span style="">),</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">];</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">p</span><span style=""> </span><span style="color:#66d9ef">in</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">philosophers</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style="">    </span><span style="">}</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>まず<code>main()</code>を見てみると、哲学者たちを<code>vec!</code>で作ることにしました。
+<code>vec!</code>はmacroの一つで、<code>Vec&lt;T&gt;</code>という型のvectorを作るようです。
+おそらく<code>&lt;T&gt;</code>はC++のtemplateのようなものでしょうね。
+このvectorを<code>for</code>ループで走査し、<code>p</code>に参照を代入しています。</p>
+
+<p><code>Philosopher</code>構造体に新たに<code>eat()</code>関数をつくりました。
+Rustではassociated functionでなく、インスタンスに紐付いたmethodを作る場合、
+<code>self</code>の参照を明示的に受け取るようにするようです。
+<code>eat()</code>関数のなかでは、<code>self</code>を通して<code>name</code>にアクセスしています。</p>
+
+<p>さらに、<code>eat()</code>に時間をかけて実際に食べているようにするために、
+<code>thread::sleep_ms()</code>関数を使いました。
+これを使うためには、<code>use std::thread;</code>としてincludeする必要があるようです。</p>
+
+<p>このコードはまだシングルスレッドです。
+つまり哲学者たちはひとりずつしか食事ができません。
+マルチスレッドにしてみましょう。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="color:#75715e">// 略
+</span><span style="color:#75715e"></span><span style="">];</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">handles</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">_</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style="">    </span><span style="">})</span><span style="">
+</span><span style=""></span><span style="">}).</span><span style="">collect</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">h</span><span style=""> </span><span style="color:#66d9ef">in</span><span style=""> </span><span style="">handles</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">h</span><span style="">.</span><span style="">join</span><span style="">.</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>handles</code>というvariable bindingをつくっています。
+新しく作ったスレッドを扱うハンドルという意味だそうです。</p>
+
+<p>少しずつ見ていきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span></code></pre>
+</div>
+<p><code>into_iter()</code>関数は、哲学者のownershipをとるイテレータを生成します。
+さらに各イテレータに対して<code>map()</code>関数でclosureを渡し、呼び出しているようです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">();</span><span style="">
+</span><span style=""></span><span style="">})</span></code></pre>
+</div>
+<p>ここでスレッドが作られ、並列に実行されます。
+<code>thread::spawn()</code>関数はclosureを一つとり、新しいスレッドをつくってそれを実行するそうです。
+ここでは<code>move</code>というアノテーションを書いています。
+これによって、キャプチャした値、すなわち<code>p</code>のownershipがclosure内に移動するようです。</p>
+
+<p>ここでも<code>thread::spawn()</code>にセミコロン<code>;</code>をつけず、expressionとして戻り値を返しています。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">}).</span><span style="">collect</span><span style="">();</span></code></pre>
+</div>
+<p>最後に<code>collect()</code>を呼んでいます。
+この関数は<code>map()</code>の結果をまとめ、&rsquo;collection of some kind&rsquo;を作りますが、
+どんな型にまとめるかの情報が必要になります。
+それが<code>handles</code>を定義するときに型注釈として書いた<code>Vec&lt;_&gt;</code>というわけです。
+<code>collect()</code>の戻り値をvectorに指定するが、その内部の型はRustの型推論で決めよ、ということらしいです。</p>
+
+<p><code>for</code>ループも変わっています。
+操作するのはスレッドを扱う<code>handles</code>になり、ループ内部ではそれを<code>join()</code>しています。
+<code>unwrap()</code>については現時点ではよくわかりません。</p>
+
+<p>ともかく、これでマルチスレッドができました。
+実行してみると、例えば以下のような出力になり、並列に実行されていることが確認できます。</p>
+
+<pre><code>Judith Butler is eating.
+Gilles Deleuze is eating.
+Karl Marx is eating.
+Emma Goldman is eating.
+Michel Foucault is eating.
+Judith Butler is done eating.
+Gilles Deleuze is done eating.
+Karl Marx is done eating.
+Emma Goldman is done eating.
+Michel Foucault is done eating.
+</code></pre>
+
+<p>さて、フォークをモデル化するのを忘れていました。
+新しい<code>struct</code>を追加します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">sync</span><span style="">::</span><span style="">Mutec</span><span style="">;</span><span style="">
+</span><span style="">
+</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Table</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">forks</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">Mutex</span><span style="color:#f92672">&lt;</span><span style="">()</span><span style="color:#f92672">&gt;&gt;</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p>フォークをmutexとみなし、それが置いてある<code>Table</code>をつくりました。
+<code>Mutex</code>には内部の型を指定するようですが、今回は内部の値を使用するわけではないので、単に空tuple<code>()</code>としています。</p>
+
+<p>この<code>Table</code>を組み込みましょう。</p>
+
+<script src="https://gist.github.com/ordovicia/dc901d08604244798219.js"></script>
+
+<p>順に見ていきます。</p>
+
+<p>まず<code>std::sync::Arc</code>もincludeします。
+<code>std::sync</code>内のものを複数includeするときはこんな書き方もできるんですね。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="">name</span><span style="">: </span><span style="">String</span><span style="">,</span><span style="">
+</span><span style="">    </span><span style="">left</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style="">
+</span><span style="">    </span><span style="">right</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style="">
+</span><span style=""></span><span style="">}</span></code></pre>
+</div>
+<p><code>Philosopher</code>構造体に二つのフィールドを追加しました。
+<code>left, right</code>がそれぞれフォークを表します。
+型が<code>usize</code>となっているのは、フォークのvectorのindexを受け取るためのようです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">name</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">,</span><span style=""> </span><span style="">left</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">,</span><span style=""> </span><span style="">right</span><span style="">: </span><span style="color:#66d9ef">usize</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">Philosopher</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">            </span><span style="">name</span><span style="">: </span><span style="color:#a6e22e">name</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style="">
+</span><span style="">            </span><span style="">left</span><span style="">: </span><span style="color:#a6e22e">left</span><span style="">,</span><span style="">
+</span><span style="">            </span><span style="">right</span><span style="">: </span><span style="color:#a6e22e">right</span><span style="">,</span><span style="">
+</span><span style="">        </span><span style="">}</span><span style="">
+</span><span style="">    </span><span style="">}</span></code></pre>
+</div>
+<p><code>Philosopher::new()</code>も書き直します。使用するフォークのindexをとるようにしました。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">,</span><span style=""> </span><span style="">table</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Table</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">_left</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">forks</span><span style="">[</span><span style="">self</span><span style="">.</span><span style="">left</span><span style="">].</span><span style="">lock</span><span style="">().</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style="">        </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">_right</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">forks</span><span style="">[</span><span style="">self</span><span style="">.</span><span style="">right</span><span style="">].</span><span style="">lock</span><span style="">().</span><span style="">unwrap</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">thread</span><span style="">::</span><span style="">sleep_ms</span><span style="">(</span><span style="color:#ae81ff">1000</span><span style="">);</span><span style="">
+</span><span style="">
+</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{} is done eating.&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">name</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">}</span></code></pre>
+</div>
+<p><code>eat()</code>関数は、フォークの<code>Table</code>の参照をとって、先ほど追加した<code>left, right</code>をindexとするmutexを<code>lock()</code>するようにしました。
+また<code>unwrap()</code>がでてきましたが、詳しい説明はされていませんでした。</p>
+
+<p>さて、こうして得たロックを<code>_left, _right</code>というvariable bindingに代入しています。
+アンダーバー<code>_</code>をつけると、このvariable bindingは未使用であるとの印になり、
+コンパイラの警告を抑制できると書いてありました。</p>
+
+<p>そしてロック解除は、スコープを抜けて<code>_left, _right</code>が破棄されるとき自動でおこなわれるようです。
+C++でいうデストラクタの処理ですね。</p>
+
+<p><code>main()</code>内に入っていきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">table</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Arc</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="">Table</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">forks</span><span style="">: </span><span style="color:#a6e22e">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style="">    </span><span style="">Mutex</span><span style="">::</span><span style="">new</span><span style="">(()),</span><span style="">
+</span><span style=""></span><span style="">]});</span></code></pre>
+</div>
+<p><code>Table</code>構造体のインスタンス<code>table</code>をつくりました。
+&lsquo;arc&rsquo;は&rsquo;atomic reference count&rsquo;の略で、<code>table</code>を複数スレッドで扱うため、
+<code>Arc</code>としてつくっているようです。
+<code>table</code>を共有するごとに参照カウンタが増え、スレッドを抜けると減る、という仕組みです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">philosophers</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Judith Butler&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Gilles Deleuze&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Karl Marx&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Emma Goldman&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">4</span><span style="">),</span><span style="">
+</span><span style="">    </span><span style="">Philosopher</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#e6db74">&#34;Michel Foucault&#34;</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">4</span><span style="">),</span><span style="">
+</span><span style=""></span><span style="">];</span></code></pre>
+</div>
+<p><code>Philosopher::new()</code>にフォークのindexも加えて渡すようにしました。
+ここで注意したいのが、最後の<code>Michel Foucault</code>に渡すindexが、
+<code>4, 0</code>ではなく<code>0, 4</code>になっていることです。
+もし<code>4, 0</code>にすると、冒頭のデッドロックが起きてしまいます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">handles</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">_</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">table</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">table</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">})</span><span style="">
+</span><span style=""></span><span style="">}).</span><span style="">collect</span><span style="">();</span></code></pre>
+</div>
+<p>最後に、<code>map()</code>に渡すclosure内で<code>table</code>を<code>clone()</code>しています。
+<code>Arc&lt;T&gt;</code>型のインスタンスに対して<code>clone()</code>すると、参照カウンタが増えるとのことです。</p>
+
+<p>これで解決です。哲学者たちはデッドロックに陥らず、食事を続けられるようになりました。
+ちょっと工夫するだけで簡単に問題解決しちゃいました。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">handles</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">_</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">philosophers</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="color:#f92672">|</span><span style="">p</span><span style="color:#f92672">|</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">table</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">table</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
+</span><span style="">
+</span><span style="">    </span><span style="">thread</span><span style="">::</span><span style="">spawn</span><span style="">(</span><span style="color:#66d9ef">move</span><span style=""> </span><span style="color:#f92672">||</span><span style=""> </span><span style="">{</span><span style="">
+</span><span style="">        </span><span style="">p</span><span style="">.</span><span style="">eat</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">table</span><span style="">);</span><span style="">
+</span><span style="">    </span><span style="">})</span><span style="">
+</span><span style=""></span><span style="">}).</span><span style="">collect</span><span style="">();</span></code></pre>
+</div>
+<p>最後に、<code>map()</code>に渡すclosure内で<code>table</code>を<code>clone()</code>しています。
+<code>Arc&lt;T&gt;</code>型のインスタンスに対して<code>clone()</code>すると、参照カウンタが増えるとのことです。</p>
+
+<p>これで解決です。哲学者たちはデッドロックに陥らず、食事を続けられるようになりました。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/learningrust/variable_bindings_and_functions/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/learningrust/variable_bindings_and_functions/">Learning Rust - Variable Bindings and Functions</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="next">
+      <a href="/post/learningrust/primitive_types_and_comments/">Learning Rust - Primitive Types and Comments</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/learningrust/primitive_types_and_comments/"><i class="fa fa-chevron-right"></i></a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

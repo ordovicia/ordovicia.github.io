@@ -43,67 +43,67 @@
   </url>
   
   <url>
-    <loc>/post/learning_rust/lifetime/</loc>
+    <loc>/post/learningrust/lifetime/</loc>
     <lastmod>2016-01-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/deref_coercions/</loc>
+    <loc>/post/learningrust/deref_coercions/</loc>
     <lastmod>2016-01-03T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/operators_and_overloading/</loc>
+    <loc>/post/learningrust/operators_and_overloading/</loc>
     <lastmod>2016-01-03T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/associated_types/</loc>
+    <loc>/post/learningrust/associated_types/</loc>
     <lastmod>2016-01-02T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/misc/</loc>
+    <loc>/post/learningrust/misc/</loc>
     <lastmod>2016-01-02T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/universal_function_call_syntax/</loc>
+    <loc>/post/learningrust/universal_function_call_syntax/</loc>
     <lastmod>2016-01-01T14:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/closures/</loc>
+    <loc>/post/learningrust/closures/</loc>
     <lastmod>2016-01-01T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/trait_objects/</loc>
+    <loc>/post/learningrust/trait_objects/</loc>
     <lastmod>2016-01-01T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/if_let/</loc>
+    <loc>/post/learningrust/if_let/</loc>
     <lastmod>2015-12-30T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/traits/</loc>
+    <loc>/post/learningrust/traits/</loc>
     <lastmod>2015-12-30T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/generics/</loc>
+    <loc>/post/learningrust/generics/</loc>
     <lastmod>2015-12-25T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/method_syntax/</loc>
+    <loc>/post/learningrust/method_syntax/</loc>
     <lastmod>2015-12-23T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/vectors_and_strings/</loc>
+    <loc>/post/learningrust/vectors_and_strings/</loc>
     <lastmod>2015-12-23T00:00:00+00:00</lastmod>
   </url>
   
@@ -113,62 +113,62 @@
   </url>
   
   <url>
-    <loc>/post/learning_rust/match_and_patterns/</loc>
+    <loc>/post/learningrust/match_and_patterns/</loc>
     <lastmod>2015-12-21T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/mutability/</loc>
+    <loc>/post/learningrust/mutability/</loc>
     <lastmod>2015-12-21T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/structs_and_enums/</loc>
+    <loc>/post/learningrust/structs_and_enums/</loc>
     <lastmod>2015-12-21T12:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/arch_raspi/devel_setup/</loc>
+    <loc>/post/archlinuxonraspi/devel_setup/</loc>
     <lastmod>2015-12-21T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/arch_raspi/initial_setup/</loc>
+    <loc>/post/archlinuxonraspi/initial_setup/</loc>
     <lastmod>2015-12-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/ownership/</loc>
+    <loc>/post/learningrust/ownership/</loc>
     <lastmod>2015-12-03T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/if_and_loops/</loc>
+    <loc>/post/learningrust/if_and_loops/</loc>
     <lastmod>2015-11-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/primitive_types_and_comments/</loc>
+    <loc>/post/learningrust/primitive_types_and_comments/</loc>
     <lastmod>2015-11-12T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/dining_philosophers/</loc>
+    <loc>/post/learningrust/dining_philosophers/</loc>
     <lastmod>2015-11-11T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/variable_bindings_and_functions/</loc>
+    <loc>/post/learningrust/variable_bindings_and_functions/</loc>
     <lastmod>2015-11-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/guessing_game/</loc>
+    <loc>/post/learningrust/guessing_game/</loc>
     <lastmod>2015-11-07T13:00:00+09:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/learning_rust/introduction/</loc>
+    <loc>/post/learningrust/introduction/</loc>
     <lastmod>2015-11-07T12:00:00+09:00</lastmod>
   </url>
   
