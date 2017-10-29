@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Trait Objects &middot; External Storage</title>
 
@@ -247,52 +247,49 @@
 <p>今後の例では、次のようなtraitとメソッドをつかいます。
 <code>Foo</code>traitのメソッド<code>method()</code>は<code>String</code>を返すもので、
 これを<code>u8</code>と<code>String</code>にimplしておきます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">method</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="">String</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">u8</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">method</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="">String</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">format</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;u8: {}&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">*</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">String</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">method</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="">String</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">format</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;string: {}&#34;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">*</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> Foo {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">method</span>(<span style="color:#f92672">&amp;</span>self) -&gt; String;
+}
+
+<span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">u8</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">method</span>(<span style="color:#f92672">&amp;</span>self) -&gt; String { format<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;u8: {}&#34;</span>, <span style="color:#f92672">*</span>self) }
+}
+
+<span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> String {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">method</span>(<span style="color:#f92672">&amp;</span>self) -&gt; String { format<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;string: {}&#34;</span>, <span style="color:#f92672">*</span>self) }
+}</code></pre></div>
 <h2 id="static-dispatch">Static dispatch</h2>
 
 <p>まずは静的ディスパッチのおさらいをしましょう。
 例えば、さきほどの<code>Foo</code>traitをつかうジェネリックな関数<code>do_something()</code>があったとします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">do_something</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="color:#a6e22e">Foo</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">method</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span><span style="">;</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="">do_something</span><span style="">(</span><span style="">x</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">do_something</span><span style="">(</span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">do_something</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">Foo</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+    x.method();
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span>;
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string();
+
+    do_something(x);
+    do_something(y);
+}</code></pre></div>
 <p>静的ディスパッチによって、<code>do_something()</code>の<code>u8</code>版と<code>String</code>版が別々につくられます。
 つまり、次のような置き換えが起こるということです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">do_something_u8</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">u8</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">method</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">do_something_string</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="">String</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">method</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span><span style="">;</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="">do_something_u8</span><span style="">(</span><span style="">x</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">do_something_string</span><span style="">(</span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">do_something_u8</span>(x: <span style="color:#66d9ef">u8</span>) {
+    x.method();
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">do_something_string</span>(x: String) {
+    x.method();
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span>;
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string();
+
+    do_something_u8(x);
+    do_something_string(y);
+}</code></pre></div>
 <p>静的ディスパッチは、関数のinline展開やその他の最適化がしやすく、コードが高速化できます。
 その一方で、関数の同じようなコピーがたくさん作られ、
 実行バイナリの肥大化を招くという問題もあります。</p>
@@ -305,18 +302,17 @@ Trait objectは<code>&amp;Foo</code>や<code>Box&lt;Foo&gt;</code>と表され�
 
 <p>Trait objectは、<code>&amp;x as &amp;Foo</code>のようなキャストや、
 <code>&amp;x</code>を<code>&amp;Foo</code>型の引数としてうけとることで得られます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">do_something</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Foo</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">method</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span><span style="">;</span><span style="">
-</span><span style="">    </span><span style="">do_something</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">x</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Foo</span><span style="">);</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">do_something</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">do_something</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Foo</span>) {
+    x.method();
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">u8</span>;
+    do_something(<span style="color:#f92672">&amp;</span>x <span style="color:#66d9ef">as</span> <span style="color:#f92672">&amp;</span>Foo);
+
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string();
+    do_something(<span style="color:#f92672">&amp;</span>y);
+}</code></pre></div>
 <p>動的ディスパッチを採用すると、実行ファイルの肥大化は防げます。
 しかし、仮想関数呼び出しのオーバーヘッドがかかったり、最適化ができなくなったりします。</p>
 
@@ -331,11 +327,10 @@ C++のアップキャストとたぶん同じです。</p>
 <p>また、trait objectは、キャスト前の値のポインタと、
 それに対応するメソッドのポインタをもつ構造体のようです。
 つまりこういうのですね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span><span style=""> </span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">TraitObject</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">pub</span><span style=""> </span><span style="">data</span><span style="">: </span><span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">(),</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">pub</span><span style=""> </span><span style="">vtable</span><span style="">: </span><span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">(),</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">TraitObject</span> {
+    <span style="color:#66d9ef">pub</span> data: <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> (),
+    <span style="color:#66d9ef">pub</span> vtable: <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> (),
+}</code></pre></div>
 <p><code>*mut</code>というのは生ポインタのようです。
 たぶん普通は使いません。
 vtableをもっているのもC++と同じでしょう。</p>
@@ -353,16 +348,14 @@ vtableをもっているのもC++と同じでしょう。</p>
 <p>と公式ドキュメントに書いてある通り、traitがもつメソッドが<code>Self</code>(自分自身の型?)を使う場合、
 そのtraitはobject-safeではない、と考えておけばよさそうです。
 たとえば、<code>Clone</code>traitは</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span><span style=""> </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Clone</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">clone</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Self</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">clone_from</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">,</span><span style=""> </span><span style="">source</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">...</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">trait</span> Clone {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">Self</span>;
+
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone_from</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, source: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Self</span>) { ... }
+}</code></pre></div>
 <p>のように、<code>Self</code>を使うメソッドをもつので、<code>Clone</code>のtrait objectに変換することはできません。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">v</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">3</span><span style="">];</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">o</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">v</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Clone</span><span style="">;</span><span style=""> </span><span style="color:#f92672">//</span><span style=""> </span><span style="">Error</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+<span style="color:#66d9ef">let</span> o <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>v <span style="color:#66d9ef">as</span> <span style="color:#f92672">&amp;</span>Clone; <span style="color:#f92672">//</span> Error</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

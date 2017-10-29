@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Universal Function Call Syntax &middot; External Storage</title>
 
@@ -235,33 +235,31 @@
 <h2 id="universal-function-call-syntax">Universal Function Call Syntax</h2>
 
 <p>別々のtraitが同名の関数を持っていることがありますね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Bar</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Baz</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Baz</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Baz’s impl of Foo&#34;</span><span style="">);</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Bar</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Baz</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Baz’s impl of Bar&#34;</span><span style="">);</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">b</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Baz</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Foo {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self);
+    }
+
+    <span style="color:#66d9ef">trait</span> Bar {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self);
+    }
+
+    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Baz</span>;
+
+    <span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> Baz {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self) { println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Baz’s impl of Foo&#34;</span>); }
+    }
+
+    <span style="color:#66d9ef">impl</span> Bar <span style="color:#66d9ef">for</span> Baz {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self) { println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Baz’s impl of Bar&#34;</span>); }
+    }
+
+    <span style="color:#66d9ef">let</span> b <span style="color:#f92672">=</span> Baz;
+}</code></pre></div>
 <p><code>Foo</code>と<code>Bar</code>というtraitがともに<code>f()</code>メソッドをもっていて、
 それらを<code>Baz</code>structにimplしました。
 これだけではエラーにはなりませんが、<code>b.f()</code>を呼ぶとエラーです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">b</span><span style="">.</span><span style="">f</span><span style="">();</span><span style=""> </span><span style="color:#f92672">//</span><span style=""> </span><span style="">Error</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">b.f(); <span style="color:#f92672">//</span> Error</code></pre></div>
 <p>これはシグネチャが違っていても(<code>Bar</code>の<code>f()</code>が<code>f(&amp;self, i32)</code>とかでも)、
 コンパイルエラーになるようです。</p>
 
@@ -269,9 +267,8 @@
 &lsquo;universal function call syntax&rsquo;を使えば可能です。</p>
 
 <p>Syntaxは以下のように、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">Foo</span><span style="">::</span><span style="">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">b</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">Bar</span><span style="">::</span><span style="">f</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">b</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">Foo::f(<span style="color:#f92672">&amp;</span>b);
+Bar::f(<span style="color:#f92672">&amp;</span>b);</code></pre></div>
 <p>C++の名前空間みたいにtraitを指定します。
 <code>b.f()</code>のようなメソッド呼び出しとは違い、<code>&amp;b</code>は明示的に渡さなければいけません。</p>
 
@@ -280,25 +277,23 @@
 <p>実はこの&rsquo;universal function call syntax&rsquo;は、
 &lsquo;Angle-bracket form&rsquo;の短縮版らしいです。
 Angle-bracket formは、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#f92672">&lt;</span><span style="">Type</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="">Trait</span><span style="color:#f92672">&gt;</span><span style="">::</span><span style="">method</span><span style="">(</span><span style="">args</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#f92672">&lt;</span>Type <span style="color:#66d9ef">as</span> Trait<span style="color:#f92672">&gt;</span>::method(args);</code></pre></div>
 <p>のようなsyntaxで記述します。
 <code>Type</code>にimplされている<code>Trait</code>がもつ<code>method</code>を呼ぶ、ということですね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">clone</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#75715e">#[derive(Clone)]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Bar</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Bar</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">clone</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Making a clone of Bar&#34;</span><span style="">);</span><span style="">
-</span><span style="">
-</span><span style="">        </span><span style="color:#f92672">&lt;</span><span style="">Bar</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="">Clone</span><span style="color:#f92672">&gt;</span><span style="">::</span><span style="">clone</span><span style="">(</span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> Foo {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone</span>(<span style="color:#f92672">&amp;</span>self);
+}
+
+<span style="color:#75715e">#[derive(Clone)]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Bar</span>;
+
+<span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> Bar {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone</span>(<span style="color:#f92672">&amp;</span>self) {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Making a clone of Bar&#34;</span>);
+
+        <span style="color:#f92672">&lt;</span>Bar <span style="color:#66d9ef">as</span> Clone<span style="color:#f92672">&gt;</span>::clone(self);
+    }
+}</code></pre></div>
 <p>上のように使えますが、<code>Clone::clone(self)</code>でも大丈夫なようです。
 どっちでもいいということでしょうか。</p>
 

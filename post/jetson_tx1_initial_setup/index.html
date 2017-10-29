@@ -5,9 +5,9 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
-  <title>Jetson TX1 initial setup &middot; External Storage</title>
+  <title>Jetson TX1 セットアップ &middot; External Storage</title>
 
   
   
@@ -196,7 +196,7 @@
 
 
 <div class="header">
-  <h1>Jetson TX1 initial setup</h1>
+  <h1>Jetson TX1 セットアップ</h1>
   <h2></h2>
 </div>
 <div class="content">
@@ -240,8 +240,7 @@
 デフォルトの構成だと10GBほどダウンロードされるので、ネットワーク速度が十分な環境で作業しましょう。</p>
 
 <p>インストール後、Jetsonの電源を入れ直して、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ ssh ubuntu@tegra-ubuntu.local</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ssh ubuntu@tegra-ubuntu.local</code></pre></div>
 <p>でログインできればOKです。</p>
 
 <h1 id="リカバリー用sdカード作成">リカバリー用SDカード作成</h1>
@@ -250,12 +249,11 @@
 ext4でフォーマットします。</p>
 
 <p><a href="https://developer.nvidia.com/embedded/downloads">NVIDIA</a>から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ sudo tar -vxjf &lt;Driver Package&gt;
-</span><span style="">$ </span><span style="">cd</span><span style=""> Linux_for_Tegra/rootfs
-</span><span style="">$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
-</span><span style="">$ </span><span style="">cd</span><span style=""> ..
-</span><span style="">$ sudo ./apply_binaries.sh</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo tar -vxjf &lt;Driver Package&gt;
+$ cd Linux_for_Tegra/rootfs
+$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
+$ cd ..
+$ sudo ./apply_binaries.sh</code></pre></div>
 <p>を実行します。
 SDカードに<code>rootfs</code>以下をまるごとコピーすると完了です。
 このときroot権限で操作しないと、sudoがつかえなくなって詰みます。</p>
@@ -295,7 +293,7 @@ SATAポートに繋いだSSDは<code>/dev/sda</code>に見えます。
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/implementing_patricia_tree_in_rust/">Implementing Patricia Tree in Rust</a>
+      <a href="/post/implementing_patricia_tree_in_rust/">パトリシア木の実装 in Rust</a>
     </nav>
     
   </div>
@@ -305,7 +303,7 @@ SATAポートに繋いだSSDは<code>/dev/sda</code>に見えます。
   <div class="pure-u-10-24">
     
     <nav class="next">
-      <a href="/post/convert_markdown_to_pdf/">Convert Markdown to PDF</a>
+      <a href="/post/convert_markdown_to_pdf/">MardownをPDFに変換する</a>
     </nav>
     
   </div>

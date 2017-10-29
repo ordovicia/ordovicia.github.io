@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Traits &middot; External Storage</title>
 
@@ -243,10 +243,9 @@ C++でいうコンセプト(C++14時点では提案のみっぽいですが)で�
 <h3 id="trait-bounds-on-generic-functions">Trait bounds on generic functions</h3>
 
 <p>例えば、面積を表示する、以下のジェネリックな関数を作りたいとします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">shape</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span><span style="">,</span><span style=""> </span><span style="">shape</span><span style="">.</span><span style="">area</span><span style="">());</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(shape: <span style="color:#a6e22e">T</span>) {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span>, shape.area());
+}</code></pre></div>
 <p>これはコンパイルエラーになります。
 <code>print_area()</code>関数が受け取る型<code>T</code>に、<code>area()</code>メソッドが定義されていないからです。
 現行のC++では、実際に<code>print_area()</code>関数をある型について使ったとき、
@@ -257,67 +256,64 @@ Rustではジェネリクス関数を定義しただけでエラーをおこし�
 <code>area()</code>メソッドをもつことを保証するtraitをつくり、
 型<code>T</code>を、そのtraitをもつものに制限します。
 Syntaxは次のとおりです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">HasArea</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">area</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">f64</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">radius</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">HasArea</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">area</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">f64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">std</span><span style="">::</span><span style="color:#66d9ef">f64</span><span style="">::</span><span style="">consts</span><span style="">::</span><span style="">PI</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">(</span><span style="">self</span><span style="">.</span><span style="">radius</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">radius</span><span style="">)</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="color:#a6e22e">HasArea</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">shape</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span><span style="">,</span><span style=""> </span><span style="">shape</span><span style="">.</span><span style="">area</span><span style="">());</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> HasArea {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span>;
+}
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Circle</span> {
+    x: <span style="color:#66d9ef">f64</span>,
+    y: <span style="color:#66d9ef">f64</span>,
+    radius: <span style="color:#66d9ef">f64</span>,
+}
+
+<span style="color:#66d9ef">impl</span> HasArea <span style="color:#66d9ef">for</span> Circle {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span> {
+        std::<span style="color:#66d9ef">f64</span>::consts::PI <span style="color:#f92672">*</span> (self.radius <span style="color:#f92672">*</span> self.radius)
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">HasArea</span><span style="color:#f92672">&gt;</span>(shape: <span style="color:#a6e22e">T</span>) {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span>, shape.area());
+}</code></pre></div>
 <p><code>HasArea</code>traitをつくり、それに<code>area()</code>メソッドを含めます。
 <code>print_area()</code>関数が<code>Circle</code>structに適用するため、
 <code>Circle</code>に<code>HasArea</code>traitを実装します。
 そして<code>print_area()</code>が受け取る型<code>T</code>を、<code>HasArea</code>traitをもつという条件で束縛します。</p>
 
 <p>ほかのstrctに<code>HasArea</code>traitをimplすることもできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Square</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">side</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">HasArea</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Square</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">area</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">f64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">self</span><span style="">.</span><span style="">side</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">side</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Square</span> {
+    x: <span style="color:#66d9ef">f64</span>,
+    y: <span style="color:#66d9ef">f64</span>,
+    side: <span style="color:#66d9ef">f64</span>,
+}
+
+<span style="color:#66d9ef">impl</span> HasArea <span style="color:#66d9ef">for</span> Square {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span> {
+        self.side <span style="color:#f92672">*</span> self.side
+    }
+}</code></pre></div>
 <h3 id="trait-bounds-on-generic-structs">Trait bounds on generic structs</h3>
 
 <p>ジェネリックなstructについても、traitが使えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Rectangle</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">width</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">height</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="">PartialEq</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">Rectangle</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">is_square</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">bool</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">self</span><span style="">.</span><span style="">width</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">height</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">r</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Rectangle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">width</span><span style="">: </span><span style="color:#ae81ff">47</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">height</span><span style="">: </span><span style="color:#ae81ff">47</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">};</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Rectangle</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#a6e22e">T</span>,
+    y: <span style="color:#a6e22e">T</span>,
+    width: <span style="color:#a6e22e">T</span>,
+    height: <span style="color:#a6e22e">T</span>,
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: PartialEq<span style="color:#f92672">&gt;</span> Rectangle<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_square</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
+        self.width <span style="color:#f92672">==</span> self.height
+    }
+}
+
+<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> r <span style="color:#f92672">=</span> Rectangle {
+    x: <span style="color:#ae81ff">0</span>,
+    y: <span style="color:#ae81ff">0</span>,
+    width: <span style="color:#ae81ff">47</span>,
+    height: <span style="color:#ae81ff">47</span>,
+};</code></pre></div>
 <p><code>PartialEq</code>は標準ライブラリにあるtraitで、
 対称律と推移律を満たす関係をもつ型にimplされているようです。
 <code>i32</code>はこのtraitをもっているので、<code>Rectangle&lt;i32&gt;</code>がつくれます。
@@ -328,14 +324,12 @@ Syntaxは次のとおりです。</p>
 <p>Traitの作成・使用には、いくつかルールがあります。</p>
 
 <p>まず、他のスコープでつくられたtraitは、明示的に<code>use</code>しないと使えません。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">f</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">fs</span><span style="">::</span><span style="">File</span><span style="">::</span><span style="">open</span><span style="">(</span><span style="color:#e6db74">&#34;foo.txt&#34;</span><span style="">).</span><span style="">ok</span><span style="">().</span><span style="">expect</span><span style="">(</span><span style="color:#e6db74">&#34;Couldn’t open foo.txt&#34;</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">buf</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">b&#34;whatever&#34;</span><span style="">;</span><span style=""> </span><span style="color:#75715e">// byte string literal. buf: &amp;[u8; 8]
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">result</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">f</span><span style="">.</span><span style="">write</span><span style="">(</span><span style="">buf</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> f <span style="color:#f92672">=</span> std::fs::File::open(<span style="color:#e6db74">&#34;foo.txt&#34;</span>).ok().expect(<span style="color:#e6db74">&#34;Couldn’t open foo.txt&#34;</span>);
+<span style="color:#66d9ef">let</span> buf <span style="color:#f92672">=</span> <span style="color:#e6db74">b&#34;whatever&#34;</span>; <span style="color:#75715e">// byte string literal. buf: &amp;[u8; 8]
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> result <span style="color:#f92672">=</span> f.write(buf);</code></pre></div>
 <p>これはコンパイルエラーです。
 <code>f.write()</code>のためには、<code>f</code>が<code>Write</code>traitをもっている必要があります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">io</span><span style="">::</span><span style="">Write</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::io::Write;</code></pre></div>
 <p>と書いておけばOKです。
 知らないところで変なtraitが定義されて、それを使ってしまうのを防ぐための仕様です。</p>
 
@@ -346,13 +340,12 @@ Syntaxは次のとおりです。</p>
 <h2 id="multiple-traits-bounds">Multiple traits bounds</h2>
 
 <p>複数のtraitをもっている型に制限したいときは、<code>+</code>で重ねることができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">fmt</span><span style="">::</span><span style="">Debug</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="">Clone</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">Debug</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{:?}&#34;</span><span style="">,</span><span style=""> </span><span style="">x</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::fmt::Debug;
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span>T: Clone <span style="color:#f92672">+</span> Debug<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+    x.clone();
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, x);
+}</code></pre></div>
 <p><code>std::fmt::Debug</code>traitをもっていると、
 <code>{:?}</code>というフォーマットですこしくわしい情報が得られるようです。</p>
 
@@ -360,22 +353,20 @@ Syntaxは次のとおりです。</p>
 
 <p>ジェネリックパラメータが増えたり、multiple traits boundsしたりすると、
 <code>&lt;&gt;</code>のなかが長くなりがちです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">fmt</span><span style="">::</span><span style="">Debug</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="">Clone</span><span style="">,</span><span style=""> </span><span style="">K</span><span style="">: </span><span style="">Clone</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">Debug</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">K</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{:?}&#34;</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::fmt::Debug;
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span>T: Clone, K: Clone <span style="color:#f92672">+</span> Debug<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">K</span>) {
+    x.clone();
+    y.clone();
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, y);
+}</code></pre></div>
 <p>これくらいだとまだいいですが、これ以上長くなってくると読みにくいですね。
 そんなときのために<code>where</code>キーワードがあります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">bar</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">,</span><span style=""> </span><span style="">K</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">K</span><span style="">)</span><span style=""> </span><span style="color:#66d9ef">where</span><span style=""> </span><span style="">T</span><span style="">: </span><span style="">Clone</span><span style="">,</span><span style=""> </span><span style="">K</span><span style="">: </span><span style="">Clone</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">Debug</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">.</span><span style="">clone</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{:?}&#34;</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">&lt;</span>T, K<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">K</span>) <span style="color:#66d9ef">where</span> T: Clone, K: Clone <span style="color:#f92672">+</span> Debug {
+    x.clone();
+    y.clone();
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, y);
+}</code></pre></div>
 <p><code>where</code>節をかくと、型制約を引数リストのあとに書くことができます。
 関数名と引数が近くなるのでわかりやすいですね。
 また、改行をいれたりもできるので、それによっても可読性が上がります。</p>
@@ -384,26 +375,25 @@ Syntaxは次のとおりです。</p>
 それは、型制約が、型パラメータに直接かかる制約ではなく、
 型パラメータへの間接的な制約であるときです。
 ことばでいってもわかりにくいので、例を見てみます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="">Output</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">convert</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Output</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">convert</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i64</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#f92672">*</span><span style="">self</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="color:#66d9ef">i64</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#75715e">// can be called with T == i32
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">normal</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">i64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">.</span><span style="">convert</span><span style="">()</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#75715e">// can be called with T == i64
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">inverse</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style="">()</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">T</span><span style="">
-</span><span style="">        </span><span style="color:#75715e">// this is using ConvertTo as if it were &#34;ConvertTo&lt;i64&gt;&#34;
-</span><span style="color:#75715e"></span><span style="">        </span><span style="color:#66d9ef">where</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">: </span><span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#ae81ff">42.</span><span style="">convert</span><span style="">()</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> ConvertTo<span style="color:#f92672">&lt;</span>Output<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">convert</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">Output</span>;
+}
+
+<span style="color:#66d9ef">impl</span> ConvertTo<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">convert</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">i64</span> { <span style="color:#f92672">*</span>self <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">i64</span> }
+}
+
+<span style="color:#75715e">// can be called with T == i32
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">normal</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">T</span>) -&gt; <span style="color:#66d9ef">i64</span> {
+    x.convert()
+}
+
+<span style="color:#75715e">// can be called with T == i64
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">inverse</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() -&gt; <span style="color:#a6e22e">T</span>
+        <span style="color:#75715e">// this is using ConvertTo as if it were &#34;ConvertTo&lt;i64&gt;&#34;
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">where</span> <span style="color:#66d9ef">i32</span>: <span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#ae81ff">42.</span>convert()
+}</code></pre></div>
 <p><code>normal()</code>関数は、<code>T</code>が<code>ConvertTo&lt;i64&gt;</code>traitをもっていることが型制約ですが、
 <code>inverse()</code>関数は、<code>T</code>に<code>ConvertTo&lt;T&gt;</code>できるという、間接的な型制約になっています。</p>
 
@@ -411,30 +401,29 @@ Syntaxは次のとおりです。</p>
 
 <p>Traitがもつメソッドにデフォルト実装を書くことができます。
 そのtraitをimplする型でoverrideしない場合、デフォルト実装がつかわれることになります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Validation</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">is_valid</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">bool</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#f92672">!</span><span style="">self</span><span style="">.</span><span style="">is_invalid</span><span style="">()</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">is_invalid</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">bool</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="color:#f92672">!</span><span style="">self</span><span style="">.</span><span style="">is_valid</span><span style="">()</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Validation</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">is_valid</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">bool</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="color:#f92672">*</span><span style="">self</span><span style=""> </span><span style="color:#f92672">&gt;=</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Validation</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">f64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">is_invalid</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">bool</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="color:#f92672">*</span><span style="">self</span><span style=""> </span><span style="color:#f92672">&lt;</span><span style=""> </span><span style="color:#ae81ff">0.0</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="">assert</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#ae81ff">1.</span><span style="">is_valid</span><span style="">());</span><span style="">
-</span><span style="">    </span><span style="">assert</span><span style="color:#f92672">!</span><span style="">((</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="">).</span><span style="">is_invalid</span><span style="">());</span><span style="">
-</span><span style="">    </span><span style="">assert</span><span style="color:#f92672">!</span><span style="">((</span><span style="color:#ae81ff">1.1</span><span style="">).</span><span style="">is_valid</span><span style="">());</span><span style="">
-</span><span style="">    </span><span style="">assert</span><span style="color:#f92672">!</span><span style="">((</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1.1</span><span style="">).</span><span style="">is_invalid</span><span style="">());</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Validation {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_valid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> { <span style="color:#f92672">!</span>self.is_invalid() }
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_invalid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> { <span style="color:#f92672">!</span>self.is_valid() }
+    }
+
+    <span style="color:#66d9ef">impl</span> Validation <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_valid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
+            <span style="color:#f92672">*</span>self <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>
+        }
+    }
+
+    <span style="color:#66d9ef">impl</span> Validation <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">f64</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_invalid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
+            <span style="color:#f92672">*</span>self <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0.0</span>
+        }
+    }
+
+    assert<span style="color:#f92672">!</span>(<span style="color:#ae81ff">1.</span>is_valid());
+    assert<span style="color:#f92672">!</span>((<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>).is_invalid());
+    assert<span style="color:#f92672">!</span>((<span style="color:#ae81ff">1.1</span>).is_valid());
+    assert<span style="color:#f92672">!</span>((<span style="color:#f92672">-</span><span style="color:#ae81ff">1.1</span>).is_invalid());
+}</code></pre></div>
 <p>この例では、<code>Valiadation</code>traitのもつメソッドは、お互いの否定をとるような実装になっています。
 したがって、<code>i32</code>などにimplするとき、
 <code>is_valid()</code>か<code>is_invalid()</code>のどちらか一方のみ実装すれば十分です。</p>
@@ -443,22 +432,21 @@ Syntaxは次のとおりです。</p>
 
 <p>あるtraitをimplするとき、他のtraitのメソッドが必要になる場合があります。
 AというtraitがBというtraitを継承すると、Aをimplする型はBもimplされていることが要請できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="">: </span><span style="color:#a6e22e">std</span><span style="">::</span><span style="">fmt</span><span style="">::</span><span style="">Display</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">)</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{}</span><span style="">
-</span><span style="">    </span><span style="color:#ae81ff">1.</span><span style="">print</span><span style="">();</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">S</span><span style="">;</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">S</span><span style=""> </span><span style="">{}</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">s</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">S</span><span style="">;</span><span style="">
-</span><span style="">    </span><span style="">s</span><span style="">.</span><span style="">print</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Printable : <span style="color:#a6e22e">std</span>::fmt::Display {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
+            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self)
+        }
+    }
+
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {}
+    <span style="color:#ae81ff">1.</span>print();
+
+    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">S</span>;
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> S {}
+    <span style="color:#66d9ef">let</span> s <span style="color:#f92672">=</span> S;
+    s.print();
+}</code></pre></div>
 <p>この例では、<code>Printable</code>traitが<code>std::fmt::Display</code>を継承しているので、
 <code>println!(&quot;{}&quot;, self)</code>が実行できることが保証されます。</p>
 
@@ -471,13 +459,12 @@ AというtraitがBというtraitを継承すると、Aをimplする型はBもim
 <p>基本的には、traitは型ごとにimplしないと使えませんが、
 <code>Debug</code>とか<code>Default</code>とかのよく使う標準ライブラリのtraitをいちいちimplするのは面倒ですね。
 そこで、<code>#[derive(Debug)]</code>と書くと、自動的にそれがimplされるようになっています。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Debug)]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Foo</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{:?}&#34;</span><span style="">,</span><span style=""> </span><span style="">Foo</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Debug)]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span>;
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, Foo);
+}</code></pre></div>
 <p>ただし、このattributeがつかえるのは、以下のtraitに限られています。</p>
 
 <ul>
@@ -499,44 +486,41 @@ AというtraitがBというtraitを継承すると、Aをimplする型はBもim
 <p><code>Drop</code>traitは、C++でいうデストラクタです。
 <code>Drop</code>をimplした型のVariable bindingがスコープを抜けて破棄されるとき、
 <code>drop()</code>メソッドが呼ばれます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">HasDrop</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Drop</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">HasDrop</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">drop</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Dropping!&#34;</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">HasDrop</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">// do stuff
-</span><span style="color:#75715e"></span><span style="">
-</span><span style=""></span><span style="">}</span><span style=""> </span><span style="color:#f92672">//</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="">goes</span><span style=""> </span><span style="">out</span><span style=""> </span><span style="">of</span><span style=""> </span><span style="">scope</span><span style=""> </span><span style="">here</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">HasDrop</span>;
+
+<span style="color:#66d9ef">impl</span> Drop <span style="color:#66d9ef">for</span> HasDrop {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Dropping!&#34;</span>);
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> HasDrop;
+
+    <span style="color:#75715e">// do stuff
+</span><span style="color:#75715e"></span>
+} <span style="color:#f92672">//</span> x goes out of scope here</code></pre></div>
 <p>これを実行すると、プログラムが終了するときに、<code>Dropping!</code>と出力されます。</p>
 
 <p>Variable bindingは、宣言と逆順に破棄されていきます。
 StackのLIFOということですね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Firework</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">strength</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Drop</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">Firework</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">drop</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;BOOM times {}!!!&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">strength</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">firecracker</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Firework</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">strength</span><span style="">: </span><span style="color:#ae81ff">1</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">tnt</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Firework</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">strength</span><span style="">: </span><span style="color:#ae81ff">100</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Firework</span> {
+    strength: <span style="color:#66d9ef">i32</span>,
+}
+
+<span style="color:#66d9ef">impl</span> Drop <span style="color:#66d9ef">for</span> Firework {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;BOOM times {}!!!&#34;</span>, self.strength);
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> firecracker <span style="color:#f92672">=</span> Firework { strength: <span style="color:#ae81ff">1</span> };
+    <span style="color:#66d9ef">let</span> tnt <span style="color:#f92672">=</span> Firework { strength: <span style="color:#ae81ff">100</span> };
+}</code></pre></div>
 <p><code>tnt</code>が<code>firecracker</code>より後に宣言されているので、出力は逆順の、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="">BOOM</span><span style=""> </span><span style="">times</span><span style=""> </span><span style="color:#ae81ff">100</span><span style="color:#f92672">!!!</span><span style="">
-</span><span style=""></span><span style="">BOOM</span><span style=""> </span><span style="">times</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="color:#f92672">!!!</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">BOOM times <span style="color:#ae81ff">100</span><span style="color:#f92672">!!!</span>
+BOOM times <span style="color:#ae81ff">1</span><span style="color:#f92672">!!!</span></code></pre></div>
 <p>となります。</p>
 
 

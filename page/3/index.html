@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>External Storage</title>
 
@@ -210,51 +210,6 @@
   
     <article>
   <header>
-    <h2><a href="/post/learningrust/misc/">Learning Rust - Misc.</a></h2>
-
-    <div class="post-meta">
-
-  <div>
-    <i class="fa fa-calendar fa-fw"></i>
-    <time>02 Jan 2016</time>
-  </div>
-
-  
-
-  
-
-  
-  
-  
-  <div>
-    <i class="fa fa-tags fa-fw"></i>
-    
-      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
-    
-      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
-    
-  </div>
-  
-  
-
-</div>
-
-  </header>
-
-  <p>
-  Syntax and Semantics Rustのsyntaxとsemanticsについて、いくつか細かい事項をまとめて紹介します。 const and static Const変数とstatic変数は、
-  </p>
-
-  
-  <footer>
-    <a href="/post/learningrust/misc/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
-  </footer>
-  
-</article>
-
-  
-    <article>
-  <header>
     <h2><a href="/post/learningrust/universal_function_call_syntax/">Learning Rust - Universal Function Call Syntax</a></h2>
 
     <div class="post-meta">
@@ -287,7 +242,7 @@
   </header>
 
   <p>
-  Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fnmain(){traitFoo{fnf(&amp;self);}
+  Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fn main() { trait Foo { fn f(&amp;self); } trait Bar { fn f(&amp;self); } struct Baz; impl Foo for Baz { fn f(&amp;self) { println!(
   </p>
 
   
@@ -422,12 +377,57 @@
   </header>
 
   <p>
-  Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 matchoption{Some(x)=&gt;{foo(x)},None=&gt;{},} のように、あるパターンにマッ
+  Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 match option { Some(x) =&gt; { foo(x) }, None =&gt; {}, } のよう
   </p>
 
   
   <footer>
     <a href="/post/learningrust/if_let/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
+  </footer>
+  
+</article>
+
+  
+    <article>
+  <header>
+    <h2><a href="/post/learningrust/traits/">Learning Rust - Traits</a></h2>
+
+    <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>30 Dec 2015</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  </header>
+
+  <p>
+  Syntax and Semantics Traits Traitは、Haskellでいう型クラスであり、 C++でいうコンセプト(C++14時点では提案のみっぽいですが)です。 ジェネリクス
+  </p>
+
+  
+  <footer>
+    <a href="/post/learningrust/traits/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
   </footer>
   
 </article>

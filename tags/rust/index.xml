@@ -13,7 +13,7 @@
     
     
     <item>
-      <title>Implementing Patricia Tree in Rust</title>
+      <title>パトリシア木の実装 in Rust</title>
       <link>/post/implementing_patricia_tree_in_rust/</link>
       <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
       
@@ -72,7 +72,7 @@
       <pubDate>Fri, 01 Jan 2016 14:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/universal_function_call_syntax/</guid>
-      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fnmain(){traitFoo{fnf(&amp;amp;self);}</description>
+      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fn main() { trait Foo { fn f(&amp;amp;self); } trait Bar { fn f(&amp;amp;self); } struct Baz; impl Foo for Baz { fn f(&amp;amp;self) { println!(</description>
     </item>
     
     <item>
@@ -99,7 +99,7 @@
       <pubDate>Wed, 30 Dec 2015 13:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/if_let/</guid>
-      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 matchoption{Some(x)=&amp;gt;{foo(x)},None=&amp;gt;{},} のように、あるパターンにマッ</description>
+      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 match option { Some(x) =&amp;gt; { foo(x) }, None =&amp;gt; {}, } のよう</description>
     </item>
     
     <item>
@@ -162,7 +162,7 @@
       <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/structs_and_enums/</guid>
-      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 structPoint{x: i32,y: i32,}fnmain(){letorigin=Point{x: 0,y: 0};println!(&amp;#34;The origin is</description>
+      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 struct Point { x: i32, y: i32,</description>
     </item>
     
     <item>

@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Generics &middot; External Storage</title>
 
@@ -243,13 +243,12 @@ Rustのジェネリクスもスムーズに学べました。</p>
 <p>Rustの標準ライブラリには、たとえば<code>Option&lt;T&gt;</code>という型があります。
 ある正常な値をもっているか、あるいは不正かの情報をもち、
 <code>Option&lt;T&gt;</code>をつかうとエラー処理に統一感がでます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span><span style=""> </span><span style="">Option</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">Some</span><span style="">(</span><span style="">T</span><span style="">),</span><span style="">
-</span><span style="">    </span><span style="">None</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="">Option</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Some</span><span style="">(</span><span style="color:#ae81ff">5</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> Option<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    Some(T),
+    None,
+}
+
+<span style="color:#66d9ef">let</span> x: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> Some(<span style="color:#ae81ff">5</span>);</code></pre></div>
 <p><code>&lt;T&gt;</code>がジェネリクスを表しています。
 このenumはいろんな型<code>T</code>のバージョンをつくることができるというわけです。
 正常な値をあらわす<code>Some</code>に、おなじ<code>T</code>型の値をいれます。</p>
@@ -258,56 +257,52 @@ Rustのジェネリクスもスムーズに学べました。</p>
 これは<code>Option&lt;T&gt;</code>に使う場面が似ていますが、
 エラーだった場合の情報を増やすために、エラーを表すstructが、
 単なるunit-like structではなく、tuple structになっています。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span><span style=""> </span><span style="">Result</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">,</span><span style=""> </span><span style="">E</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">Ok</span><span style="">(</span><span style="">T</span><span style="">),</span><span style="">
-</span><span style="">    </span><span style="">Err</span><span style="">(</span><span style="">E</span><span style="">),</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> Result<span style="color:#f92672">&lt;</span>T, E<span style="color:#f92672">&gt;</span> {
+    Ok(T),
+    Err(E),
+}</code></pre></div>
 <p>このように、二つ以上のパラメータをもったジェネリクス型もつくれます。</p>
 
 <h3 id="generic-functions">Generic functions</h3>
 
 <p>Enumだけでなく、ジェネリックな関数もつくれます。
 Syntaxは以下です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">// do something with x
-</span><span style="color:#75715e"></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+    <span style="color:#75715e">// do something with x
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>もちろん複数の引数をとったり、パラメータが複数になったりもできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">takes_two_of_the_same_things</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">// ...
-</span><span style="color:#75715e"></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">takes_two_things</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">,</span><span style=""> </span><span style="">U</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">U</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">// ...
-</span><span style="color:#75715e"></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_two_of_the_same_things</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">T</span>) {
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_two_things</span><span style="color:#f92672">&lt;</span>T, U<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">U</span>) {
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>ジェネリックな関数を呼ぶときは、型は推論されるようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">trait</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Printable</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="color:#66d9ef">f64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">print</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">self</span><span style="">);</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="color:#a6e22e">Printable</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">x</span><span style="">.</span><span style="">print</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="">takes_anything</span><span style="">(</span><span style="color:#ae81ff">1</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">takes_anything</span><span style="">(</span><span style="color:#ae81ff">1.0</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Printable {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self);
+    }
+
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
+            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self);
+        }
+    }
+
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">f64</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
+            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self);
+        }
+    }
+
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">Printable</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+        x.print();
+    }
+
+    takes_anything(<span style="color:#ae81ff">1</span>);
+    takes_anything(<span style="color:#ae81ff">1.0</span>);
+}</code></pre></div>
 <p>ただし、実際によぶときは多くの場合、
 上のコードのようにtraitの定義が必要でしょう。
 Traitについては次回に紹介します。</p>
@@ -315,23 +310,21 @@ Traitについては次回に紹介します。</p>
 <h3 id="generic-structs">Generic structs</h3>
 
 <p>さらにstructもジェネリクスが可能です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Point</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">int_origin</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">float_origin</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0.0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0.0</span><span style=""> </span><span style="">};</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#a6e22e">T</span>,
+    y: <span style="color:#a6e22e">T</span>,
+}
+
+<span style="color:#66d9ef">let</span> int_origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span> };
+<span style="color:#66d9ef">let</span> float_origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0.0</span>, y: <span style="color:#ae81ff">0.0</span> };</code></pre></div>
 <p>これもパラメータは推論されるようですね。</p>
 
 <p>メソッドを定義するときは、<code>impl&lt;T&gt;</code>と書きます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">Point</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">swap</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">std</span><span style="">::</span><span style="">mem</span><span style="">::</span><span style="">swap</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">x</span><span style="">,</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">y</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Point<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
+        std::mem::swap(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self.x, <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self.y);
+    }
+}</code></pre></div>
 <hr />
 
 <p>ジェネリクスは強力で、なくてはならない機能ですが、

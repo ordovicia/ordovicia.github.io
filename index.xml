@@ -22,7 +22,7 @@
     </item>
     
     <item>
-      <title>Convert Markdown to PDF</title>
+      <title>MardownをPDFに変換する</title>
       <link>/post/convert_markdown_to_pdf/</link>
       <pubDate>Thu, 29 Jun 2017 00:00:00 +0000</pubDate>
       
@@ -40,7 +40,7 @@
     </item>
     
     <item>
-      <title>Jetson TX1 initial setup</title>
+      <title>Jetson TX1 セットアップ</title>
       <link>/post/jetson_tx1_initial_setup/</link>
       <pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate>
       
@@ -49,7 +49,7 @@
     </item>
     
     <item>
-      <title>Implementing Patricia Tree in Rust</title>
+      <title>パトリシア木の実装 in Rust</title>
       <link>/post/implementing_patricia_tree_in_rust/</link>
       <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
       
@@ -58,21 +58,12 @@
     </item>
     
     <item>
-      <title>Well-founded ordered set</title>
+      <title>整礎順序集合</title>
       <link>/post/well_founded_induction/</link>
       <pubDate>Sat, 31 Dec 2016 00:00:00 +0000</pubDate>
       
       <guid>/post/well_founded_induction/</guid>
       <description>五十嵐淳『プログラミング言語の基礎概念』を読んでいます。 整礎順序集合 集合とその上の順序が整礎であるとは、（真の）無限降下列が存在しないことを</description>
-    </item>
-    
-    <item>
-      <title>Atomic operation overhead</title>
-      <link>/post/atomic_operation_overhead/</link>
-      <pubDate>Mon, 26 Dec 2016 00:00:00 +0000</pubDate>
-      
-      <guid>/post/atomic_operation_overhead/</guid>
-      <description>ARMはconsistencyが弱く設計されてるメモリモデルだから、強いメモリモデルのx86_64と比べて atomic変数の操作にともなうオ</description>
     </item>
     
     <item>
@@ -126,7 +117,7 @@
       <pubDate>Fri, 01 Jan 2016 14:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/universal_function_call_syntax/</guid>
-      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fnmain(){traitFoo{fnf(&amp;amp;self);}</description>
+      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fn main() { trait Foo { fn f(&amp;amp;self); } trait Bar { fn f(&amp;amp;self); } struct Baz; impl Foo for Baz { fn f(&amp;amp;self) { println!(</description>
     </item>
     
     <item>
@@ -153,7 +144,7 @@
       <pubDate>Wed, 30 Dec 2015 13:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/if_let/</guid>
-      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 matchoption{Some(x)=&amp;gt;{foo(x)},None=&amp;gt;{},} のように、あるパターンにマッ</description>
+      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 match option { Some(x) =&amp;gt; { foo(x) }, None =&amp;gt; {}, } のよう</description>
     </item>
     
     <item>
@@ -193,7 +184,7 @@
     </item>
     
     <item>
-      <title>Building Boost with GCC on OSX Yosemite</title>
+      <title>OS X Yosemite上でBoostをGCCでビルドする</title>
       <link>/post/gcc_build_boost_on_osx_yosemite/</link>
       <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
       
@@ -225,11 +216,11 @@
       <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
       
       <guid>/post/learningrust/structs_and_enums/</guid>
-      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 structPoint{x: i32,y: i32,}fnmain(){letorigin=Point{x: 0,y: 0};println!(&amp;#34;The origin is</description>
+      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 struct Point { x: i32, y: i32,</description>
     </item>
     
     <item>
-      <title>Arch Linux on Raspberry Pi 2 - Setup for Development</title>
+      <title>Arch Linux on Raspberry Pi 2 - 開発用セットアップ</title>
       <link>/post/archlinuxonraspi/devel_setup/</link>
       <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
       
@@ -238,7 +229,7 @@
     </item>
     
     <item>
-      <title>Arch Linux on Raspberry Pi 2 - Initial Setup</title>
+      <title>Arch Linux on Raspberry Pi 2 - 初期セットアップ</title>
       <link>/post/archlinuxonraspi/initial_setup/</link>
       <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
       

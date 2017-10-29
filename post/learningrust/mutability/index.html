@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Mutability &middot; External Storage</title>
 
@@ -239,31 +239,27 @@
 
 <p><code>let</code>文でvaliable bindingを宣言するとき、<code>mut</code>指定すれば
 mutable variable bindingとなり、変更が可能になります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">6</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+x <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>;</code></pre></div>
 <p>このとき、&rsquo;mutable&rsquo;とは<code>x</code>が指している<code>i32</code>型のものが変更可能という意味であり、
 <code>x</code>が変更可能という意味ではありません。</p>
 
 <p>Mutableなvariable bindingは<code>&amp;mut</code>参照で受け取ることができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="color:#f92672">*</span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">6</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> x;
+<span style="color:#f92672">*</span>y <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>;</code></pre></div>
 <p>これで<code>x</code>が指している値が6に変わりました。</p>
 
 <p>上のコードでは、<code>y</code>自体は<code>mut</code>指定されていません。
 これは、参照先を変えられないということを意味します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">z</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">6</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">z</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> z <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>;
+<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> x;
+y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> z;</code></pre></div>
 <p>このように<code>y</code>も<code>mut</code>指定すると参照先を<code>z</code>に変えることができました。</p>
 
 <p>最後に、<code>mut</code>は&rsquo;pattern&rsquo;の一部なので、次のようにかけます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">(</span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">(</span><span style="color:#ae81ff">5</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">6</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> (<span style="color:#66d9ef">mut</span> x, y) <span style="color:#f92672">=</span> (<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>);</code></pre></div>
 <p>このとき、<code>x</code>はmutableですが、<code>y</code>はimmutableです。</p>
 
 <hr />

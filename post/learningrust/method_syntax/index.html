@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Method Syntax &middot; External Storage</title>
 
@@ -240,23 +240,22 @@
 が、オブジェクト指向プログラミングは簡単に実現できます。
 Structに<code>impl</code>キーワードでメソッドを追加していくことで、
 structのオブジェクトにメソッドを持たせることができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">radius</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">area</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">f64</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">std</span><span style="">::</span><span style="color:#66d9ef">f64</span><span style="">::</span><span style="">consts</span><span style="">::</span><span style="">PI</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">(</span><span style="">self</span><span style="">.</span><span style="">radius</span><span style=""> </span><span style="color:#f92672">*</span><span style=""> </span><span style="">self</span><span style="">.</span><span style="">radius</span><span style="">)</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">c</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0.0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0.0</span><span style="">,</span><span style=""> </span><span style="">radius</span><span style="">: </span><span style="color:#ae81ff">2.0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">c</span><span style="">.</span><span style="">area</span><span style="">());</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Circle</span> {
+    x: <span style="color:#66d9ef">f64</span>,
+    y: <span style="color:#66d9ef">f64</span>,
+    radius: <span style="color:#66d9ef">f64</span>,
+}
+
+<span style="color:#66d9ef">impl</span> Circle {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span> {
+        std::<span style="color:#66d9ef">f64</span>::consts::PI <span style="color:#f92672">*</span> (self.radius <span style="color:#f92672">*</span> self.radius)
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> c <span style="color:#f92672">=</span> Circle { x: <span style="color:#ae81ff">0.0</span>, y: <span style="color:#ae81ff">0.0</span>, radius: <span style="color:#ae81ff">2.0</span> };
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, c.area());
+}</code></pre></div>
 <p><code>impl</code>するメソッドの第一引数には、
 <code>self, &amp;self, &amp;mut self</code>のどれかを指定します。</p>
 
@@ -266,35 +265,33 @@ structのオブジェクトにメソッドを持たせることができます�
 <h3 id="chaining-method-calls">Chaining method calls</h3>
 
 <p>もちろんメソッドをつなげることもできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">grow</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">,</span><span style=""> </span><span style="">increment</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">self</span><span style="">.</span><span style="">x</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">self</span><span style="">.</span><span style="">y</span><span style="">,</span><span style=""> </span><span style="">radius</span><span style="">: </span><span style="color:#a6e22e">self</span><span style="">.</span><span style="">radius</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="">increment</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{}</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">d</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">c</span><span style="">.</span><span style="">grow</span><span style="">(</span><span style="color:#ae81ff">2.0</span><span style="">).</span><span style="">area</span><span style="">();</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">d</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> Circle {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">grow</span>(<span style="color:#f92672">&amp;</span>self, increment: <span style="color:#66d9ef">f64</span>) -&gt; <span style="color:#a6e22e">Circle</span> {
+        Circle { x: <span style="color:#a6e22e">self</span>.x, y: <span style="color:#a6e22e">self</span>.y, radius: <span style="color:#a6e22e">self</span>.radius <span style="color:#f92672">+</span> increment }
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {}
+    <span style="color:#66d9ef">let</span> d <span style="color:#f92672">=</span> c.grow(<span style="color:#ae81ff">2.0</span>).area();
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, d);
+}</code></pre></div>
 <h3 id="associated-functions">Associated functions</h3>
 
 <p>C++でいうstaticメンバ関数もつくれます。
 Rustではassociated functionと呼ばれるようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">new</span><span style="">(</span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">: </span><span style="color:#a6e22e">radius</span><span style="">: </span><span style="color:#66d9ef">f64</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#a6e22e">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">Circle</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">            </span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">x</span><span style="">,</span><span style="">
-</span><span style="">            </span><span style="">y</span><span style="">: </span><span style="color:#a6e22e">y</span><span style="">,</span><span style="">
-</span><span style="">            </span><span style="">radius</span><span style="">: </span><span style="color:#a6e22e">radius</span><span style="">,</span><span style="">
-</span><span style="">        </span><span style="">}</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">c</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Circle</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="color:#ae81ff">0.0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0.0</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">2.0</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> Circle {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">new</span>(x: <span style="color:#66d9ef">f64</span>, y: <span style="color:#66d9ef">f64</span>: <span style="color:#a6e22e">radius</span>: <span style="color:#66d9ef">f64</span>) -&gt; <span style="color:#a6e22e">Circle</span> {
+        Circle {
+            x: <span style="color:#a6e22e">x</span>,
+            y: <span style="color:#a6e22e">y</span>,
+            radius: <span style="color:#a6e22e">radius</span>,
+        }
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> c <span style="color:#f92672">=</span> Circle::new(<span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">2.0</span>);
+}</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

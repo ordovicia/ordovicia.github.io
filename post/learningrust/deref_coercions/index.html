@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Deref Coercions &middot; External Storage</title>
 
@@ -242,72 +242,68 @@ Overloadできる演算子には、間接参照演算子<code>*</code>を実装�
 <p>まずは普通の使いかたから。
 <code>DerefExample</code>というポインタっぽい型を定義し、<code>Deref</code>traitをimplします。
 間接参照先の型を<code>Target</code>というassociation typeに指定します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">ops</span><span style="">::</span><span style="">Deref</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">DerefExample</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">value</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">Deref</span><span style=""> </span><span style="color:#66d9ef">for</span><span style=""> </span><span style="">DerefExample</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">type</span><span style=""> </span><span style="color:#a6e22e">Target</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">T</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">deref</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">T</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">.</span><span style="">value</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">DerefExample</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">value</span><span style="">: </span><span style="color:#e6db74">&#39;a&#39;</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style="">    </span><span style="">assert_eq</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#39;a&#39;</span><span style="">,</span><span style=""> </span><span style="color:#f92672">*</span><span style="">x</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::ops::Deref;
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">DerefExample</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    value: <span style="color:#a6e22e">T</span>,
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Deref <span style="color:#66d9ef">for</span> DerefExample<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Target</span> <span style="color:#f92672">=</span> T;
+
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">deref</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">T</span> {
+        <span style="color:#f92672">&amp;</span>self.value
+    }
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> DerefExample { value: <span style="color:#e6db74">&#39;a&#39;</span> };
+    assert_eq<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#f92672">*</span>x);
+}</code></pre></div>
 <p>それでは<code>Deref</code>の何が特別かというと、次のようなルールがあります。</p>
 
 <p>型<code>U</code>に対して、<code>Deref&lt;Target = T&gt;</code>をimplすると、<code>&amp;U</code>型の値は暗黙的に<code>&amp;T</code>に変換できる。</p>
 
 <p>例を見てみます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="">(</span><span style="">s</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">//
-</span><span style="color:#75715e"></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">owned</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span><span style=""> </span><span style="color:#75715e">// owned: String
-</span><span style="color:#75715e"></span><span style="">
-</span><span style=""></span><span style="color:#75715e">// String implements Deref&lt;Target = str&gt;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) {
+    <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">let</span> owned <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string(); <span style="color:#75715e">// owned: String
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// String implements Deref&lt;Target = str&gt;
 </span><span style="color:#75715e">// Thus, &amp;String will coerced to &amp;str
-</span><span style="color:#75715e"></span><span style="">foo</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">owned</span><span style="">);</span></code></pre>
-</div>
+</span><span style="color:#75715e"></span>foo(<span style="color:#f92672">&amp;</span>owned);</code></pre></div>
 <p><code>String</code>は<code>Deref&lt;Target = str&gt;</code>をimplされているので、
 <code>&amp;String</code>は暗黙的に<code>&amp;str</code>に変換され、<code>foo()</code>に渡されます。</p>
 
 <p>他には、リファレンスカウンタをもつ<code>Rc&lt;T&gt;</code>型は、<code>Deref&lt;Target = T&gt;</code>をimplされています。
 よって、<code>&amp;Rc&lt;T&gt;</code>型の値は暗黙的に<code>&amp;T</code>型にキャストできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">rc</span><span style="">::</span><span style="">Rc</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="">(</span><span style="">s</span><span style="">: </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span><span style="">)</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">//
-</span><span style="color:#75715e"></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">owned</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span><span style=""> </span><span style="color:#75715e">// owned: String
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">counted</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Rc</span><span style="">::</span><span style="">new</span><span style="">(</span><span style="">owned</span><span style="">);</span><span style=""> </span><span style="color:#75715e">// counted: Rc&lt;String&gt;
-</span><span style="color:#75715e"></span><span style="">
-</span><span style=""></span><span style="">foo</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">counted</span><span style="">);</span><span style=""> </span><span style="color:#f92672">//</span><span style=""> </span><span style="color:#f92672">&amp;</span><span style="">Rc</span><span style="color:#f92672">&lt;</span><span style="">String</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">-&gt; </span><span style="color:#66d9ef">&amp;</span><span style="">String</span><span style=""> -&gt; </span><span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::rc::Rc;
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) {
+    <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">let</span> owned <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string(); <span style="color:#75715e">// owned: String
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> counted <span style="color:#f92672">=</span> Rc::new(owned); <span style="color:#75715e">// counted: Rc&lt;String&gt;
+</span><span style="color:#75715e"></span>
+foo(<span style="color:#f92672">&amp;</span>counted); <span style="color:#f92672">//</span> <span style="color:#f92672">&amp;</span>Rc<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> -&gt; <span style="color:#66d9ef">&amp;</span>String -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span></code></pre></div>
 <p>この例では、<code>&amp;Rc&lt;String&gt;</code>から<code>&amp;String</code>を経て<code>&amp;str</code>へ、二段階のキャストが起こっています。</p>
 
 <h3 id="deref-and-method-calls">Deref and method calls</h3>
 
 <p>もう一つ、<code>Deref</code>には特別な機能があります。
 それは、メソッドをよぶときは<code>*</code>を省略して、間接参照できるということです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Foo</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">impl</span><span style=""> </span><span style="">Foo</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">foo</span><span style="">(</span><span style="color:#f92672">&amp;</span><span style="">self</span><span style="">)</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;Foo&#34;</span><span style="">);</span><span style=""> </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">f</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#f92672">&amp;&amp;</span><span style="">Foo</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="">f</span><span style="">.</span><span style="">foo</span><span style="">();</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span>;
+
+<span style="color:#66d9ef">impl</span> Foo {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(<span style="color:#f92672">&amp;</span>self) { println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Foo&#34;</span>); }
+}
+
+<span style="color:#66d9ef">let</span> f <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;&amp;</span>Foo;
+
+f.foo();</code></pre></div>
 <p><code>f</code>は<code>&amp;&amp;Foo</code>型ですが、<code>&amp;Foo</code>をとるメソッドが呼べます。
 これは、コンパイラが自動的に<code>*</code>を挿入してくれるからです。
 <code>*</code>は必要なだけ挿入されるので、<code>(&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;f).foo()</code>みたいなのもコンパイルできます。</p>

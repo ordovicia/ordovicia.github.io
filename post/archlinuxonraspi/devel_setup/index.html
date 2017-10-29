@@ -5,9 +5,9 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
-  <title>Arch Linux on Raspberry Pi 2 - Setup for Development &middot; External Storage</title>
+  <title>Arch Linux on Raspberry Pi 2 - 開発用セットアップ &middot; External Storage</title>
 
   
   
@@ -196,7 +196,7 @@
 
 
 <div class="header">
-  <h1>Arch Linux on Raspberry Pi 2 - Setup for Development</h1>
+  <h1>Arch Linux on Raspberry Pi 2 - 開発用セットアップ</h1>
   <h2></h2>
 </div>
 <div class="content">
@@ -237,8 +237,7 @@
 <h2 id="基本的な開発用ソフトウェア群">基本的な開発用ソフトウェア群</h2>
 
 <p>まずは基本的なソフトウェア群をインストールします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ sudo pacman -s --needed base-devel</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo pacman -s --needed base-devel</code></pre></div>
 <p><code>base-devel</code>はDebianでいう<code>build-essential</code>のようなものらしく、
 <code>make</code>とか<code>gcc</code>とかが入っています。
 すこし時間がかかります。</p>
@@ -249,12 +248,11 @@
 
 <p>私は<code>.zshrc</code>などのdotfilesをgithubにあるリポジトリで管理しています。
 そのため、まずはgitをインストールし、dotfilesをcloneしてシンボリックリンクを張っておきます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ sudo pacman -S git
-</span><span style="">$ git clone https://github.com/***/dotfiles.git .dotfiles
-</span><span style="">$ ln -s .dotfiles/.zshrc .
-</span><span style="">$ ln -s .dotfiles/.zshrc_linux .
-</span><span style="">$ ...</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo pacman -S git
+$ git clone https://github.com/***/dotfiles.git .dotfiles
+$ ln -s .dotfiles/.zshrc .
+$ ln -s .dotfiles/.zshrc_linux .
+$ ...</code></pre></div>
 <h3 id="zsh">Zsh</h3>
 
 <p>Zshをつかっているので、<code>$ sudo pacman -S zsh</code>でインストールし、
@@ -273,11 +271,10 @@ GitHubのページに書いてあるとおりにインストールします。</
 <p>カラースキームは<a href="https://github.com/tomasr/molokai">molokai</a>を使っているので、
 これをcloneしてきて<code>molokai/colors/molokai.vim</code>ファイルを<code>~/.vim/colors</code>に
 コピーします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="">$ </span><span style="">cd</span><span style=""> ~/.vim
-</span><span style="">$ git clone https://github.com/tomasr/molokai.git
-</span><span style="">$ mkdir colors
-</span><span style="">$ cp molokai/colors/molokai.vim colors</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd ~/.vim
+$ git clone https://github.com/tomasr/molokai.git
+$ mkdir colors
+$ cp molokai/colors/molokai.vim colors</code></pre></div>
 <p>あとはVimを開けばNeobundleによってプラグインがインストールできます。</p>
 
 <hr />
@@ -296,7 +293,7 @@ GitHubのページに書いてあるとおりにインストールします。</
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/archlinuxonraspi/initial_setup/">Arch Linux on Raspberry Pi 2 - Initial Setup</a>
+      <a href="/post/archlinuxonraspi/initial_setup/">Arch Linux on Raspberry Pi 2 - 初期セットアップ</a>
     </nav>
     
   </div>

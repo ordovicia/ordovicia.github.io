@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Structs and Enums &middot; External Storage</title>
 
@@ -238,78 +238,71 @@
 
 <p>まずはstructです。
 次のコードを見ればだいたいわかりますね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Point</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">main</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">origin</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The origin is at ({}, {})&#34;</span><span style="">,</span><span style=""> </span><span style="">origin</span><span style="">.</span><span style="">x</span><span style="">,</span><span style=""> </span><span style="">origin</span><span style="">.</span><span style="">y</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span> {
+    x: <span style="color:#66d9ef">i32</span>,
+    y: <span style="color:#66d9ef">i32</span>,
+}
+
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span> };
+
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The origin is at ({}, {})&#34;</span>, origin.x, origin.y);
+}</code></pre></div>
 <p>Struct名はUpperCamelCaseが推奨されているようです。
 Rustは命名規則にも(雰囲気だけではない)ルールがありますよね。
 関数名をlowerCamelCaseで書いたら、コンパイル時に警告がでました。</p>
 
 <p>Rustのstructは、field level mutabilityをサポートしていません。
 つまり、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Point</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span> {
+    <span style="color:#66d9ef">mut</span> x: <span style="color:#66d9ef">i32</span>,
+    y: <span style="color:#66d9ef">i32</span>,
+}</code></pre></div>
 <p>というstructは作ることができません。
 そもそも、mutabilityとは型ではなく、bindingに属する性質のものなのです。
 Structのbindingをmut指定すれば、そのメンバを変更できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">point</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="">point</span><span style="">.</span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;The point is at ({}, {})&#34;</span><span style="">,</span><span style=""> </span><span style="">point</span><span style="">.</span><span style="">x</span><span style="">,</span><span style=""> </span><span style="">point</span><span style="">.</span><span style="">y</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> point <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span> };
+
+point.x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The point is at ({}, {})&#34;</span>, point.x, point.y);</code></pre></div>
 <h2 id="update-syntax">Update syntax</h2>
 
 <p>便利機能です。
 Structのbindingを、あるメンバだけ違うものにしてコピーしたいとき、
 <code>..</code>がつかえます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Point3d</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">z</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">point</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point3d</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">z</span><span style="">: </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style=""></span><span style="">point</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point3d</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="">..</span><span style=""> </span><span style="">point</span><span style=""> </span><span style="">};</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point3d</span> {
+    x: <span style="color:#66d9ef">i32</span>,
+    y: <span style="color:#66d9ef">i32</span>,
+    z: <span style="color:#66d9ef">i32</span>,
+}
+
+<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> point <span style="color:#f92672">=</span> Point3d { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span>, z: <span style="color:#ae81ff">0</span> };
+point <span style="color:#f92672">=</span> Point3d { y: <span style="color:#ae81ff">1</span>, .. point };</code></pre></div>
 <p>新しい<code>point</code>は、<code>x = 0, y = 1, z = 0</code>になっています。</p>
 
 <p>あたらしいbindingをつくりたいときも、このsyntaxがつかえます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">origin</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point3d</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#ae81ff">0</span><span style="">,</span><span style=""> </span><span style="">z</span><span style="">: </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">};</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">point</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Point3d</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">z</span><span style="">: </span><span style="color:#ae81ff">1</span><span style="">,</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="">..</span><span style=""> </span><span style="">origin</span><span style=""> </span><span style="">};</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> origin <span style="color:#f92672">=</span> Point3d { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span>, z: <span style="color:#ae81ff">0</span> };
+<span style="color:#66d9ef">let</span> point <span style="color:#f92672">=</span> Point3d { z: <span style="color:#ae81ff">1</span>, x: <span style="color:#ae81ff">2</span>, .. origin };</code></pre></div>
 <h2 id="tuple-struct">Tuple struct</h2>
 
 <p>Structにも何種類かあるようです。
 まずは、tupleとのあいのこみたいな、&rsquo;tuple struct&rsquo;から。
 Tuple structは、メンバが名前を持ちません。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Color</span><span style="">(</span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Point</span><span style="">(</span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Color</span>(<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>);
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span>(<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>);</code></pre></div>
 <p>ほとんどの場合は、tuple structより普通にstructを使ったほうがいいでしょう。
 メンバが自明であっても、
 ちゃんと名前がついていたほうがコードとしてはベターでしょう。</p>
 
 <p>しかし、tuple structにもひとつ使いどころがあります。
 &lsquo;Newtype&rsquo;をつくりたいときです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Inches</span><span style="">(</span><span style="color:#66d9ef">i32</span><span style="">);</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">length</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Inches</span><span style="">(</span><span style="color:#ae81ff">10</span><span style="">);</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">Inches</span><span style="">(</span><span style="">integer_length</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">length</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;length is {} inches&#34;</span><span style="">,</span><span style=""> </span><span style="">integer_length</span><span style="">);</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Inches</span>(<span style="color:#66d9ef">i32</span>);
+
+<span style="color:#66d9ef">let</span> length <span style="color:#f92672">=</span> Inches(<span style="color:#ae81ff">10</span>);
+
+<span style="color:#66d9ef">let</span> Inches(integer_length) <span style="color:#f92672">=</span> length;
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;length is {} inches&#34;</span>, integer_length);</code></pre></div>
 <p>このように、<code>Inches</code>を<code>i32</code>のnewtypeとしてつくることができます。</p>
 
 <p><code>Inches</code>と<code>i32</code>は型が違うので、
@@ -324,23 +317,21 @@ Tuple structは、メンバが名前を持ちません。</p>
 
 <p>もうひとつ、変なstructがあります。
 メンバをもたないstructです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Electron</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Electron</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Electron</span>;
+
+<span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> Electron;</code></pre></div>
 <p>ほかの機能を組み合わせて使うときに、
 このstructがあることのみが必要な場合などに使えるそうです。</p>
 
 <h2 id="enums">Enums</h2>
 
 <p>Structのつぎは、Enumです。直和型ですね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span><span style=""> </span><span style="color:#a6e22e">Message</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">Quit</span><span style="">,</span><span style="">
-</span><span style="">    </span><span style="">ChangeColor</span><span style="">(</span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="color:#66d9ef">i32</span><span style="">),</span><span style="">
-</span><span style="">    </span><span style="">Move</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style="">,</span><span style=""> </span><span style="">y</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="">},</span><span style="">
-</span><span style="">    </span><span style="">Write</span><span style="">(</span><span style="">String</span><span style="">),</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Message</span> {
+    Quit,
+    ChangeColor(<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>),
+    Move { x: <span style="color:#66d9ef">i32</span>, y: <span style="color:#66d9ef">i32</span> },
+    Write(String),
+}</code></pre></div>
 <p>Enumのメンバには、structのようなものがはいります。
 Tuple struct, unit-like structも可能です。
 上の例では、<code>Quit, ChangeColor(i32, i32, i32)</code>などの型をまとめたものが、
@@ -356,14 +347,12 @@ Scopedということですね。</p>
 <h2 id="constructors-as-functions">Constructors as functions</h2>
 
 <p>Enumのコンストラクタはデフォルトで関数っぽく扱えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">m</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Message</span><span style="">::</span><span style="">Write</span><span style="">(</span><span style="color:#e6db74">&#34;Hello, world&#34;</span><span style="">.</span><span style="">to_string</span><span style="">());</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> m <span style="color:#f92672">=</span> Message::Write(<span style="color:#e6db74">&#34;Hello, world&#34;</span>.to_string());</code></pre></div>
 <p>というと、当たり前のようですが、
 特に高階関数としてつかうときに役立つようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">v</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">vec</span><span style="color:#f92672">!</span><span style="">[</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">(),</span><span style=""> </span><span style="color:#e6db74">&#34;World&#34;</span><span style="">.</span><span style="">to_string</span><span style="">()];</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">v1</span><span style="">: </span><span style="">Vec</span><span style="color:#f92672">&lt;</span><span style="">Message</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">v</span><span style="">.</span><span style="">into_iter</span><span style="">().</span><span style="">map</span><span style="">(</span><span style="">Message</span><span style="">::</span><span style="">Write</span><span style="">).</span><span style="">collect</span><span style="">();</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#e6db74">&#34;Hello&#34;</span>.to_string(), <span style="color:#e6db74">&#34;World&#34;</span>.to_string()];
+
+<span style="color:#66d9ef">let</span> v1: Vec<span style="color:#f92672">&lt;</span>Message<span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> v.into_iter().map(Message::Write).collect();</code></pre></div>
 <hr />
 
 <p>今回は型を組み合わせて新しい型をつくる、structとenumを扱いました。
@@ -383,7 +372,7 @@ Structについては、メンバ関数にあたるものがみあたりませ�
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/archlinuxonraspi/devel_setup/">Arch Linux on Raspberry Pi 2 - Setup for Development</a>
+      <a href="/post/archlinuxonraspi/devel_setup/">Arch Linux on Raspberry Pi 2 - 開発用セットアップ</a>
     </nav>
     
   </div>

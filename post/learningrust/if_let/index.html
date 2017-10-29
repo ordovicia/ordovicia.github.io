@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - If let &middot; External Storage</title>
 
@@ -236,44 +236,40 @@
 
 <p><code>if let</code>は、ある種のパターンマッチのwrapperです。
 Overheadをなくす効果もあるそうです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span><span style=""> </span><span style="">option</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">Some</span><span style="">(</span><span style="">x</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">{</span><span style=""> </span><span style="">foo</span><span style="">(</span><span style="">x</span><span style="">)</span><span style=""> </span><span style="">},</span><span style="">
-</span><span style="">    </span><span style="">None</span><span style=""> </span><span style="color:#f92672">=&gt;</span><span style=""> </span><span style="">{},</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> option {
+    Some(x) <span style="color:#f92672">=&gt;</span> { foo(x) },
+    None <span style="color:#f92672">=&gt;</span> {},
+}</code></pre></div>
 <p>のように、あるパターンにマッチした場合のみ処理をおこなうとき、
 <code>if let</code>を使うと次のように書けます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span><span style=""> </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">Some</span><span style="">(</span><span style="">x</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">option</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">foo</span><span style="">(</span><span style="">x</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
+    foo(x);
+}</code></pre></div>
 <p><code>Some(x)</code>にマッチした場合は<code>foo(x)</code>が実行されますが、
 マッチしなかった場合、なにも起きずに通り過ぎます。</p>
 
 <p>マッチしなかった場合の処理は、<code>else</code>節で書くこともできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span><span style=""> </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">Some</span><span style="">(</span><span style="">x</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">option</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">foo</span><span style="">(</span><span style="">x</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span><span style=""> </span><span style="color:#66d9ef">else</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">bar</span><span style="">();</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
+    foo(x);
+} <span style="color:#66d9ef">else</span> {
+    bar();
+}</code></pre></div>
 <h2 id="while-let"><code>while let</code></h2>
 
 <p>同じように、<code>while let</code>もあります。
 あるパターンにマッチする限り処理を繰り返します。</p>
 
 <p>例えば、次のコードは10から0までを順に出力します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="color:#66d9ef">mut</span><span style=""> </span><span style="">option</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">Some</span><span style="">(</span><span style="color:#ae81ff">10</span><span style="">);</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">while</span><span style=""> </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">Some</span><span style="">(</span><span style="">x</span><span style="">)</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">option</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">println</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#e6db74">&#34;{}&#34;</span><span style="">,</span><span style=""> </span><span style="">x</span><span style="">);</span><span style="">
-</span><span style="">    </span><span style="">option</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#66d9ef">if</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#f92672">==</span><span style=""> </span><span style="color:#ae81ff">0</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">None</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style=""> </span><span style="color:#66d9ef">else</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">        </span><span style="">Some</span><span style="">(</span><span style="">x</span><span style=""> </span><span style="color:#f92672">-</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">)</span><span style="">
-</span><span style="">    </span><span style="">}</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> option <span style="color:#f92672">=</span> Some(<span style="color:#ae81ff">10</span>);
+
+<span style="color:#66d9ef">while</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);
+    option <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+        None
+    } <span style="color:#66d9ef">else</span> {
+        Some(x <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)
+    }
+}</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

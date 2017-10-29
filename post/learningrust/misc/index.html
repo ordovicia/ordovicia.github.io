@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.29" />
+  <meta name="generator" content="Hugo 0.30.2" />
 
   <title>Learning Rust - Misc. &middot; External Storage</title>
 
@@ -242,8 +242,7 @@
 <h3 id="const"><code>const</code></h3>
 
 <p><code>const</code>は、コンパイル時定数です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">const</span><span style=""> </span><span style="">N</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">const</span> N: <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;</code></pre></div>
 <p><code>let</code>と違って、型を明示する必要があります。
 Constな変数は、それを使うところにinline展開されます。
 つまり、<code>N</code>はすべて<code>5</code>に置き換えられるということです。
@@ -266,36 +265,32 @@ Constな変数は、それを使うところにinline展開されます。
 コードになんらかの性質をもたせるものです。</p>
 
 <p>Attributeの書きかたには二種類あり、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[foo]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Foo</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">mod</span><span style=""> </span><span style="">bar</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#75715e">#![bar]</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[foo]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span>;
+
+<span style="color:#66d9ef">mod</span> bar {
+    <span style="color:#75715e">#![bar]</span>
+}</code></pre></div>
 <p>のように、<code>!</code>をつけない<code>#[foo]</code>と、つける<code>#![bar]</code>があります。
 <code>!</code>をつけないほうは、そのattributeの直後のものについて作用するのに対し、
 <code>!</code>をつけるほうは、そのattributeがかかれているもの(ここでは<code>mod bar</code>)について作用します。
 違いはこれだけです。</p>
 
 <p>どんなattributeがあるのかというと、たとえば</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[test]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">check</span><span style="">()</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">assert_eq</span><span style="color:#f92672">!</span><span style="">(</span><span style="color:#ae81ff">2</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">1</span><span style=""> </span><span style="color:#f92672">+</span><span style=""> </span><span style="color:#ae81ff">1</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[test]</span>
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">check</span>() {
+    assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+}</code></pre></div>
 <p>というのがあります。
 関数に<code>#[test]</code>attributeをつけると、その関数はテスト用の関数となり、
 テスト時に実行されます。</p>
 
 <p>他には、inline展開を指定する(もっともinline展開の判断はコンパイラに任せるべきですが)</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[inline(always)]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">fn</span><span style=""> </span><span style="color:#a6e22e">super_fast_fn</span><span style="">()</span><span style=""> </span><span style="">{</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[inline(always)]</span>
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">super_fast_fn</span>() {</code></pre></div>
 <p>や、コンパイル条件を設定する</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[cfg(target_os = </span><span style="color:#e6db74">&#34;macos&#34;</span><span style="color:#75715e">)]</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">mod</span><span style=""> </span><span style="">macos_only</span><span style=""> </span><span style="">{</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[cfg(target_os = </span><span style="color:#e6db74">&#34;macos&#34;</span><span style="color:#75715e">)]</span>
+<span style="color:#66d9ef">mod</span> macos_only {</code></pre></div>
 <p>というのがあります。
 ほかのattributeについては、
 <a href="https://doc.rust-lang.org/stable/reference.html#attributes">公式リファレンス</a>
@@ -306,10 +301,9 @@ Constな変数は、それを使うところにinline展開されます。
 <p><code>type</code>は型に別名をつけるものです。
 C++でいうusingエイリアスです。
 以下のように使います。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">type</span><span style=""> </span><span style="color:#a6e22e">Name</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">String</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#a6e22e">Name</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="">.</span><span style="">to_string</span><span style="">();</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Name</span> <span style="color:#f92672">=</span> String;
+
+<span style="color:#66d9ef">let</span> x: <span style="color:#a6e22e">Name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string();</code></pre></div>
 <p>似たようなものに、要素が一つのtuple structがありました。
 要素が一つのtuple structは、別の型をつくった(newtype)のに対し、
 <code>type</code>エイリアスはただの別名です。</p>
@@ -323,9 +317,8 @@ C++でいうusingエイリアスです。
 
 <p><code>as</code>キーワードをつかうと、ちゃんと型変換できるかコンパイラがチェックしてくれて、
 安全にキャストできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span><span style=""> </span><span style="">x</span><span style="">: </span><span style="color:#66d9ef">i32</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="color:#ae81ff">5</span><span style="">;</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">y</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">x</span><span style=""> </span><span style="color:#66d9ef">as</span><span style=""> </span><span style="color:#66d9ef">i64</span><span style="">;</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x: <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> x <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">i64</span>;</code></pre></div>
 <h3 id="transmute"><code>transmute</code></h3>
 
 <p><code>transmute</code>は、型チェックせず、bit列をほかの型として解釈し直します。
@@ -333,13 +326,12 @@ C++でいうusingエイリアスです。
 危険なのでできるだけ使いたくないものです。</p>
 
 <p>たとえば、8bit x 4つの配列をu32に解釈しなおすコードは次のようになります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span><span style=""> </span><span style="">std</span><span style="">::</span><span style="">mem</span><span style="">;</span><span style="">
-</span><span style="">
-</span><span style=""></span><span style="color:#66d9ef">unsafe</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">a</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">[</span><span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span><span style="">,</span><span style=""> </span><span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span><span style="">];</span><span style="">
-</span><span style="">    </span><span style="color:#66d9ef">let</span><span style=""> </span><span style="">b</span><span style=""> </span><span style="color:#f92672">=</span><span style=""> </span><span style="">mem</span><span style="">::</span><span style="">transmute</span><span style="">::</span><span style="color:#f92672">&lt;</span><span style="">[</span><span style="color:#66d9ef">u8</span><span style="">;</span><span style=""> </span><span style="color:#ae81ff">4</span><span style="">],</span><span style=""> </span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span><span style="">(</span><span style="">a</span><span style="">);</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::mem;
+
+<span style="color:#66d9ef">unsafe</span> {
+    <span style="color:#66d9ef">let</span> a <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span>, <span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span>, <span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span>, <span style="color:#ae81ff">0</span><span style="color:#66d9ef">u8</span>];
+    <span style="color:#66d9ef">let</span> b <span style="color:#f92672">=</span> mem::transmute::<span style="color:#f92672">&lt;</span>[<span style="color:#66d9ef">u8</span>; <span style="color:#ae81ff">4</span>], <span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>(a);
+}</code></pre></div>
 <p><code>transmute</code>をつかっても、サイズのチェックくらいはしてくれるそうです。
 たとえば先ほどの配列<code>a</code>を<code>u64</code>に<code>transmute</code>することはできません。</p>
 
@@ -369,10 +361,9 @@ C++でいうusingエイリアスです。
 そのため、<code>Sized</code>traitをもっていない型を受け付けることはできません。</p>
 
 <p>この制約を外すのが<code>?Sized</code>です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span><span style=""> </span><span style="color:#a6e22e">Foo</span><span style="color:#f92672">&lt;</span><span style="">T</span><span style="">: </span><span style="color:#f92672">?</span><span style="">Sized</span><span style="color:#f92672">&gt;</span><span style=""> </span><span style="">{</span><span style="">
-</span><span style="">    </span><span style="">f</span><span style="">: </span><span style="color:#a6e22e">T</span><span style="">,</span><span style="">
-</span><span style=""></span><span style="">}</span></code></pre>
-</div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized<span style="color:#f92672">&gt;</span> {
+    f: <span style="color:#a6e22e">T</span>,
+}</code></pre></div>
 <p>上のように、<code>?Sized</code>という(擬似？)traitを要求しておくと、
 <code>Sized</code>でないものも<code>T</code>とすることができます。</p>
 
