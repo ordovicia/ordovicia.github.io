@@ -220,7 +220,7 @@
     
       <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>&nbsp;&#47;
     
-      <a class="post-taxonomy-tag" href="/tags/system-programming">System Programming</a>
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>
     
   </div>
   
@@ -274,69 +274,67 @@ job          := proc_car &quot;&amp;&quot;? end_job
 例えば <code>cmd &lt; file0 &gt; file1</code> は <code>&lt; file0 cmd &gt; file1</code> とも書けます。
 nomでこれに対応するのは面倒なので、今回は <code>cmd0 &lt; file0 &gt; file1</code> の形式（にパイプを加えたもの）のみ認識するようになっています。</p>
 
+<p>シェルの文法はそんなに難しくないので、パーサーを手書きすれば自由度にうまく対処できたのではないかと思います。</p>
+
 <h2 id="ジョブ実行">ジョブ実行</h2>
 
 <p>ジョブとプロセスの構造は次のようになっています。</p>
 
 <p>プロセスは <code>Input::Pipe</code>, <code>Output::Pipe</code> によって他のプロセスとパイプで繋がり、<code>Input::Redirect</code>, <code>Input::Redirect</code> によってファイルリダイレクションを表しています。</p>
-
-<pre><code>pub(super) struct Job {
-    process_list: process::Process,
-    mode: JobMode,
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Job</span> {
+    process_list: <span style="color:#a6e22e">process</span>::Process,
+    mode: <span style="color:#a6e22e">JobMode</span>,
 }
 
-pub(crate) struct Process {
-    argument_list: Vec&lt;String&gt;,
-    input: Input,
-    output: Output,
+<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Process</span> {
+    argument_list: Vec<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span>,
+    input: <span style="color:#a6e22e">Input</span>,
+    output: <span style="color:#a6e22e">Output</span>,
 }
 
-pub(crate) enum Input {
+<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Input</span> {
     Inherit,
     Redirect(String),
     Pipe,
 }
 
-pub(crate) enum Output {
+<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Output</span> {
     Inherit,
     Redirect(OutputRedirect),
-    Pipe(Box&lt;Process&gt;),
-}
-</code></pre>
-
+    Pipe(Box<span style="color:#f92672">&lt;</span>Process<span style="color:#f92672">&gt;</span>),
+}</code></pre></div>
 <p>実行は <code>std::process</code> を使っています。
 <code>Process::spawn()</code>, <code>spawn_rec()</code> が <code>Input</code>, <code>Output</code> に従って入出力を設定し、<code>spawn_one()</code> がspawnします。</p>
 
 <p>パイプやリダイレクトから <code>std::process::Stdin</code> を作るには、生のファイルディスクリプタを経由する必要があるようです。
 この操作はunsafeになっています。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::process <span style="color:#66d9ef">as</span> stdproc;
 
-<pre><code>use std::process as stdproc;
-
-pub(super) fn spawn(&amp;self) -&gt; Result&lt;ChildList&gt; {
-    let stdin = match self.input {
-        Input::Inherit =&gt; stdproc::Stdio::inherit(),
-        Input::Redirect(ref file_name) =&gt; ...,
-        Input::Pipe =&gt; unreachable!(),
+<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">spawn</span>(<span style="color:#f92672">&amp;</span>self) -&gt; Result<span style="color:#f92672">&lt;</span>ChildList<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">let</span> stdin <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> self.input {
+        Input::Inherit <span style="color:#f92672">=&gt;</span> stdproc::Stdio::inherit(),
+        Input::Redirect(<span style="color:#66d9ef">ref</span> file_name) <span style="color:#f92672">=&gt;</span> ...,
+        Input::Pipe <span style="color:#f92672">=&gt;</span> unreachable<span style="color:#f92672">!</span>(),
     };
 
     self.spawn_rec(stdin)
 }
 
-fn spawn_rec(&amp;self, stdin: stdproc::Stdio) -&gt; Result&lt;ChildList&gt; {
-    let (head, piped) = match self.output {
-        Output::Inherit =&gt; {
-            let head = self.spawn_one(stdin, stdproc::Stdio::inherit())?;
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">spawn_rec</span>(<span style="color:#f92672">&amp;</span>self, stdin: <span style="color:#a6e22e">stdproc</span>::Stdio) -&gt; Result<span style="color:#f92672">&lt;</span>ChildList<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">let</span> (head, piped) <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> self.output {
+        Output::Inherit <span style="color:#f92672">=&gt;</span> {
+            <span style="color:#66d9ef">let</span> head <span style="color:#f92672">=</span> self.spawn_one(stdin, stdproc::Stdio::inherit())<span style="color:#f92672">?</span>;
             (head, None)
         }
-        Output::Redirect(ref redir_out) =&gt; {
-            let file = ...;
-            let head = self.spawn_one(stdin, file)?;
+        Output::Redirect(<span style="color:#66d9ef">ref</span> redir_out) <span style="color:#f92672">=&gt;</span> {
+            <span style="color:#66d9ef">let</span> file <span style="color:#f92672">=</span> ...;
+            <span style="color:#66d9ef">let</span> head <span style="color:#f92672">=</span> self.spawn_one(stdin, file)<span style="color:#f92672">?</span>;
             (head, None)
         }
-        Output::Pipe(ref piped) =&gt; {
-            let head = self.spawn_one(stdin, stdproc::Stdio::piped())?;
-            let stdin = ...;
-            let piped = piped.spawn_rec(stdin)?;
+        Output::Pipe(<span style="color:#66d9ef">ref</span> piped) <span style="color:#f92672">=&gt;</span> {
+            <span style="color:#66d9ef">let</span> head <span style="color:#f92672">=</span> self.spawn_one(stdin, stdproc::Stdio::piped())<span style="color:#f92672">?</span>;
+            <span style="color:#66d9ef">let</span> stdin <span style="color:#f92672">=</span> ...;
+            <span style="color:#66d9ef">let</span> piped <span style="color:#f92672">=</span> piped.spawn_rec(stdin)<span style="color:#f92672">?</span>;
             (head, Some(Box::new(piped)))
         }
     };
@@ -344,19 +342,17 @@ fn spawn_rec(&amp;self, stdin: stdproc::Stdio) -&gt; Result&lt;ChildList&gt; {
     Ok(ChildList { head, piped })
 }
 
-fn spawn_one(&amp;self, stdin: stdproc::Stdio, stdout: stdproc::Stdio) -&gt; Result&lt;Child&gt; {
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">spawn_one</span>(<span style="color:#f92672">&amp;</span>self, stdin: <span style="color:#a6e22e">stdproc</span>::Stdio, stdout: <span style="color:#a6e22e">stdproc</span>::Stdio) -&gt; Result<span style="color:#f92672">&lt;</span>Child<span style="color:#f92672">&gt;</span> {
     ...
 
-    stdproc::Command::new(&amp;self.argument_list[0])
-        .args(&amp;self.argument_list[1..])
+    stdproc::Command::new(<span style="color:#f92672">&amp;</span>self.argument_list[<span style="color:#ae81ff">0</span>])
+        .args(<span style="color:#f92672">&amp;</span>self.argument_list[<span style="color:#ae81ff">1</span>..])
         .stdin(stdin)
         .stdout(stdout)
         .spawn()
         .map(Child::External)
         .map_err(Error::from)
-}
-</code></pre>
-
+}</code></pre></div>
 <h2 id="future-work-バックグラウンド実行">Future Work: バックグラウンド実行</h2>
 
 <p>バックグラウンド実行にも対応しようと思ったのですが、 <code>std::process</code> だけではできず、libcバインディングが必要になるようでした。</p>
