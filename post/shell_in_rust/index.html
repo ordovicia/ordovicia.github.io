@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.31" />
+
+  <title>シェルの実装 in Rust &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>シェルの実装 in Rust</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>12 Oct 2017</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/system-programming">System Programming</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h2 id="概要">概要</h2>
+
+<p>Rustで簡単なシェルを書きました。
+コードは <a href="https://github.com/ordovicia/rush.git">github</a> にあります。</p>
+
+<p>インタラクティブでのみ動作し、リダイレクトとパイプが使えます。
+ビルトインコマンドは <code>cd</code> のみ実装されています。</p>
+
+<h2 id="入力">入力</h2>
+
+<p>Readline alternativeの <a href="https://github.com/antirez/linenoise">linenoise</a> を使ったことがあったので、それに似ている <a href="https://crates.io/crates/rustyline">rustyline</a> を使いました。
+一行読んでパーサに渡しているだけです。</p>
+
+<h2 id="パース">パース</h2>
+
+<p>パーサコンビネータの <a href="https://crates.io/crates/nom">nom</a> を使いました。
+だいたい以下のような文法です。</p>
+
+<pre><code>arg_list     := token+
+
+redir_in     := &quot;&lt;&quot; token
+redir_trunc  := &quot;&gt;&quot; token
+redir_append := &quot;&gt;&gt;&quot; token
+redir_out    := redir_trunc
+              | redir_append
+
+proc_cdr     := arg_list proc_out?
+pipe_proc    := &quot;|&quot; proc_cdr
+proc_out     := pipe_proc
+              | redir_out
+
+proc_car     := arg_list
+              | arg_list proc_out
+              | arg_list redir_in proc_out?
+
+end_job      := eof | &quot;;&quot; | &quot;\n&quot; | &quot;\r&quot;
+job          := proc_car &quot;&amp;&quot;? end_job
+</code></pre>
+
+<p>nomを使うと簡単にパーサーが書けるのですが、今回は失敗だったと思っています。
+というのも、シェルはリダイレクトの位置に自由度があるからです。
+例えば <code>cmd &lt; file0 &gt; file1</code> は <code>&lt; file0 cmd &gt; file1</code> とも書けます。
+nomでこれに対応するのは面倒なので、今回は <code>cmd0 &lt; file0 &gt; file1</code> の形式（にパイプを加えたもの）のみ認識するようになっています。</p>
+
+<h2 id="ジョブ実行">ジョブ実行</h2>
+
+<p>ジョブとプロセスの構造は次のようになっています。</p>
+
+<p>プロセスは <code>Input::Pipe</code>, <code>Output::Pipe</code> によって他のプロセスとパイプで繋がり、<code>Input::Redirect</code>, <code>Input::Redirect</code> によってファイルリダイレクションを表しています。</p>
+
+<pre><code>pub(super) struct Job {
+    process_list: process::Process,
+    mode: JobMode,
+}
+
+pub(crate) struct Process {
+    argument_list: Vec&lt;String&gt;,
+    input: Input,
+    output: Output,
+}
+
+pub(crate) enum Input {
+    Inherit,
+    Redirect(String),
+    Pipe,
+}
+
+pub(crate) enum Output {
+    Inherit,
+    Redirect(OutputRedirect),
+    Pipe(Box&lt;Process&gt;),
+}
+</code></pre>
+
+<p>実行は <code>std::process</code> を使っています。
+<code>Process::spawn()</code>, <code>spawn_rec()</code> が <code>Input</code>, <code>Output</code> に従って入出力を設定し、<code>spawn_one()</code> がspawnします。</p>
+
+<p>パイプやリダイレクトから <code>std::process::Stdin</code> を作るには、生のファイルディスクリプタを経由する必要があるようです。
+この操作はunsafeになっています。</p>
+
+<pre><code>use std::process as stdproc;
+
+pub(super) fn spawn(&amp;self) -&gt; Result&lt;ChildList&gt; {
+    let stdin = match self.input {
+        Input::Inherit =&gt; stdproc::Stdio::inherit(),
+        Input::Redirect(ref file_name) =&gt; ...,
+        Input::Pipe =&gt; unreachable!(),
+    };
+
+    self.spawn_rec(stdin)
+}
+
+fn spawn_rec(&amp;self, stdin: stdproc::Stdio) -&gt; Result&lt;ChildList&gt; {
+    let (head, piped) = match self.output {
+        Output::Inherit =&gt; {
+            let head = self.spawn_one(stdin, stdproc::Stdio::inherit())?;
+            (head, None)
+        }
+        Output::Redirect(ref redir_out) =&gt; {
+            let file = ...;
+            let head = self.spawn_one(stdin, file)?;
+            (head, None)
+        }
+        Output::Pipe(ref piped) =&gt; {
+            let head = self.spawn_one(stdin, stdproc::Stdio::piped())?;
+            let stdin = ...;
+            let piped = piped.spawn_rec(stdin)?;
+            (head, Some(Box::new(piped)))
+        }
+    };
+
+    Ok(ChildList { head, piped })
+}
+
+fn spawn_one(&amp;self, stdin: stdproc::Stdio, stdout: stdproc::Stdio) -&gt; Result&lt;Child&gt; {
+    ...
+
+    stdproc::Command::new(&amp;self.argument_list[0])
+        .args(&amp;self.argument_list[1..])
+        .stdin(stdin)
+        .stdout(stdout)
+        .spawn()
+        .map(Child::External)
+        .map_err(Error::from)
+}
+</code></pre>
+
+<h2 id="future-work-バックグラウンド実行">Future Work: バックグラウンド実行</h2>
+
+<p>バックグラウンド実行にも対応しようと思ったのですが、 <code>std::process</code> だけではできず、libcバインディングが必要になるようでした。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/cpp_python_interop/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/cpp_python_interop/">C&#43;&#43; - Python Interoperation</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

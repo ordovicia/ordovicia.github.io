@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/shell_in_rust/</loc>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/cpp_python_interop/</loc>
     <lastmod>2017-07-03T00:00:00+00:00</lastmod>
   </url>
@@ -15,6 +20,11 @@
   <url>
     <loc>/about/</loc>
     <lastmod>2017-05-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/introducing_xv6/</loc>
+    <lastmod>2017-04-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -199,8 +209,14 @@
   </url>
   
   <url>
+    <loc>/tags/os-development/</loc>
+    <lastmod>2017-04-24T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/post/</loc>
-    <lastmod>2017-07-03T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -230,7 +246,13 @@
   
   <url>
     <loc>/tags/rust/</loc>
-    <lastmod>2017-01-09T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/system-programming/</loc>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -248,7 +270,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2017-07-03T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

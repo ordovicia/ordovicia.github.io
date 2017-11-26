@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Mon, 09 Jan 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 12 Oct 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/rust/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>シェルの実装 in Rust</title>
+      <link>/post/shell_in_rust/</link>
+      <pubDate>Thu, 12 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/shell_in_rust/</guid>
+      <description>概要 Rustで簡単なシェルを書きました。 コードは github にあります。 インタラクティブでのみ動作し、リダイレクトとパイプが使えます。 ビルトインコマン</description>
+    </item>
     
     <item>
       <title>パトリシア木の実装 in Rust</title>

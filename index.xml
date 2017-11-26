@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Mon, 03 Jul 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 12 Oct 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>シェルの実装 in Rust</title>
+      <link>/post/shell_in_rust/</link>
+      <pubDate>Thu, 12 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/shell_in_rust/</guid>
+      <description>概要 Rustで簡単なシェルを書きました。 コードは github にあります。 インタラクティブでのみ動作し、リダイレクトとパイプが使えます。 ビルトインコマン</description>
+    </item>
     
     <item>
       <title>C&#43;&#43; - Python Interoperation</title>
@@ -37,6 +46,15 @@
       
       <guid>/about/</guid>
       <description>Empty yet.</description>
+    </item>
+    
+    <item>
+      <title>xv6の紹介</title>
+      <link>/post/introducing_xv6/</link>
+      <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/introducing_xv6/</guid>
+      <description>xv6とは xv6は、MITで教材用に作られたコンパクトなOSです。 他のいくつかの大学でも使われているようです[xv6 - Wikipedia]。</description>
     </item>
     
     <item>
