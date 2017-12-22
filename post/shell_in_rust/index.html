@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.31" />
+  <meta name="generator" content="Hugo 0.31.1" />
 
   <title>シェルの実装 in Rust &middot; 外部記憶</title>
 
@@ -247,17 +247,16 @@
 
 <p>パーサコンビネータの <a href="https://crates.io/crates/nom">nom</a> を使いました。
 だいたい以下のような文法です。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">arg_list     := token+
 
-<pre><code>arg_list     := token+
-
-redir_in     := &quot;&lt;&quot; token
-redir_trunc  := &quot;&gt;&quot; token
-redir_append := &quot;&gt;&gt;&quot; token
+redir_in     := &#34;&lt;&#34; token
+redir_trunc  := &#34;&gt;&#34; token
+redir_append := &#34;&gt;&gt;&#34; token
 redir_out    := redir_trunc
               | redir_append
 
 proc_cdr     := arg_list proc_out?
-pipe_proc    := &quot;|&quot; proc_cdr
+pipe_proc    := &#34;|&#34; proc_cdr
 proc_out     := pipe_proc
               | redir_out
 
@@ -265,10 +264,8 @@ proc_car     := arg_list
               | arg_list proc_out
               | arg_list redir_in proc_out?
 
-end_job      := eof | &quot;;&quot; | &quot;\n&quot; | &quot;\r&quot;
-job          := proc_car &quot;&amp;&quot;? end_job
-</code></pre>
-
+end_job      := eof | &#34;;&#34; | &#34;\n&#34; | &#34;\r&#34;
+job          := proc_car &#34;&amp;&#34;? end_job</code></pre></div>
 <p>nomを使うと簡単にパーサーが書けるのですが、今回は失敗だったと思っています。
 というのも、シェルはリダイレクトの位置に自由度があるからです。
 例えば <code>cmd &lt; file0 &gt; file1</code> は <code>&lt; file0 cmd &gt; file1</code> とも書けます。
@@ -356,6 +353,8 @@ nomでこれに対応するのは面倒なので、今回は <code>cmd0 &lt; fil
 <h2 id="future-work-バックグラウンド実行">Future Work: バックグラウンド実行</h2>
 
 <p>バックグラウンド実行にも対応しようと思ったのですが、 <code>std::process</code> だけではできず、libcバインディングが必要になるようでした。</p>
+
+<p>バックグラウンド実行くらいは対応しないとシェルを書いたとは言えないですね&hellip;&hellip;。</p>
 
 
   
