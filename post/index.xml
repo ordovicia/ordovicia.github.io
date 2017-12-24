@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Thu, 12 Oct 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 24 Dec 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>LinuxとNetBSDのデュアルブート</title>
+      <link>/post/dualboot_linux_and_netbsd/</link>
+      <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/dualboot_linux_and_netbsd/</guid>
+      <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインストール Li</description>
+    </item>
     
     <item>
       <title>シェルの実装 in Rust</title>
