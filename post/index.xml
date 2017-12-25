@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Sun, 24 Dec 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 25 Dec 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>NetBSDの初期設定</title>
+      <link>/post/setup_netbsd/</link>
+      <pubDate>Mon, 25 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/setup_netbsd/</guid>
+      <description>NetBSDの初期設定についてメモしておきます。 furandon_pigさんのQiitaの記事を参考にしています。 基本的にrootで作業しま</description>
+    </item>
     
     <item>
       <title>LinuxとNetBSDのデュアルブート</title>
@@ -19,15 +28,6 @@
       
       <guid>/post/dualboot_linux_and_netbsd/</guid>
       <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
-    </item>
-    
-    <item>
-      <title>NetBSDの初期設定</title>
-      <link>/post/setup_netbsd/</link>
-      <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/post/setup_netbsd/</guid>
-      <description>NetBSDの初期設定についてメモしておきます。 furandon_pigさんのQiitaの記事を参考にしています。 基本的にrootで作業しま</description>
     </item>
     
     <item>
