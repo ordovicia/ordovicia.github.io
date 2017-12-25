@@ -240,6 +240,7 @@
 <li>DELL Latitude E6540
 
 <ul>
+<li>Intel Core i7-4610M (Haswell)</li>
 <li>BIOS (Legacy boot)</li>
 </ul></li>
 <li>Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート</li>
@@ -258,6 +259,9 @@ USBメモリから起動してインストーラを実行します。
 基本的な流れは、<a href="https://www.netbsd.org/docs/guide/en/chap-exinst.html">NetBSD公式のインストールガイド</a>や
 <a href="https://www.webzoit.net/hp/it/internet/homepage/env/os/bsd_unix_linux/netbsd/03_install">webzoit.netさん</a>がたいへん参考になります。
 そこで、デュアルブートのために必要な手順のみ説明します。</p>
+
+<p>ちなみに、インストールの終盤でユーザーを追加できます。
+<code>wheel</code>グループへの追加などもできるので、ここで設定しておくと便利です。</p>
 
 <h3 id="netbsdのブートローダをインストールしない">NetBSDのブートローダをインストールしない</h3>
 
@@ -294,13 +298,13 @@ GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリ�
 <div class="prev-next-post pure-g">
   <div class="pure-u-1-24" style="text-align: left;">
     
-    <a href="/post/shell_in_rust/"><i class="fa fa-chevron-left"></i></a>
+    <a href="/post/setup_netbsd/"><i class="fa fa-chevron-left"></i></a>
     
   </div>
   <div class="pure-u-10-24">
     
     <nav class="prev">
-      <a href="/post/shell_in_rust/">シェルの実装 in Rust</a>
+      <a href="/post/setup_netbsd/">NetBSDの初期設定</a>
     </nav>
     
   </div>
