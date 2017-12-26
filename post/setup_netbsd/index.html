@@ -251,8 +251,8 @@
 
 <p>以下を実行すると、コンソール上でCaps LockがCtrlとしてふるまいます。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
-<p>起動時にこれを自動で設定するためには、<code>/etc/rc.local</code> に次を追記します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
+<p>起動時にこれを自動で設定するために、<code>/etc/rc.local</code> にこの行を追記します。</p>
+
 <h2 id="dhcp環境下での有線lan設定">DHCP環境下での有線LAN設定</h2>
 
 <h3 id="ホスト名の設定">ホスト名の設定</h3>
@@ -300,8 +300,8 @@
 
 <p>上で使っている<code>pkg_add</code>など、NetBSD標準のパッケージマネージャは正直使いづらいです。
 そこで<code>pkgin</code>を導入します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># pkg_add -v pkgin
-</span><span style="color:#75715e"></span># pkgin update</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"># pkg_add -v pkgin
+# pkgin update</code></pre></div>
 <p>Debian系での<code>apt</code>と同じ感覚で使えます。
 たとえば、</p>
 
