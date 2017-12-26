@@ -247,6 +247,12 @@
 <li>NetBSD 7.1</li>
 </ul>
 
+<h2 id="コンソール上でcaps-lockをctrlにする">コンソール上でCaps LockをCtrlにする</h2>
+
+<p>以下を実行すると、コンソール上でCaps LockがCtrlとしてふるまいます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
+<p>起動時にこれを自動で設定するためには、<code>/etc/rc.local</code> に次を追記します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
 <h2 id="dhcp環境下での有線lan設定">DHCP環境下での有線LAN設定</h2>
 
 <h3 id="ホスト名の設定">ホスト名の設定</h3>
@@ -259,10 +265,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">dhcpcd=yes</code></pre></div>
 <p><code>dhcpcd</code>というのがDHCPクライアントのようです。</p>
 
-<h3 id="動作確認">動作確認</h3>
-
-<p>以上で設定は終わりです。
-<code>shutdown -r now</code> でNetBSDを再起動したあと、<code>ifconfig</code>でIPアドレスが振られていることが確認できます。</p>
+<p>NetBSDの再起動後、<code>ifconfig</code>でIPアドレスが振られていることが確認できます。</p>
 
 <h2 id="パッケージマネージャの設定">パッケージマネージャの設定</h2>
 
@@ -275,7 +278,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">#export PKG_PATH<span style="color:#f92672">=</span>ftp://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/<span style="color:#66d9ef">$(</span>uname -m<span style="color:#66d9ef">)</span>/7.0/All</code></pre></div>
 <p>のような行があるので、このコメントアウトを外します。</p>
 
-<h3 id="動作確認-1">動作確認</h3>
+<h3 id="動作確認">動作確認</h3>
 
 <p>その後、ログアウトして再ログインすれば、<code>~/.profile</code>が読み込まれます。
 <code>echo $PKG_PATH</code>で環境変数が設定されていることを確認しておきます。</p>
@@ -293,11 +296,25 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"># %wheel ALL<span style="color:#f92672">=(</span>ALL<span style="color:#f92672">)</span> ALL</code></pre></div>
 <p>のコメントを外します。</p>
 
-<h2 id="コンソールでcaps-lockをctrlにする">コンソールでCaps LockをCtrlにする</h2>
+<h2 id="pkgin-の導入"><code>pkgin</code>の導入</h2>
 
-<p>コンソールでCaps LockをCtrlに変更するには、<code>/etc/rc.local</code> に次を追記します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">echo <span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span>
-/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
+<p>上で使っている<code>pkg_add</code>など、NetBSD標準のパッケージマネージャは正直使いづらいです。
+そこで<code>pkgin</code>を導入します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># pkg_add -v pkgin
+</span><span style="color:#75715e"></span># pkgin update</code></pre></div>
+<p>Debian系での<code>apt</code>と同じ感覚で使えます。
+たとえば、</p>
+
+<ul>
+<li>リポジトリの更新 <code>pkgin update</code> （省略形 <code>pkgin up</code>）</li>
+<li>インストール済みパッケージの更新 <code>pkgin upgrade</code> （省略形 <code>pkgin ug</code>）</li>
+<li>パッケージのインストール <code>pkgin install package</code> （省略形 <code>pkgin in</code>）</li>
+<li>パッケージの削除 <code>pkgin remove package</code> （省略形 <code>pkgin rm</code>）</li>
+<li>パッケージの検索 <code>pkgin search keywords</code> （省略形 <code>pkgin se</code>）</li>
+</ul>
+
+<p>などが使えます。</p>
+
 
   
 <div class="prev-next-post pure-g">
