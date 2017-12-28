@@ -14,10 +14,10 @@
     
     <item>
       <title>LinuxとNetBSDのデュアルブート</title>
-      <link>/post/dualboot_linux_and_netbsd/</link>
+      <link>/post/netbsd/dualboot_linux_and_netbsd/</link>
       <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
       
-      <guid>/post/dualboot_linux_and_netbsd/</guid>
+      <guid>/post/netbsd/dualboot_linux_and_netbsd/</guid>
       <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
     </item>
     

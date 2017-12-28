@@ -7,26 +7,35 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Mon, 25 Dec 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 28 Dec 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>NetBSDカーネルのビルド</title>
+      <link>/post/netbsd/build_netbsd_kernel/</link>
+      <pubDate>Thu, 28 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/netbsd/build_netbsd_kernel/</guid>
+      <description>NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。 参考 安定版 NetBSD</description>
+    </item>
+    
+    <item>
       <title>NetBSDの初期設定</title>
-      <link>/post/setup_netbsd/</link>
+      <link>/post/netbsd/setup_netbsd/</link>
       <pubDate>Mon, 25 Dec 2017 00:00:00 +0000</pubDate>
       
-      <guid>/post/setup_netbsd/</guid>
-      <description>NetBSDの初期設定についてメモしておきます。 furandon_pigさんのQiitaの記事を参考にしています。 基本的にrootで作業しま</description>
+      <guid>/post/netbsd/setup_netbsd/</guid>
+      <description>NetBSDの初期設定についてメモしておきます。 NetBSDインストール後の環境設定 - furandon_pigさんのQiita記事を参考にし</description>
     </item>
     
     <item>
       <title>LinuxとNetBSDのデュアルブート</title>
-      <link>/post/dualboot_linux_and_netbsd/</link>
+      <link>/post/netbsd/dualboot_linux_and_netbsd/</link>
       <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
       
-      <guid>/post/dualboot_linux_and_netbsd/</guid>
+      <guid>/post/netbsd/dualboot_linux_and_netbsd/</guid>
       <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
     </item>
     
