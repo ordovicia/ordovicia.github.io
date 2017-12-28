@@ -255,9 +255,10 @@
 
 <p>まずはカーネルのソースコードを取得します。
 配布されているISOを展開する方法もありますが、今回はCVSをつかいました。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd /usr
-$ export CVS_RSH<span style="color:#f92672">=</span>ssh
-$ cvs -d anoncvs@anoncvs.NetBSD.org:/cvsroot co -r netbsd-7-1 -P src</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd /usr
+</span><span style="color:#75715e"># export CVS_RSH=ssh
+</span><span style="color:#75715e"># export CVSROOT=&#34;anoncvs@anoncvs.NetBSD.org:/cvsroot&#34;
+</span><span style="color:#75715e"></span># cvs checkout -r netbsd-7-1-RELEASE -P src</code></pre></div>
 <p><code>-r netbsd-7-1</code> オプションでバージョンが指定できるようです。
 ダウンロードにかなり時間がかかるので寝てる間に走らせておくといいです。</p>
 
@@ -270,9 +271,9 @@ $ cvs -d anoncvs@anoncvs.NetBSD.org:/cvsroot co -r netbsd-7-1 -P src</code></pre
 <p>&ndash; <a href="http://www.jp.netbsd.org/ja/docs/kernel.html">NetBSD ドキュメンテーション: カーネル - The NetBSD Project</a></p>
 
 <p>今回は同じバージョン使うので必要ありませんが、必要な場合は以下のようにすればツールチェインがビルドできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mkdir /usr/obj /usr/tools
-$ cd /usr/src
-$ ./build.sh -O /usr/obj -T /usr/tools -U -u tools</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># mkdir /usr/obj /usr/tools
+</span><span style="color:#75715e"># cd /usr/src
+</span><span style="color:#75715e"></span># ./build.sh -O /usr/obj -T /usr/tools -U -u tools</code></pre></div>
 <h2 id="カーネルのビルド">カーネルのビルド</h2>
 
 <p>それではカーネルをビルドしていきます。</p>
@@ -281,25 +282,25 @@ $ ./build.sh -O /usr/obj -T /usr/tools -U -u tools</code></pre></div>
 amd64の場合、configファイルは <code>/usr/src/sys/arch/amd64/conf</code> にあります。
 ISOとかUSBイメージでインストールされるカーネルはGENERIC configファイルで設定されているもののようです。
 configファイルを自分用に編集したい場合はこれをもとにするといいでしょう。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd /usr/src/sys/arch/amd64/conf/
-$ cp GENERIC MYCONF</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd /usr/src/sys/arch/amd64/conf/
+</span><span style="color:#75715e"></span># cp GENERIC MYCONF</code></pre></div>
 <p>使いたいconfigファイルを指定して <code>config</code> を走らせると、コンパイル用のディレクトリが生成されます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ config MYCONF
-Build directory is ../compile/MYCONF
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># config MYCONF
+</span><span style="color:#75715e"></span>Build directory is ../compile/MYCONF
 Don<span style="color:#960050;background-color:#1e0010">&#39;</span>t forget to run <span style="color:#e6db74">&#34;make depend&#34;</span></code></pre></div>
 <p>そしてこのディレクトリの中で <code>make depend</code>, <code>make</code> を走らせます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd ../compile/MYCONF/
-$ make depend
-$ make <span style="color:#ae81ff">2</span>&gt;&amp;<span style="color:#ae81ff">1</span> | tee make_20171228_0.log</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd ../compile/MYCONF/
+</span><span style="color:#75715e"># make depend
+</span><span style="color:#75715e"></span># make</code></pre></div>
 <p>環境によりますが、5分くらいでビルドできました。</p>
 
 <p>できたカーネルは <code>netbsd</code> という名前になっています。
 これをファイルシステムのルートにおけば、起動時にカーネルとして選択できます。</p>
 
 <p>今回は、既存のカーネルを上書きしないよう違う名前でおいておきます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cp netbsd /my_netbsd
-$ ls /*netbsd
-/netbsd	    /my_netbsd</code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cp netbsd /my_netbsd
+</span><span style="color:#75715e"># ls /*netbsd
+</span><span style="color:#75715e"></span>/netbsd	    /my_netbsd</code></pre></div>
 <h2 id="起動">起動</h2>
 
 <p>再起動します。
