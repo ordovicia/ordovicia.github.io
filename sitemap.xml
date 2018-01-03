@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/netbsd/add_syscall/</loc>
+    <lastmod>2018-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/netbsd/build_netbsd_kernel/</loc>
     <lastmod>2017-12-28T00:00:00+00:00</lastmod>
   </url>
@@ -201,7 +206,7 @@
   
   <url>
     <loc>/tags/bsd/</loc>
-    <lastmod>2017-12-28T00:00:00+00:00</lastmod>
+    <lastmod>2018-01-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -237,7 +242,7 @@
   
   <url>
     <loc>/tags/netbsd/</loc>
-    <lastmod>2017-12-28T00:00:00+00:00</lastmod>
+    <lastmod>2018-01-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -249,7 +254,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2017-12-28T00:00:00+00:00</lastmod>
+    <lastmod>2018-01-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -297,7 +302,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2017-12-28T00:00:00+00:00</lastmod>
+    <lastmod>2018-01-03T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

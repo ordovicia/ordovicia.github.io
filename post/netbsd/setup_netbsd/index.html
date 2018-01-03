@@ -263,7 +263,8 @@
 
 <p><code>/etc/rc.conf</code> に、以下の行を追記します。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">dhcpcd=yes</code></pre></div>
-<p><code>dhcpcd</code>というのがDHCPクライアントのようです。</p>
+<p><code>dhcpcd</code>というのがDHCPクライアントのようです。
+DHCPサーバーの<code>dhcpd</code>ではありません。</p>
 
 <p>NetBSDの再起動後、<code>ifconfig</code>でIPアドレスが振られていることが確認できます。</p>
 
