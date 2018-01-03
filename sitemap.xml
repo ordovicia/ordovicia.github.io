@@ -8,12 +8,12 @@
   </url>
   
   <url>
-    <loc>/post/netbsd/build_netbsd_kernel/</loc>
+    <loc>/post/netbsd/build_kernel/</loc>
     <lastmod>2017-12-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/netbsd/setup_netbsd/</loc>
+    <loc>/post/netbsd/initial_setup/</loc>
     <lastmod>2017-12-25T00:00:00+00:00</lastmod>
   </url>
   
