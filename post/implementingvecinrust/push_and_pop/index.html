@@ -244,7 +244,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 
 <p>便利メソッドとして <code>OwnedPtr</code> から <code>*mut T</code> を取り出す関数を作っておく。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">as_ptr</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) -&gt; <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> T {
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">as_ptr</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> T {
         self.ptr.as_ptr()
     }
 }</code></pre></div>
@@ -290,6 +290,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
     <span style="color:#75715e">#[test]</span>
     <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">push_pop</span>() {
         <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> v <span style="color:#f92672">=</span> Vec::new();
+
         <span style="color:#66d9ef">const</span> ELEM_NUM: <span style="color:#66d9ef">usize</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">32</span>;
         <span style="color:#66d9ef">let</span> elems <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>..ELEM_NUM;
 
