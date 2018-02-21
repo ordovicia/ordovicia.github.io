@@ -324,12 +324,12 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <p>またpushするときは、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L1014"><code>Alloc::realloc_array&lt;T&gt;()</code></a> を呼ぶ。
 要素を指定の個数おける領域を再確保する。</p>
 
-<h3 id="oom-out-of-memory-状態">OOM (Out of Memory) 状態</h3>
+<h3 id="メモリ確保失敗">メモリ確保失敗</h3>
 
 <p>Rustでのメモリアロケーションでは、いくつか考慮すべき事項がある。</p>
 
 <p><code>Alloc::alloc_one&lt;T&gt;()</code> などの戻り値の型は <code>Result&lt;NonNull&lt;T&gt;, AllocErr&gt;</code> である。
-OOMに陥るなどしてメモリ確保に失敗すると <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L310"><code>AllocErr</code></a> が返る。</p>
+OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L310"><code>AllocErr</code></a> が返る。</p>
 
 <p>Rustの標準ライブラリでは、メモリ確保に失敗した場合 <code>abort</code> する。
 <code>panic!()</code> でないのは、<code>panic!()</code> に伴うスタックの巻き戻し操作自体にメモリアロケーションが必要になるからである。</p>
