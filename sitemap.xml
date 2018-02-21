@@ -3,7 +3,12 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/implementingvecinrust/layout_and_allocation/</loc>
+    <loc>/post/implementingvecinrust/allocating_memory/</loc>
+    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/implementingvecinrust/layout/</loc>
     <lastmod>2018-02-20T00:00:00+00:00</lastmod>
   </url>
   
