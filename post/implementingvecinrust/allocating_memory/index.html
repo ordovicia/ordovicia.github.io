@@ -230,7 +230,8 @@
 
   
 
-<p><a href="/post/implementingvecinrust/layout/">前回</a> に引き続き、<a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
+<p><a href="/post/implementingvecinrust/layout/">前回</a> に引き続き、
+<a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
 
 <p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
 
@@ -318,7 +319,8 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
         self.ptr
     }
 }</code></pre></div>
-<p>最初の要素をpushするとき（<code>self.cap == 0</code> のとき）は、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L898"><code>Alloc::alloc_one&lt;T&gt;()</code></a> を利用する。
+<p>最初の要素をpushするとき（<code>self.cap == 0</code> のとき）は、
+<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L898"><code>Alloc::alloc_one&lt;T&gt;()</code></a> を利用する。
 <code>T</code> 型の値を一つおける領域を確保してくれる。</p>
 
 <p>またpushするときは、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L1014"><code>Alloc::realloc_array&lt;T&gt;()</code></a> を呼ぶ。
@@ -329,7 +331,8 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <p>Rustでのメモリアロケーションでは、いくつか考慮すべき事項がある。</p>
 
 <p><code>Alloc::alloc_one&lt;T&gt;()</code> などの戻り値の型は <code>Result&lt;NonNull&lt;T&gt;, AllocErr&gt;</code> である。
-OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L310"><code>AllocErr</code></a> が返る。</p>
+OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると
+<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L310"><code>AllocErr</code></a> が返る。</p>
 
 <p>Rustの標準ライブラリでは、メモリ確保に失敗した場合 <code>abort</code> する。
 <code>panic!()</code> でないのは、<code>panic!()</code> に伴うスタックの巻き戻し操作自体にメモリアロケーションが必要になるからである。</p>
@@ -375,8 +378,14 @@ OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると 
   </div>
   <div class="pure-u-10-24">
     
+    <nav class="next">
+      <a href="/post/implementingvecinrust/push_and_pop/">Vecの実装 in Rust - Push &amp; Pop</a>
+    </nav>
+    
   </div>
   <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/implementingvecinrust/push_and_pop/"><i class="fa fa-chevron-right"></i></a>
     
   </div>
 </div>

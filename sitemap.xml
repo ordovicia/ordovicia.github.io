@@ -3,13 +3,23 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/implementingvecinrust/deallocating/</loc>
+    <lastmod>2018-02-21T00:00:01+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/implementingvecinrust/push_and_pop/</loc>
+    <lastmod>2018-02-21T00:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/implementingvecinrust/allocating_memory/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-20T00:00:01+09:00</lastmod>
   </url>
   
   <url>
     <loc>/post/implementingvecinrust/layout/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-20T00:00:00+09:00</lastmod>
   </url>
   
   <url>
@@ -264,7 +274,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-21T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -276,7 +286,7 @@
   
   <url>
     <loc>/tags/programming/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-21T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -294,7 +304,7 @@
   
   <url>
     <loc>/tags/rust/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-21T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -312,7 +322,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-02-20T00:00:00+00:00</lastmod>
+    <lastmod>2018-02-21T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   

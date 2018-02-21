@@ -307,7 +307,8 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
     end: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
     _marker: <span style="color:#a6e22e">marker</span>::PhantomData<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> T<span style="color:#f92672">&gt;</span>
 }</code></pre></div>
-<p>（出典： <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a>; <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/slice/mod.rs#L1390">現在の実装</a> も同様）</p>
+<p>（出典： <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a>;
+<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/slice/mod.rs#L1390">現在の実装</a> も同様）</p>
 
 <p><code>PhantomData</code> の型引数におくものを注意深く設定することで、<code>PhantomData</code> がもつ性質をうまくコントロールできる。
 <a href="https://doc.rust-lang.org/nomicon/phantom-data.html#table-of-phantomdata-patterns">PhantomDataの使いかたの表</a> にまとまっているが、
@@ -393,7 +394,8 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 <p><code>Vec::new()</code> の際、空の <code>Vec</code> にメモリを割り当てないようにすると、<code>Vec::ptr</code> や <code>OwnedPtr::ptr</code> はnullになってしまう。
 実のところ、<code>NonNull</code> がnullになってはいけないという制約は、nullをdereferenceしてはいけないという意味で、deref.しないならnullになること自体は問題ない。
 <code>Vec</code> の場合、<code>cap</code>, <code>len</code> のチェックが必要になるので、null pointer deref.の発生は防ぎやすい。
-Nullとなっている（がアライメントは整っている） <code>NonNull</code> は、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/ptr.rs#L2506"><code>NonNull::dangling()</code></a> で作れる。</p>
+Nullとなっている（がアライメントは整っている） <code>NonNull</code> は、
+<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/ptr.rs#L2506"><code>NonNull::dangling()</code></a> で作れる。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
     <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">empty</span>() -&gt; <span style="color:#a6e22e">Self</span> {
         OwnedPtr {
@@ -402,7 +404,8 @@ Nullとなっている（がアライメントは整っている） <code>NonNul
         }
     }
 }</code></pre></div>
-<p>なお、<code>NonNull</code> が持つ特性と <code>Send</code>, <code>Sync</code>, <code>T</code> の所有をすべて備える構造体として、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/ptr.rs#L2336"><code>Unique</code></a> があり、現在は使うことができる。
+<p>なお、<code>NonNull</code> が持つ特性と <code>Send</code>, <code>Sync</code>, <code>T</code> の所有をすべて備える構造体として、
+<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/ptr.rs#L2336"><code>Unique</code></a> があり、現在は使うことができる。
 しかし、<a href="https://github.com/rust-lang/rust/pull/46952"><code>Unique</code> は <code>NonNull</code> に置き換えられ、今後安定化することはない</a>。</p>
 <div class="footnotes">
 

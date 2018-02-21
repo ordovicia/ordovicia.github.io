@@ -7,24 +7,42 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Tue, 20 Feb 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 21 Feb 2018 00:00:01 +0900</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Vecの実装 in Rust - メモリ解放</title>
+      <link>/post/implementingvecinrust/deallocating/</link>
+      <pubDate>Wed, 21 Feb 2018 00:00:01 +0900</pubDate>
+      
+      <guid>/post/implementingvecinrust/deallocating/</guid>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Deallocating</description>
+    </item>
+    
+    <item>
+      <title>Vecの実装 in Rust - Push &amp; Pop</title>
+      <link>/post/implementingvecinrust/push_and_pop/</link>
+      <pubDate>Wed, 21 Feb 2018 00:00:00 +0900</pubDate>
+      
+      <guid>/post/implementingvecinrust/push_and_pop/</guid>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Push</description>
+    </item>
+    
+    <item>
       <title>Vecの実装 in Rust - メモリ確保</title>
       <link>/post/implementingvecinrust/allocating_memory/</link>
-      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 20 Feb 2018 00:00:01 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/allocating_memory/</guid>
-      <description>前回 に引き続き、The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Allocating</description>
     </item>
     
     <item>
       <title>Vecの実装 in Rust - 構造体レイアウト</title>
       <link>/post/implementingvecinrust/layout/</link>
-      <pubDate>Tue, 20 Feb 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 20 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/layout/</guid>
       <description>The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 このバージョンに基づいて書いてい</description>
