@@ -245,7 +245,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <code>Vec</code> の中身は同じ型を集めた配列なので、スライスへderef.するのは自然である。</p>
 
 <p>そこで、<code>Deref&lt;Target = [T]&gt; for Vec&lt;T&gt;</code> を実装する。
-簡単で、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/slice/mod.rs#L2692"><code>std::slice::from_raw_parts()</code></a> を呼ぶだけである。
+簡単で、<a href="https://doc.rust-lang.org/nightly/alloc/slice/fn.from_raw_parts.html"><code>slice::from_raw_parts()</code></a> を呼ぶだけである。
 はじめのアドレスと要素数を渡すとスライスを作ってくれる。
 要素数が0のときも正しく動作するようだ。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::ops::Deref;
@@ -258,7 +258,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
     }
 }</code></pre></div>
 <p><code>&amp;mut [T]</code> にderef.する <code>DerefMut</code> 版もつくっておく。
-今度は <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/libcore/slice/mod.rs#L2705"><code>std::slice::from_raw_parts_mut()</code></a> を呼ぶ。
+今度は <a href="https://doc.rust-lang.org/nightly/alloc/slice/fn.from_raw_parts_mut.html"><code>slice::from_raw_parts_mut()</code></a> を呼ぶ。
 <code>DerefMut: Deref</code> なので、<code>Target</code> の指定は必要ない。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::ops::{Deref, DerefMut};
 

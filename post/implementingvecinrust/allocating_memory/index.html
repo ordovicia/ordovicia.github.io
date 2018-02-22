@@ -247,7 +247,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 
 <p>まず、上で定義した <code>Vec</code> 構造体を修正する必要がある。
 新しいメモリアロケータAPIでは、アロケータが構造体として提供されるようになった（もともとは <code>heap::allocate()</code> のような関数だった）。
-今回はデフォルトのアロケータ <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/heap.rs#L78"><code>std::heap::Heap</code></a> を用いる。</p>
+今回はデフォルトのアロケータ <a href="https://doc.rust-lang.org/nightly/std/heap/struct.Heap.html"><code>heap::Heap</code></a> を用いる。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::heap::Heap;
 
 <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
@@ -275,7 +275,18 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 }</code></pre></div>
 <p><code>Vec::push()</code> などで実際にメモリ領域をアロケーションし伸ばしていくときの動作を実装する。
 先に実装を見せる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::heap::{Alloc, Heap};
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">with_non_null</span>(ptr: <span style="color:#a6e22e">NonNull</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">Self</span> {
+        OwnedPtr {
+            ptr,
+            _marker: <span style="color:#a6e22e">PhantomData</span>,
+        }
+    }
+
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">as_non_null</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">NonNull</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+        self.ptr
+    }
+}</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::heap::{Alloc, Heap};
 
 <span style="color:#66d9ef">use</span> owned_ptr::OwnedPtr;
 
@@ -305,25 +316,12 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
         self.ptr <span style="color:#f92672">=</span> OwnedPtr::with_non_null(ptr.unwrap());
         self.cap <span style="color:#f92672">=</span> new_cap;
     }
-}
-
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">with_non_null</span>(ptr: <span style="color:#a6e22e">NonNull</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">Self</span> {
-        OwnedPtr {
-            ptr,
-            _marker: <span style="color:#a6e22e">PhantomData</span>,
-        }
-    }
-
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">as_non_null</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">NonNull</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-        self.ptr
-    }
 }</code></pre></div>
 <p>最初の要素をpushするとき（<code>self.cap == 0</code> のとき）は、
-<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L898"><code>Alloc::alloc_one&lt;T&gt;()</code></a> を利用する。
+<a href="https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.alloc_one"><code>Alloc::alloc_one&lt;T&gt;()</code></a> を利用する。
 <code>T</code> 型の値を一つおける領域を確保してくれる。</p>
 
-<p>またpushするときは、<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L1014"><code>Alloc::realloc_array&lt;T&gt;()</code></a> を呼ぶ。
+<p>またpushするときは、<a href="https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.realloc_array"><code>Alloc::realloc_array&lt;T&gt;()</code></a> を呼ぶ。
 要素を指定の個数おける領域を再確保する。</p>
 
 <h3 id="メモリ確保失敗">メモリ確保失敗</h3>
@@ -332,12 +330,12 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 
 <p><code>Alloc::alloc_one&lt;T&gt;()</code> などの戻り値の型は <code>Result&lt;NonNull&lt;T&gt;, AllocErr&gt;</code> である。
 OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると
-<a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L310"><code>AllocErr</code></a> が返る。</p>
+<a href="https://doc.rust-lang.org/nightly/std/heap/enum.AllocErr.html"><code>AllocErr</code></a> が返る。</p>
 
 <p>Rustの標準ライブラリでは、メモリ確保に失敗した場合 <code>abort</code> する。
 <code>panic!()</code> でないのは、<code>panic!()</code> に伴うスタックの巻き戻し操作自体にメモリアロケーションが必要になるからである。</p>
 
-<p>この <code>abort</code> 処理は <a href="https://github.com/rust-lang/rust/blob/27a046e9338fb0455c33b13e8fe28da78212dedc/src/liballoc/allocator.rs#L552"><code>Alloc::oom()</code></a> で実行できる。</p>
+<p>この <code>abort</code> 処理は <a href="https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.oom"><code>Alloc::oom()</code></a> で実行できる。</p>
 
 <h3 id="llvmのメモリアロケーション">LLVMのメモリアロケーション</h3>
 
