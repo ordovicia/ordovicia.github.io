@@ -210,7 +210,97 @@
   
     <article>
   <header>
-    <h2><a href="/post/implementingvecinrust/intoiter/">Vecの実装 in Rust - IntoIter</a></h2>
+    <h2><a href="/post/implementingvecinrust/drain/">Vecの実装 in Rust - Drain</a></h2>
+
+    <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>23 Feb 2018</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  </header>
+
+  <p>
+  前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Drain
+  </p>
+
+  
+  <footer>
+    <a href="/post/implementingvecinrust/drain/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
+  </footer>
+  
+</article>
+
+  
+    <article>
+  <header>
+    <h2><a href="/post/implementingvecinrust/raw_vec/">Vecの実装 in Rust - RawVec</a></h2>
+
+    <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>23 Feb 2018</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  </header>
+
+  <p>
+  前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) RawVec
+  </p>
+
+  
+  <footer>
+    <a href="/post/implementingvecinrust/raw_vec/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
+  </footer>
+  
+</article>
+
+  
+    <article>
+  <header>
+    <h2><a href="/post/implementingvecinrust/into_iter/">Vecの実装 in Rust - IntoIter</a></h2>
 
     <div class="post-meta">
 
@@ -247,7 +337,7 @@
 
   
   <footer>
-    <a href="/post/implementingvecinrust/intoiter/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
+    <a href="/post/implementingvecinrust/into_iter/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
   </footer>
   
 </article>
@@ -343,96 +433,6 @@
 </article>
 
   
-    <article>
-  <header>
-    <h2><a href="/post/implementingvecinrust/deallocating/">Vecの実装 in Rust - メモリ解放</a></h2>
-
-    <div class="post-meta">
-
-  <div>
-    <i class="fa fa-calendar fa-fw"></i>
-    <time>21 Feb 2018</time>
-  </div>
-
-  
-
-  
-
-  
-  
-  
-  <div>
-    <i class="fa fa-tags fa-fw"></i>
-    
-      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
-    
-      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
-    
-  </div>
-  
-  
-
-</div>
-
-  </header>
-
-  <p>
-  前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Deallocating
-  </p>
-
-  
-  <footer>
-    <a href="/post/implementingvecinrust/deallocating/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
-  </footer>
-  
-</article>
-
-  
-    <article>
-  <header>
-    <h2><a href="/post/implementingvecinrust/push_and_pop/">Vecの実装 in Rust - Push &amp; Pop</a></h2>
-
-    <div class="post-meta">
-
-  <div>
-    <i class="fa fa-calendar fa-fw"></i>
-    <time>21 Feb 2018</time>
-  </div>
-
-  
-
-  
-
-  
-  
-  
-  <div>
-    <i class="fa fa-tags fa-fw"></i>
-    
-      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
-    
-      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
-    
-  </div>
-  
-  
-
-</div>
-
-  </header>
-
-  <p>
-  前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Push
-  </p>
-
-  
-  <footer>
-    <a href="/post/implementingvecinrust/push_and_pop/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
-  </footer>
-  
-</article>
-
-  
 
   
 
@@ -441,7 +441,7 @@
   
   <i class="fa fa-chevron-left"></i>
   
-  <span>&nbsp;1 / 9&nbsp;</span>
+  <span>&nbsp;1 / 10&nbsp;</span>
   
   <a href="/page/2/"><i class="fa fa-chevron-right"></i></a>
   

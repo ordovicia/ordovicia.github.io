@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.36.1" />
+
+  <title>Vecの実装 in Rust - Drain &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Vecの実装 in Rust - Drain</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>23 Feb 2018</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<p><a href="/post/implementingvecinrust/raw_vec/">前回</a> に引き続き、
+<a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
+
+<p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
+
+<p>rustcのバージョンは以下のとおり。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
+<h2 id="drain-https-doc-rust-lang-org-nomicon-vec-drain-html"><a href="https://doc.rust-lang.org/nomicon/vec-drain.html">Drain</a></h2>
+
+<p><code>IntoIter</code> に続く有用なイテレータとして、<code>Drain</code> を実装する。
+<code>Drain</code> はおよそ <code>IntoIter</code> と同じだが、<code>Vec</code> の要素を消費せず借用して取り出し、メモリ領域の管理は移さない。
+<a href="https://doc.rust-lang.org/nightly/std/vec/struct.Drain.html">標準ライブラリの <code>vec::Drain</code></a> は取り出す要素をrangeで指定でき、一部だけ取り出すこともできる。
+今回は簡単に、開始位置だけ指定でき、そこから最後の要素までを取り出すバージョンを書いてみる <sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup>。</p>
+
+<p>まず、<code>Drain</code> 構造体の定義を考える。
+<code>IntoIter</code> と同じく、<code>Iterator</code> と <code>DoubleEndedIterator</code> を <code>Drain</code> に実装したいので、前方・後方イテレータを用いる実装がよさそうだ。
+そうすると、<code>IntoIter</code> の実装とかぶる部分がでてくるので、この部分を切り出し抽象的なイテレータ構造を定義できそうだと考える。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">RawValIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    start: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
+    end: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> RawValIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">unsafe</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">new</span>(slice: <span style="color:#66d9ef">&amp;</span>[T]) -&gt; <span style="color:#a6e22e">Self</span> {
+        <span style="color:#66d9ef">let</span> start <span style="color:#f92672">=</span> slice.as_ptr();
+
+        RawValIter {
+            start,
+            end: <span style="color:#a6e22e">if</span> slice.len() <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+                start
+            } <span style="color:#66d9ef">else</span> {
+                start.offset(slice.len() <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>)
+            },
+        }
+    }
+}</code></pre></div>
+<p>前方・後方イテレータをもつ抽象的なイテレータ構造ができた。
+<code>new()</code> がunsafeなのは、スライスから生ポインタを取り出すことでlifetimeの情報が失われるためである。
+あとで <code>RawValIter</code> を <code>RawVec</code> と同じ構造体に入れるので、lifetime情報を付与したままにはできない。</p>
+
+<p><code>RawValIter</code> に実装する <code>Iterator</code> と <code>DoubleEndedIterator</code> は、 <code>IntoIter</code> に定義したものと同様に定義しておく。</p>
+
+<p><code>RawValIter</code> を用いて、<code>IntoIter</code> および <code>Vec::into_iter()</code> は次のように修正できる。
+<code>Iterator</code>, <code>DoubleEndedIterator</code> の実装は、内部に持つ <code>RawValIter</code> の実装に委任できる。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    _buf: <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
+    iter: <span style="color:#a6e22e">RawValIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Iterator <span style="color:#66d9ef">for</span> IntoIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#f92672">=</span> T;
+
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">next</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) -&gt; Option<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+        self.iter.next()
+    }
+
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">size_hint</span>(<span style="color:#f92672">&amp;</span>self) -&gt; (<span style="color:#66d9ef">usize</span>, Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">usize</span><span style="color:#f92672">&gt;</span>) {
+        self.iter.size_hint()
+    }
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> DoubleEndedIterator <span style="color:#66d9ef">for</span> IntoIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">next_back</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) -&gt; Option<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+        self.iter.next_back()
+    }
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> IntoIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">new</span>(buf: <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>, iter: <span style="color:#a6e22e">RawValIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">Self</span> {
+        IntoIter { _buf: <span style="color:#a6e22e">buf</span>, iter }
+    }
+}</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">for</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">into_iter</span>(self) -&gt; <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+        <span style="color:#66d9ef">unsafe</span> {
+            <span style="color:#66d9ef">let</span> iter <span style="color:#f92672">=</span> RawValIter::new(<span style="color:#f92672">&amp;</span>self);
+
+            <span style="color:#66d9ef">let</span> buf <span style="color:#f92672">=</span> ptr::read(<span style="color:#f92672">&amp;</span>self.buf);
+            mem::forget(self);
+
+            IntoIter::new(buf, iter)
+        }
+    }
+}</code></pre></div>
+<p><code>Drain</code> を実装する。
+<code>Vec</code> から要素を借用するのでlifetime引数をとるが、定義には現れないので <code>PhantomData</code> を用いる。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::marker::PhantomData;
+
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Drain</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T: <span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#75715e">// Need to bound the lifetime here, so we do it with `&amp;&#39;a mut Vec&lt;T&gt;`
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// because that&#39;s semantically what we contain. We&#39;re &#34;just&#34; calling
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// `pop()` and `remove(0)`.
+</span><span style="color:#75715e"></span>    _vec: <span style="color:#a6e22e">PhantomData</span><span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">mut</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;&gt;</span>,
+    iter: <span style="color:#a6e22e">RawValIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T<span style="color:#f92672">&gt;</span> Drop <span style="color:#66d9ef">for</span> Drain<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
+        <span style="color:#66d9ef">for</span> _ <span style="color:#66d9ef">in</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self.iter {}
+    }
+}
+
+<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T<span style="color:#f92672">&gt;</span> Drain<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">new</span>(iter: <span style="color:#a6e22e">RawValIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">Self</span> {
+        Drain {
+            _vec: <span style="color:#a6e22e">PhantomData</span>,
+            iter,
+        }
+    }
+}</code></pre></div>
+<p><code>Vec::drain()</code> は次のように書ける。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drain</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, start: <span style="color:#66d9ef">usize</span>) -&gt; <span style="color:#a6e22e">Drain</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+        assert<span style="color:#f92672">!</span>(start <span style="color:#f92672">&lt;</span> len);
+
+        <span style="color:#66d9ef">unsafe</span> {
+            <span style="color:#66d9ef">let</span> iter <span style="color:#f92672">=</span> RawValIter::new(<span style="color:#f92672">&amp;</span>self[start..]);
+            self.len <span style="color:#f92672">=</span> start;
+            Drain::new(iter)
+        }
+    }
+}</code></pre></div>
+<p>簡単なテストを書き動作確認する。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#![feature(crate_in_paths)]</span> <span style="color:#75715e">// in lib.rs
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#[cfg(test)]</span>
+<span style="color:#66d9ef">mod</span> tests {
+    <span style="color:#66d9ef">use</span> <span style="color:#66d9ef">crate</span>::vec::Vec;
+
+    <span style="color:#75715e">#[test]</span>
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drain</span>() {
+        <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> v <span style="color:#f92672">=</span> Vec::default();
+        v.push(<span style="color:#ae81ff">0</span>);
+        v.push(<span style="color:#ae81ff">1</span>);
+
+        {
+            <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> drain <span style="color:#f92672">=</span> v.drain(<span style="color:#ae81ff">1</span>);
+            assert_eq<span style="color:#f92672">!</span>(drain.next(), Some(<span style="color:#ae81ff">1</span>));
+            assert_eq<span style="color:#f92672">!</span>(drain.next(), None);
+        }
+
+        assert_eq<span style="color:#f92672">!</span>(v.len(), <span style="color:#ae81ff">1</span>);
+
+        <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> iter <span style="color:#f92672">=</span> v.into_iter();
+        assert_eq<span style="color:#f92672">!</span>(iter.next(), Some(<span style="color:#ae81ff">0</span>));
+        assert_eq<span style="color:#f92672">!</span>(iter.next(), None);
+    }
+}</code></pre></div><div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Rustnomiconでは全範囲を取り出すバージョンを書いているが、それではあまりに単純すぎる。
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/implementingvecinrust/raw_vec/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/implementingvecinrust/raw_vec/">Vecの実装 in Rust - RawVec</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+

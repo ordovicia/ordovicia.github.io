@@ -3,7 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/implementingvecinrust/intoiter/</loc>
+    <loc>/post/implementingvecinrust/drain/</loc>
+    <lastmod>2018-02-23T00:00:01+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/implementingvecinrust/raw_vec/</loc>
+    <lastmod>2018-02-23T00:00:00+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/implementingvecinrust/into_iter/</loc>
     <lastmod>2018-02-22T00:00:00+09:00</lastmod>
   </url>
   
@@ -289,7 +299,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-02-22T00:00:00+09:00</lastmod>
+    <lastmod>2018-02-23T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -301,7 +311,7 @@
   
   <url>
     <loc>/tags/programming/</loc>
-    <lastmod>2018-02-22T00:00:00+09:00</lastmod>
+    <lastmod>2018-02-23T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -319,7 +329,7 @@
   
   <url>
     <loc>/tags/rust/</loc>
-    <lastmod>2018-02-22T00:00:00+09:00</lastmod>
+    <lastmod>2018-02-23T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -337,7 +347,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-02-22T00:00:00+09:00</lastmod>
+    <lastmod>2018-02-23T00:00:01+09:00</lastmod>
     <priority>0</priority>
   </url>
   

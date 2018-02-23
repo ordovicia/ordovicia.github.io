@@ -264,8 +264,6 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <code>buf</code>, <code>cap</code>, <code>alloc</code> が <code>Vec</code> から受け継いだメモリ領域に関するものである。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::heap::Heap;
 
-<span style="color:#66d9ef">use</span> owned_ptr::OwnedPtr;
-
 <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
     <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) buf: <span style="color:#a6e22e">OwnedPtr</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
     <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) cap: <span style="color:#66d9ef">usize</span>,
@@ -276,9 +274,7 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <p>そして <code>Vec::into_iter()</code> は次のように実装できる。
 気をつけないといけないのが、<code>Vec</code> が確保したメモリ領域を管理する責任は <code>IntoIter</code> に移ることである。
 従って、<code>Vec::drop()</code> が呼ばれないように <a href="https://doc.rust-lang.org/nightly/std/mem/fn.forget.html"><code>mem::forget()</code></a> を呼ぶ必要がある。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> into_iter::IntoIter;
-
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">for</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">for</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">into_iter</span>(self) -&gt; <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
         <span style="color:#66d9ef">let</span> Vec {
             ptr: <span style="color:#a6e22e">buf</span>,
@@ -398,8 +394,14 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
   </div>
   <div class="pure-u-10-24">
     
+    <nav class="next">
+      <a href="/post/implementingvecinrust/raw_vec/">Vecの実装 in Rust - RawVec</a>
+    </nav>
+    
   </div>
   <div class="pure-u-1-24" style="text-align: right;">
+    
+    <a href="/post/implementingvecinrust/raw_vec/"><i class="fa fa-chevron-right"></i></a>
     
   </div>
 </div>
