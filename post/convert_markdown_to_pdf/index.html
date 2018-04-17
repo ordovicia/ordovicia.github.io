@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>MardownをPDFに変換する &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -242,7 +242,7 @@
 このようなサービスやMarkdownエディタは数え切れないほどあり（逆に言うと決定的なのがないのですが）、
 方法は他にもたくさんあると思います。</p>
 
-<h3 id="markdown-html">Markdown -&gt; HTML</h3>
+<h3 id="markdown-html:6fbcd732116c0383a0b8a966e461eed5">Markdown -&gt; HTML</h3>
 
 <ul>
 <li>Atomで開いてHTMLで保存
@@ -272,7 +272,7 @@
 </ul></li>
 </ul>
 
-<h3 id="html-pdf">HTML -&gt; PDF</h3>
+<h3 id="html-pdf:6fbcd732116c0383a0b8a966e461eed5">HTML -&gt; PDF</h3>
 
 <ul>
 <li>ブラウザの印刷機能
@@ -288,7 +288,7 @@
 </ul></li>
 </ul>
 
-<h3 id="markdown-pdf">Markdown -&gt; PDF</h3>
+<h3 id="markdown-pdf:6fbcd732116c0383a0b8a966e461eed5">Markdown -&gt; PDF</h3>
 
 <ul>
 <li>pandoc + LaTeX</li>
@@ -315,7 +315,8 @@
 <p>CSSはよくわからないので、<a href="https://gist.github.com/andyferra/2554919">github.css</a> をそのまま使わせてもらいました。</p>
 
 <p>Pandocは次のように使います。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ pandoc -s --mathjax -c github.css</code></pre></div>
+$ pandoc -s --mathjax -c github.css
+
 <p>追加で、<code>--indented-code-classes</code> でコードハイライトを有効にしたり、<code>-H, -B, -A</code> でヘッダ・フッタを指定すると満足度の高いPDFが得られます。</p>
 
 

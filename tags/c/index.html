@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="generator" content="Hugo 0.16-DEV" />
 
-  <title>Learning Rust - Universal Function Call Syntax &middot; 外部記憶</title>
+  <title>C &middot; 外部記憶</title>
 
   
   
@@ -36,6 +36,8 @@
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
 
   
+  
+  <link rel="alternate" type="application/rss+xml" title="外部記憶" href="/tags/c/index.xml" />
   
 
   
@@ -93,6 +95,10 @@
   <div class="pure-menu social">
   <ul class="pure-menu-list">
 
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="/tags/c/index.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+    </li>
     
 
     
@@ -196,16 +202,20 @@
 
 
 <div class="header">
-  <h1>Learning Rust - Universal Function Call Syntax</h1>
-  <h2></h2>
+  <h1>C</h1>
 </div>
-<div class="content">
 
-  <div class="post-meta">
+<div class="content">
+  
+    <article>
+  <header>
+    <h2><a href="/post/cpp_python_interop/">C&#43;&#43; - Python Interoperation</a></h2>
+
+    <div class="post-meta">
 
   <div>
     <i class="fa fa-calendar fa-fw"></i>
-    <time>01 Jan 2016</time>
+    <time>03 Jul 2017</time>
   </div>
 
   
@@ -220,7 +230,9 @@
     
       <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
     
-      <a class="post-taxonomy-tag" href="/tags/rust">Rust</a>
+      <a class="post-taxonomy-tag" href="/tags/c">C&#43;&#43;</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/python">Python</a>
     
   </div>
   
@@ -228,116 +240,20 @@
 
 </div>
 
-  
+  </header>
 
-<h1 id="syntax-and-semantics:4b42cfc991e20e3b64c42f7d11a437ee">Syntax and Semantics</h1>
-
-<h2 id="universal-function-call-syntax:4b42cfc991e20e3b64c42f7d11a437ee">Universal Function Call Syntax</h2>
-
-<p>別々のtraitが同名の関数を持っていることがありますね。</p>
-fn main() {
-    trait Foo {
-        fn f(&self);
-    }
-
-    trait Bar {
-        fn f(&self);
-    }
-
-    struct Baz;
-
-    impl Foo for Baz {
-        fn f(&self) { println!("Baz’s impl of Foo"); }
-    }
-
-    impl Bar for Baz {
-        fn f(&self) { println!("Baz’s impl of Bar"); }
-    }
-
-    let b = Baz;
-}
-
-<p><code>Foo</code>と<code>Bar</code>というtraitがともに<code>f()</code>メソッドをもっていて、
-それらを<code>Baz</code>structにimplしました。
-これだけではエラーにはなりませんが、<code>b.f()</code>を呼ぶとエラーです。</p>
-b.f(); // Error
-
-<p>これはシグネチャが違っていても(<code>Bar</code>の<code>f()</code>が<code>f(&amp;self, i32)</code>とかでも)、
-コンパイルエラーになるようです。</p>
-
-<p>それで、どうにかして曖昧さをなくさないといけないのですが、
-&lsquo;universal function call syntax&rsquo;を使えば可能です。</p>
-
-<p>Syntaxは以下のように、</p>
-Foo::f(&b);
-Bar::f(&b);
-
-<p>C++の名前空間みたいにtraitを指定します。
-<code>b.f()</code>のようなメソッド呼び出しとは違い、<code>&amp;b</code>は明示的に渡さなければいけません。</p>
-
-<h2 id="angle-bracket-form:4b42cfc991e20e3b64c42f7d11a437ee">Angle-bracket Form</h2>
-
-<p>実はこの&rsquo;universal function call syntax&rsquo;は、
-&lsquo;Angle-bracket form&rsquo;の短縮版らしいです。
-Angle-bracket formは、</p>
-<Type as Trait>::method(args);
-
-<p>のようなsyntaxで記述します。
-<code>Type</code>にimplされている<code>Trait</code>がもつ<code>method</code>を呼ぶ、ということですね。</p>
-trait Foo {
-    fn clone(&self);
-}
-
-#[derive(Clone)]
-struct Bar;
-
-impl Foo for Bar {
-    fn clone(&self) {
-        println!("Making a clone of Bar");
-
-        <Bar as Clone>::clone(self);
-    }
-}
-
-<p>上のように使えますが、<code>Clone::clone(self)</code>でも大丈夫なようです。
-どっちでもいいということでしょうか。</p>
-
+  <p>
+  C++とPythonを結ぶ方法について少し調べました。 コードは GitHub にあります。 バージョン情報 OS X El Capitan (10.11.6) CMake 3.8.2 g++ 7.1.0 Python 3.6.1 Boost 1.64.0 Call C++ from Python 主に二つの方法が
+  </p>
 
   
-<div class="prev-next-post pure-g">
-  <div class="pure-u-1-24" style="text-align: left;">
-    
-    <a href="/post/learningrust/closures/"><i class="fa fa-chevron-left"></i></a>
-    
-  </div>
-  <div class="pure-u-10-24">
-    
-    <nav class="prev">
-      <a href="/post/learningrust/closures/">Learning Rust - Closures</a>
-    </nav>
-    
-  </div>
-  <div class="pure-u-2-24">
-    &nbsp;
-  </div>
-  <div class="pure-u-10-24">
-    
-    <nav class="next">
-      <a href="/post/learningrust/misc/">Learning Rust - Misc.</a>
-    </nav>
-    
-  </div>
-  <div class="pure-u-1-24" style="text-align: right;">
-    
-    <a href="/post/learningrust/misc/"><i class="fa fa-chevron-right"></i></a>
-    
-  </div>
-</div>
-
-
+  <footer>
+    <a href="/post/cpp_python_interop/">Read more<i class="fa fa-angle-double-right fa-fw"></i></a>
+  </footer>
+  
+</article>
 
   
-
 </div>
 
 
@@ -350,4 +266,3 @@ impl Foo for Bar {
     type="text/javascript"
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
 </script>
-

@@ -8,9 +8,7 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Wed, 03 Jan 2018 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/tags/bsd/index.xml" rel="self" type="application/rss+xml" />
-    
+    <atom:link href="/tags/bsd/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>NetBSDにシステムコールを追加する</title>
@@ -18,7 +16,77 @@
       <pubDate>Wed, 03 Jan 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/add_syscall/</guid>
-      <description>NetBSDにシステムコールを追加してみます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) NetBSD 7.1 システムコールの追加 まずはsys/kern/syscalls.ma</description>
+      <description>
+
+&lt;p&gt;NetBSDにシステムコールを追加してみます。&lt;/p&gt;
+
+&lt;h2 id=&#34;環境:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;環境&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DELL Latitude E6540
+
+&lt;ul&gt;
+&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
+&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;NetBSD 7.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;システムコールの追加:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;システムコールの追加&lt;/h2&gt;
+
+&lt;p&gt;まずは&lt;code&gt;sys/kern/syscalls.master&lt;/code&gt;に、追加するシステムコールのプロトタイプ情報を追記します。
+今回は何もしない&lt;code&gt;nop&lt;/code&gt;システムコールを追加します。
+引数はとらず、即座に0を返します。&lt;/p&gt;
+481 STD RUMP    { int|sys||nop(void); }
+
+&lt;p&gt;追記後、&lt;code&gt;sys/kern/makesyscalls.sh&lt;/code&gt;を実行します。
+これがおおかたの作業をやってくれるようです。&lt;/p&gt;
+# sh makesyscalls.sh syscalls.conf syscalls.master
+
+&lt;p&gt;&lt;code&gt;nop&lt;/code&gt;システムコールのなかみを忘れずに定義しておきます。
+ここでは新しいファイル&lt;code&gt;sys/kern/sys_nop.c&lt;/code&gt;を追加しました。&lt;/p&gt;
+#include &lt;sys/syscallargs.h&gt;
+#include &lt;sys/systm.h&gt;
+
+int	sys_nop(struct lwp* _lwp, const void* _args, register_t* _regs)
+{
+    printf(&#34;nop called\n&#34;);
+    return 0;
+}
+
+&lt;p&gt;nopとは言うものの、デバッグ用に&lt;code&gt;printf()&lt;/code&gt;しています。
+&lt;code&gt;sys/systm.h&lt;/code&gt;のインクルードはそのためです。&lt;/p&gt;
+
+&lt;p&gt;関数プロトタイプは、&lt;code&gt;makesyscalls.sh&lt;/code&gt;を実行したときに&lt;code&gt;sys/sys/syscallargs.h&lt;/code&gt;に追記されたものに合わせます。&lt;/p&gt;
+
+&lt;p&gt;今回は新しいファイルを追加したので、ビルドするファイルのリストにそのファイルを追加しておきます。
+編集するファイルは&lt;code&gt;sys/conf/files&lt;/code&gt;です。&lt;/p&gt;
+file    kern/sys_nop.c
+
+&lt;h2 id=&#34;ビルド:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;ビルド&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;/post/netbsd/build_kernel/&#34;&gt;NetBSDカーネルのビルド&lt;/a&gt;を参照してください。
+いちど&lt;code&gt;configure&lt;/code&gt;からやり直すとうまくいくようです。&lt;/p&gt;
+
+&lt;h2 id=&#34;動作確認:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;動作確認&lt;/h2&gt;
+
+&lt;p&gt;libcにラッパーを用意していないので、&lt;code&gt;syscall(2)&lt;/code&gt;で呼び出すことにします。
+&lt;code&gt;sys/kern/syscalls.master&lt;/code&gt;に&lt;code&gt;nop&lt;/code&gt;を追加したときのシステムコール番号を指定します。&lt;/p&gt;
+#include &lt;stdio.h&gt;
+#include &lt;sys/syscall.h&gt;
+
+int main(void)
+{
+    int ret = syscall(481);
+    printf(&#34;%d\n&#34;, ret);
+
+    return 0;
+}
+
+&lt;p&gt;コンパイルして実行し、以下のような出力があれば成功です。&lt;/p&gt;
+nop called
+0
+</description>
     </item>
     
     <item>
@@ -27,7 +95,97 @@
       <pubDate>Thu, 28 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/build_kernel/</guid>
-      <description>NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。 参考 安定版 NetBSD</description>
+      <description>
+
+&lt;p&gt;NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。&lt;/p&gt;
+
+&lt;h2 id=&#34;参考:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;参考&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/updating.html&#34;&gt;安定版 NetBSD リリースの更新 - The NetBSD Project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/kernel.html&#34;&gt;NetBSD ドキュメンテーション: カーネル - The NetBSD Project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://qiita.com/furandon_pig/items/d9b2782372edc1b93263&#34;&gt;NetBSDカーネルをビルドしてみる - furandon_pigさんのQiita記事&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;環境:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;環境&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DELL Latitude E6540
+
+&lt;ul&gt;
+&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;NetBSD 7.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;ソースコードの取得:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;ソースコードの取得&lt;/h2&gt;
+
+&lt;p&gt;まずはカーネルのソースコードを取得します。
+配布されているISOを展開する方法もありますが、今回はCVSをつかいました。&lt;/p&gt;
+# cd /usr
+# export CVS_RSH=ssh
+# export CVSROOT=&#34;anoncvs@anoncvs.NetBSD.org:/cvsroot&#34;
+# cvs checkout -r netbsd-7-1-RELEASE -P src
+
+&lt;p&gt;&lt;code&gt;-r netbsd-7-1&lt;/code&gt; オプションでバージョンが指定できるようです。
+ダウンロードにかなり時間がかかるので寝てる間に走らせておくといいです。&lt;/p&gt;
+
+&lt;h2 id=&#34;ツールチェインのビルド-今回は必要ない:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;ツールチェインのビルド（今回は必要ない）&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;current のカーネルに更新する場合や、より新しいメジャーリリースに更新したい場合には、 はじめに、新しいツールチェインをコンパイルする必要があります。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&amp;ndash; &lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/kernel.html&#34;&gt;NetBSD ドキュメンテーション: カーネル - The NetBSD Project&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;今回は同じバージョン使うので必要ありませんが、必要な場合は以下のようにすればツールチェインがビルドできます。&lt;/p&gt;
+# mkdir /usr/obj /usr/tools
+# cd /usr/src
+# ./build.sh -O /usr/obj -T /usr/tools -U -u tools
+
+&lt;h2 id=&#34;カーネルのビルド:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;カーネルのビルド&lt;/h2&gt;
+
+&lt;p&gt;それではカーネルをビルドしていきます。&lt;/p&gt;
+
+&lt;p&gt;まずは、必要なデバイスドライバやオプションを設定するconfigファイルを用意します。
+amd64の場合、configファイルは &lt;code&gt;/usr/src/sys/arch/amd64/conf&lt;/code&gt; にあります。
+ISOとかUSBイメージでインストールされるカーネルはGENERIC configファイルで設定されているもののようです。
+configファイルを自分用に編集したい場合はこれをもとにするといいでしょう。&lt;/p&gt;
+# cd /usr/src/sys/arch/amd64/conf/
+# cp GENERIC MYCONF
+
+&lt;p&gt;使いたいconfigファイルを指定して &lt;code&gt;config&lt;/code&gt; を走らせると、コンパイル用のディレクトリが生成されます。&lt;/p&gt;
+# config MYCONF
+Build directory is ../compile/MYCONF
+Don&#39;t forget to run &#34;make depend&#34;
+
+&lt;p&gt;そしてこのディレクトリの中で &lt;code&gt;make depend&lt;/code&gt;, &lt;code&gt;make&lt;/code&gt; を走らせます。&lt;/p&gt;
+# cd ../compile/MYCONF/
+# make depend
+# make
+
+&lt;p&gt;環境によりますが、5分くらいでビルドできました。&lt;/p&gt;
+
+&lt;p&gt;できたカーネルは &lt;code&gt;netbsd&lt;/code&gt; という名前になっています。
+これをファイルシステムのルートにおけば、起動時にカーネルとして選択できます。&lt;/p&gt;
+
+&lt;p&gt;今回は、既存のカーネルを上書きしないよう違う名前でおいておきます。&lt;/p&gt;
+# cp netbsd /my_netbsd
+# ls /*netbsd
+/netbsd	    /my_netbsd
+
+&lt;h2 id=&#34;起動:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;起動&lt;/h2&gt;
+
+&lt;p&gt;再起動します。
+起動時に、いつもブートオプションを選択する画面が出てくると思います。
+ここで &lt;code&gt;5. Drop to boot prompt&lt;/code&gt; を選択し、プロンプトに移ります。&lt;/p&gt;
+
+&lt;p&gt;プロンプト上で &lt;code&gt;ls&lt;/code&gt; を実行すると、&lt;code&gt;my_netbsd&lt;/code&gt; が見えるはずです。
+そこで、&lt;code&gt;boot my_netbsd&lt;/code&gt; でカーネルを指定して起動します。&lt;/p&gt;
+
+&lt;p&gt;起動後、&lt;code&gt;uname -a&lt;/code&gt; を実行すると、自分で作ったconfigファイルによるカーネルであることが確認できます。&lt;/p&gt;
+NetBSD user 7.1.1 NetBSD 7.1.1 (MYCONF) #0: Thu Dec 28 13:54:49 JST 2017  root@user:/usr/src/sys/arch/amd64/compile/MYCONF amd64
+</description>
     </item>
     
     <item>
@@ -36,7 +194,101 @@
       <pubDate>Mon, 25 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/initial_setup/</guid>
-      <description>NetBSDの初期設定についてメモしておきます。 NetBSDインストール後の環境設定 - furandon_pigさんのQiita記事を参考にし</description>
+      <description>
+
+&lt;p&gt;NetBSDの初期設定についてメモしておきます。
+&lt;a href=&#34;https://qiita.com/furandon_pig/items/5479293cb21d6fd9f17c&#34;&gt;NetBSDインストール後の環境設定 - furandon_pigさんのQiita記事&lt;/a&gt;を参考にしています。&lt;/p&gt;
+
+&lt;p&gt;基本的にrootで作業します。&lt;/p&gt;
+
+&lt;h2 id=&#34;環境:ad3d94928460cf368a4ab82568476234&#34;&gt;環境&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DELL Latitude E6540
+
+&lt;ul&gt;
+&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
+&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;NetBSD 7.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;コンソール上でcaps-lockをctrlにする:ad3d94928460cf368a4ab82568476234&#34;&gt;コンソール上でCaps LockをCtrlにする&lt;/h2&gt;
+
+&lt;p&gt;以下を実行すると、コンソール上でCaps LockがCtrlとしてふるまいます。&lt;/p&gt;
+/sbin/wsconsctl -w map+=&#39;keysym Caps_Lock = Control_R&#39; &gt; /dev/null
+
+&lt;p&gt;起動時にこれを自動で設定するために、&lt;code&gt;/etc/rc.local&lt;/code&gt; にこの行を追記します。&lt;/p&gt;
+
+&lt;h2 id=&#34;dhcp環境下での有線lan設定:ad3d94928460cf368a4ab82568476234&#34;&gt;DHCP環境下での有線LAN設定&lt;/h2&gt;
+
+&lt;h3 id=&#34;ホスト名の設定:ad3d94928460cf368a4ab82568476234&#34;&gt;ホスト名の設定&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;/etc/myname&lt;/code&gt; に好きなホスト名を書き込みます。&lt;/p&gt;
+
+&lt;h3 id=&#34;dhcpクライアントの自動起動:ad3d94928460cf368a4ab82568476234&#34;&gt;DHCPクライアントの自動起動&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;/etc/rc.conf&lt;/code&gt; に、以下の行を追記します。&lt;/p&gt;
+dhcpcd=yes
+
+&lt;p&gt;&lt;code&gt;dhcpcd&lt;/code&gt;というのがDHCPクライアントのようです。
+DHCPサーバーの&lt;code&gt;dhcpd&lt;/code&gt;ではありません。&lt;/p&gt;
+
+&lt;p&gt;NetBSDの再起動後、&lt;code&gt;ifconfig&lt;/code&gt;でIPアドレスが振られていることが確認できます。&lt;/p&gt;
+
+&lt;h2 id=&#34;パッケージマネージャの設定:ad3d94928460cf368a4ab82568476234&#34;&gt;パッケージマネージャの設定&lt;/h2&gt;
+
+&lt;p&gt;NetBSDのパッケージマネージャは、&lt;code&gt;PKG_PATH&lt;/code&gt;環境変数に格納されているURLからパッケージをダウンロードします。
+この環境変数は&lt;code&gt;~/.profile&lt;/code&gt;にかかれているのですが、コメントアウトされているので修正します。&lt;/p&gt;
+
+&lt;p&gt;まず、&lt;code&gt;~/.profile&lt;/code&gt;の書き込み権限を追加します。&lt;/p&gt;
+# chmod +w ~/.profile
+
+&lt;p&gt;次に、&lt;code&gt;~/.profile&lt;/code&gt;を編集します。&lt;/p&gt;
+#export PKG_PATH=ftp://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -m)/7.0/All
+
+&lt;p&gt;のような行があるので、このコメントアウトを外します。&lt;/p&gt;
+
+&lt;h3 id=&#34;動作確認:ad3d94928460cf368a4ab82568476234&#34;&gt;動作確認&lt;/h3&gt;
+
+&lt;p&gt;その後、ログアウトして再ログインすれば、&lt;code&gt;~/.profile&lt;/code&gt;が読み込まれます。
+&lt;code&gt;echo $PKG_PATH&lt;/code&gt;で環境変数が設定されていることを確認しておきます。&lt;/p&gt;
+
+&lt;p&gt;パッケージのインストールは、&lt;/p&gt;
+# pkg_add sudo
+
+&lt;p&gt;のようにすればOKです。&lt;/p&gt;
+
+&lt;h2 id=&#34;sudoの設定:ad3d94928460cf368a4ab82568476234&#34;&gt;sudoの設定&lt;/h2&gt;
+
+&lt;p&gt;上でインストールしたsudoを、&lt;code&gt;wheel&lt;/code&gt;グループに属するユーザーが使えるようにします。&lt;/p&gt;
+
+&lt;p&gt;Linuxの&lt;code&gt;/etc/sudoers&lt;/code&gt;に相当するファイルが、NetBSDでは&lt;code&gt;/usr/pkg/etc/sudoers&lt;/code&gt;として存在します。
+そこでこのファイルを開き、&lt;/p&gt;
+# %wheel ALL=(ALL) ALL
+
+&lt;p&gt;のコメントを外します。&lt;/p&gt;
+
+&lt;h2 id=&#34;pkgin-の導入:ad3d94928460cf368a4ab82568476234&#34;&gt;&lt;code&gt;pkgin&lt;/code&gt;の導入&lt;/h2&gt;
+
+&lt;p&gt;上で使っている&lt;code&gt;pkg_add&lt;/code&gt;など、NetBSD標準のパッケージマネージャは正直使いづらいです。
+そこで&lt;code&gt;pkgin&lt;/code&gt;を導入します。&lt;/p&gt;
+# pkg_add -v pkgin
+# pkgin update
+
+&lt;p&gt;Debian系での&lt;code&gt;apt&lt;/code&gt;と同じ感覚で使えます。
+たとえば、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;リポジトリの更新 &lt;code&gt;pkgin update&lt;/code&gt; （省略形 &lt;code&gt;pkgin up&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;インストール済みパッケージの更新 &lt;code&gt;pkgin upgrade&lt;/code&gt; （省略形 &lt;code&gt;pkgin ug&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;パッケージのインストール &lt;code&gt;pkgin install package&lt;/code&gt; （省略形 &lt;code&gt;pkgin in&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;パッケージの削除 &lt;code&gt;pkgin remove package&lt;/code&gt; （省略形 &lt;code&gt;pkgin rm&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;パッケージの検索 &lt;code&gt;pkgin search keywords&lt;/code&gt; （省略形 &lt;code&gt;pkgin se&lt;/code&gt;）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;などが使えます。&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -45,7 +297,70 @@
       <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/dualboot_linux_and_netbsd/</guid>
-      <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
+      <description>
+
+&lt;p&gt;LinuxとNetBSDをデュアルブートする方法をメモしておきます。&lt;/p&gt;
+
+&lt;h2 id=&#34;環境:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;環境&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DELL Latitude E6540
+
+&lt;ul&gt;
+&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
+&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;linuxのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;Linuxのインストール&lt;/h2&gt;
+
+&lt;p&gt;Linuxのディストーションとして、今回はUbuntu Desktop 16.04をインストールします。
+Ubuntuは通常どおり、&lt;a href=&#34;http://releases.ubuntu.com/16.04/&#34;&gt;公式のリリースページ&lt;/a&gt;からISOファイルをダウンロードし、USBメモリなどに焼いてインストールすればOKです。
+ただしあとでNetBSDをインストールするパーティションを確保しておきましょう。&lt;/p&gt;
+
+&lt;h2 id=&#34;netbsdのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのインストール&lt;/h2&gt;
+
+&lt;p&gt;まずは&lt;a href=&#34;https://www.netbsd.org/releases/index.html&#34;&gt;公式のリリースページ&lt;/a&gt;からUSBメモリ用のイメージをダウンロードし、焼きます。
+USBメモリから起動してインストーラを実行します。
+基本的な流れは、&lt;a href=&#34;https://www.netbsd.org/docs/guide/en/chap-exinst.html&#34;&gt;NetBSD公式のインストールガイド&lt;/a&gt;や
+&lt;a href=&#34;https://www.webzoit.net/hp/it/internet/homepage/env/os/bsd_unix_linux/netbsd/03_install&#34;&gt;webzoit.netさん&lt;/a&gt;がたいへん参考になります。
+そこで、デュアルブートのために必要な手順のみ説明します。&lt;/p&gt;
+
+&lt;p&gt;ちなみに、インストールの終盤でユーザーを追加できます。
+&lt;code&gt;wheel&lt;/code&gt;グループへの追加などもできるので、ここで設定しておくと便利です。&lt;/p&gt;
+
+&lt;h3 id=&#34;netbsdのブートローダをインストールしない:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのブートローダをインストールしない&lt;/h3&gt;
+
+&lt;p&gt;NetBSDのインストール中に、「bootselect codeをインストールするか？」と聞かれるステップがあります。
+これはUbuntuで使っているブートローダを上書きしてしまうので、Noと答えます。&lt;/p&gt;
+
+&lt;h3 id=&#34;ubuntuのgrubからnetbsdが起動できるよう設定:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;UbuntuのGRUBからNetBSDが起動できるよう設定&lt;/h3&gt;
+
+&lt;p&gt;NetBSDのブートローダは使わずに、Ubuntuの領域にインストールしたGRUBからNetBSDがブートできるように設定します。&lt;/p&gt;
+
+&lt;p&gt;まず、&lt;code&gt;/etc/grub.d/40-custom&lt;/code&gt; に以下のようなエントリーを追記します。&lt;/p&gt;
+menuentry `NetBSD 7.1 on sda3` {
+    insmod bsd
+    set root=(hd0,3)
+    chainloader (hd0,3)+1
+}
+
+&lt;p&gt;エントリーの名前は好きなものに設定してください。
+&lt;code&gt;root&lt;/code&gt;, &lt;code&gt;chainloader&lt;/code&gt;で設定するパーティションは、NetBSDをインストールしたところ指すように設定するため、環境によって変わります。
+NetBSDをインストールしたパーティションの番号や&lt;code&gt;fdisk&lt;/code&gt;の結果から決めてください。&lt;/p&gt;
+
+&lt;p&gt;次に、&lt;code&gt;/etc/default/grub&lt;/code&gt; を編集します。
+7, 8行目付近に &lt;code&gt;GRUB_HIDDEN_TIMEOUT&lt;/code&gt; を含む二行があるので、これをコメントアウトします。
+GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリーを選べるようにするためです。&lt;/p&gt;
+
+&lt;p&gt;最後に &lt;code&gt;sudo update-grub&lt;/code&gt; を実行し、GRUBの設定を更新します。&lt;/p&gt;
+
+&lt;h2 id=&#34;動作確認:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;動作確認&lt;/h2&gt;
+
+&lt;p&gt;以上でデュアルブートの設定は終わりです。
+再起動してGRUBのメニューにNetBSDが現れることを確認しましょう。&lt;/p&gt;
+</description>
     </item>
     
   </channel>

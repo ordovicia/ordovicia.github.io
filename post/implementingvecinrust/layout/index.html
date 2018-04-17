@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Vecの実装 in Rust - 構造体レイアウト &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -236,11 +236,12 @@
 
 <p>rustcのバージョンは以下のとおり。
 このバージョンに基づいて書いていく。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
-<h2 id="subtyping-and-variance-https-doc-rust-lang-org-nomicon-subtyping-html"><a href="https://doc.rust-lang.org/nomicon/subtyping.html">Subtyping and Variance</a></h2>
+$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)
 
-<h3 id="部分型-subtyping">部分型 (subtyping)</h3>
+<h2 id="subtyping-and-variance-https-doc-rust-lang-org-nomicon-subtyping-html:66b86657894595ae36af47f31c365fda"><a href="https://doc.rust-lang.org/nomicon/subtyping.html">Subtyping and Variance</a></h2>
+
+<h3 id="部分型-subtyping:66b86657894595ae36af47f31c365fda">部分型 (subtyping)</h3>
 
 <p>&ldquo;Implementing <code>Vec</code>&rdquo; の最初の節は <a href="https://doc.rust-lang.org/nomicon/vec-layout.html">Layout</a> だが、
 事前知識のため変性 (variance)の節から見ていく。</p>
@@ -249,13 +250,13 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「より長い」ことを意味する <code>'a: 'b</code> が成り立っていれば、 <code>'a</code> は <code>'b</code> の部分型である。
 「<code>'a</code> が <code>'b</code> を含む」のに「部分型である」というのは直感に反するようだが、<code>'a</code> は <code>'b</code> に暗黙的に変換できる（置換できる）ので部分型だといえる。</p>
 
-<h3 id="変性-variance">変性 (variance)</h3>
+<h3 id="変性-variance:66b86657894595ae36af47f31c365fda">変性 (variance)</h3>
 
-<p><a href="https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)">変性 (variance)</a> は、
+<p><a href="https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science">変性 (variance)</a>) は、
 型コンストラクタがもつ性質で、引数にとる型やlifetimeの派生関係が、出力される型にどのように伝搬するかを表したもの。
 例えば、 <code>'a: 'b</code> ならば <code>&amp;'a T</code> は <code>&amp;'b T</code> に暗黙的に変換できる。
 このように半順序が保存されて伝搬するとき、<strong>共変 (variant)</strong> と言う。
-これ以外の場合、<strong>非変 (invariant)</strong> と言う <sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup>。</p>
+これ以外の場合、<strong>非変 (invariant)</strong> と言う <sup class="footnote-ref" id="fnref:66b86657894595ae36af47f31c365fda:1"><a rel="footnote" href="#fn:66b86657894595ae36af47f31c365fda:1">1</a></sup>。</p>
 
 <p><code>&amp;'a T</code> は <code>'a</code>, <code>T</code> どちらについても共変である。
 <code>'a</code> について共変であることで、<code>'a: 'b</code> のとき（<code>'a</code> が <code>'b</code> より長いとき） <code>&amp;'a T</code> が <code>&amp;'b T</code> に暗黙的に置き換えられる。</p>
@@ -263,19 +264,20 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 <p><code>&amp;'a mut T</code> は <code>'a</code> については共変だが、<code>T</code> について非変である。
 これにより、ある種のdangling pointerが回避されている。
 例として、次のコードを考える。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">overwrite</span><span style="color:#f92672">&lt;</span>T: Copy<span style="color:#f92672">&gt;</span>(input: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">mut</span> T, new: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">mut</span> T) {
-    <span style="color:#f92672">*</span>input <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>new;
+fn overwrite<T: Copy>(input: &mut T, new: &mut T) {
+    *input = *new;
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> forever_str: <span style="color:#66d9ef">&amp;</span>&#39;static <span style="color:#66d9ef">str</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>;
+fn main() {
+    let mut forever_str: &'static str = "hello";
     {
-        <span style="color:#66d9ef">let</span> string <span style="color:#f92672">=</span> String::from(<span style="color:#e6db74">&#34;world&#34;</span>);
-        overwrite(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> forever_str, <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> <span style="color:#f92672">&amp;*</span>string);
+        let string = String::from("world");
+        overwrite(&mut forever_str, &mut &*string);
     }
-    <span style="color:#75715e">// Oops, printing free&#39;d memory
-</span><span style="color:#75715e"></span>    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, forever_str);
-}</code></pre></div>
+    // Oops, printing free'd memory
+    println!("{}", forever_str);
+}
+
 <p><code>string</code> のlifetimeを <code>'s</code> と名付けることにする。
 <code>&amp;'a T</code> は <code>'a</code> について共変なので、<code>&amp;'static str</code> は <code>&amp;'s str</code> に置き換えられる。
 従って、もし <code>&amp;mut T</code> が <code>T</code> について共変だったとすると、 <code>&amp;mut &amp;'static str</code> は <code>&amp;mut &amp;'s str</code> の部分型となる。
@@ -290,7 +292,7 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 もし共変だったとすると、逆に <code>fn f(&amp;'static str s)</code> が <code>fn f(&amp;'a str s)</code> で置換できることになり、より強いlifetime制約を要求してしまう。
 一方、<code>U</code> について共変であることにより、例えば <code>fn f(&amp;'a str) -&gt; &amp;'static str</code> は <code>fn f(&amp;'a str) -&gt; &amp;'a str</code> に変換できる。</p>
 
-<h2 id="phantomdata-https-doc-rust-lang-org-nomicon-phantom-data-html"><a href="https://doc.rust-lang.org/nomicon/phantom-data.html"><code>PhantomData</code></a></h2>
+<h2 id="phantomdata-https-doc-rust-lang-org-nomicon-phantom-data-html:66b86657894595ae36af47f31c365fda"><a href="https://doc.rust-lang.org/nomicon/phantom-data.html"><code>PhantomData</code></a></h2>
 
 <p>さらに事前知識をおさらいする。</p>
 
@@ -298,13 +300,14 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 何らかの理由で未使用の引数を定義に含める必要がある場合、<code>PhantomData</code> が使われる。</p>
 
 <p>例えば、スライス <code>&amp;'a [T]</code> の <code>Iter</code> は次のように定義されている。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::marker;
+use std::marker;
 
-<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Iter</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, T: <span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
-    ptr: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
-    end: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
-    _marker: <span style="color:#a6e22e">marker</span>::PhantomData<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> T<span style="color:#f92672">&gt;</span>
-}</code></pre></div>
+struct Iter<'a, T: 'a> {
+    ptr: *const T,
+    end: *const T,
+    _marker: marker::PhantomData<&'a T>
+}
+
 <p>（<a href="https://doc.rust-lang.org/nightly/src/core/slice/mod.rs.html#1390-1394">現在の実装</a> も同様）</p>
 
 <p><code>PhantomData</code> の型引数におくものを注意深く設定することで、<code>PhantomData</code> がもつ性質をうまくコントロールできる。
@@ -326,16 +329,17 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 </ul></li>
 </ul>
 
-<h2 id="layout-https-doc-rust-lang-org-nomicon-vec-layout-html"><a href="https://doc.rust-lang.org/nomicon/vec-layout.html">Layout</a></h2>
+<h2 id="layout-https-doc-rust-lang-org-nomicon-vec-layout-html:66b86657894595ae36af47f31c365fda"><a href="https://doc.rust-lang.org/nomicon/vec-layout.html">Layout</a></h2>
 
 <p>やっと &ldquo;Implementing <code>Vec</code>&rdquo; の最初の節。</p>
 
 <p><code>Vec&lt;T&gt;</code> は「連続領域に確保された、動的に要素数の変わる配列」なので、ナイーブには次のように実装しようと考える。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    ptr: <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> T,    <span style="color:#75715e">// pointer to contiguous region elements are stored on
-</span><span style="color:#75715e"></span>    cap: <span style="color:#66d9ef">usize</span>,     <span style="color:#75715e">// capacity of the region
-</span><span style="color:#75715e"></span>    len: <span style="color:#66d9ef">usize</span>,     <span style="color:#75715e">// number of elements actually stored
-</span><span style="color:#75715e"></span>}</code></pre></div>
+pub struct Vec<T> {
+    ptr: *mut T,    // pointer to contiguous region elements are stored on
+    cap: usize,     // capacity of the region
+    len: usize,     // number of elements actually stored
+}
+
 <p>しかし、この実装には以下の問題がある。</p>
 
 <ul>
@@ -372,35 +376,37 @@ Lifetime <code>'a</code> が <code>'b</code> を「含む」あるいは「よ�
 
 <p>という特性をもつ。
 <code>Vec&lt;T&gt;</code> が要素を所有することを表しdrop checkerを正しく動作させるため、 <code>PhantomData&lt;T&gt;</code> を用いる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::marker::PhantomData;
-<span style="color:#66d9ef">use</span> std::ptr::NonNull;
+use std::marker::PhantomData;
+use std::ptr::NonNull;
 
-<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">OwnedPtr</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized<span style="color:#f92672">&gt;</span> {
-    ptr: <span style="color:#a6e22e">NonNull</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
-    _marker: <span style="color:#a6e22e">PhantomData</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
+pub(crate) struct OwnedPtr<T: ?Sized> {
+    ptr: NonNull<T>,
+    _marker: PhantomData<T>,
 }
 
-<span style="color:#66d9ef">unsafe</span> <span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized <span style="color:#f92672">+</span> Send<span style="color:#f92672">&gt;</span> Send <span style="color:#66d9ef">for</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {}
-<span style="color:#66d9ef">unsafe</span> <span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized <span style="color:#f92672">+</span> Sync<span style="color:#f92672">&gt;</span> Sync <span style="color:#66d9ef">for</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {}
+unsafe impl<T: ?Sized + Send> Send for OwnedPtr<T> {}
+unsafe impl<T: ?Sized + Sync> Sync for OwnedPtr<T> {}
 
-<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    ptr: <span style="color:#a6e22e">OwnedPtr</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
-    cap: <span style="color:#66d9ef">usize</span>,
-    len: <span style="color:#66d9ef">usize</span>,
-}</code></pre></div>
+pub struct Vec<T> {
+    ptr: OwnedPtr<T>,
+    cap: usize,
+    len: usize,
+}
+
 <p><code>Vec::new()</code> の際、空の <code>Vec</code> にメモリを割り当てないようにすると、<code>Vec::ptr</code> や <code>OwnedPtr::ptr</code> はnullになってしまう。
 実のところ、<code>NonNull</code> がnullになってはいけないという制約は、nullをdereferenceしてはいけないという意味で、deref.しないならnullになること自体は問題ない。
 <code>Vec</code> の場合、<code>cap</code>, <code>len</code> のチェックが必要になるので、null pointer deref.の発生は防ぎやすい。
 Nullとなっている（がアライメントは整っている） <code>NonNull</code> は、
 <a href="https://doc.rust-lang.org/nightly/std/ptr/struct.NonNull.html#method.dangling"><code>NonNull::dangling()</code></a> で作れる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">empty</span>() -&gt; <span style="color:#a6e22e">Self</span> {
+impl<T> OwnedPtr<T> {
+    pub(crate) fn empty() -> Self {
         OwnedPtr {
-            ptr: <span style="color:#a6e22e">NonNull</span>::dangling(),
-            _marker: <span style="color:#a6e22e">PhantomData</span>,
+            ptr: NonNull::dangling(),
+            _marker: PhantomData,
         }
     }
-}</code></pre></div>
+}
+
 <p>なお、<code>NonNull</code> が持つ特性と <code>Send</code>, <code>Sync</code>, <code>T</code> の所有をすべて備える構造体として、
 <a href="https://doc.rust-lang.org/nightly/std/ptr/struct.Unique.html"><code>ptr::Unique</code></a> があり、現在は使うことができる。
 しかし、<a href="https://github.com/rust-lang/rust/pull/46952"><code>Unique</code> は <code>NonNull</code> に置き換えられ、今後安定化することはない</a>。</p>
@@ -409,8 +415,8 @@ Nullとなっている（がアライメントは整っている） <code>NonNul
 <hr />
 
 <ol>
-<li id="fn:1">この説明はかなり簡略化されたもの。ここでのvariantは実際にはcovariantと呼ばれる。また、半順序が逆向きに伝搬するとき、<strong>反変 (contravariant)</strong> と言う。<code>fn(T)</code> は <code>T</code> について反変である。
- <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+<li id="fn:66b86657894595ae36af47f31c365fda:1">この説明はかなり簡略化されたもの。ここでのvariantは実際にはcovariantと呼ばれる。また、半順序が逆向きに伝搬するとき、<strong>反変 (contravariant)</strong> と言う。<code>fn(T)</code> は <code>T</code> について反変である。
+ <a class="footnote-return" href="#fnref:66b86657894595ae36af47f31c365fda:1"><sup>[return]</sup></a></li>
 </ol>
 </div>
 

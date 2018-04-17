@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Learning Rust - Traits &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,9 +230,9 @@
 
   
 
-<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics:c74be9b17bc91cd593608d83085a01f3">Syntax and Semantics</h1>
 
-<h2 id="traits">Traits</h2>
+<h2 id="traits:c74be9b17bc91cd593608d83085a01f3">Traits</h2>
 
 <p>Traitは、Haskellでいう型クラスであり、
 C++でいうコンセプト(C++14時点では提案のみっぽいですが)です。
@@ -240,12 +240,13 @@ C++でいうコンセプト(C++14時点では提案のみっぽいですが)で�
 これによって、ジェネリクス関数やstructがうけとる型に、
 そのメソッドが実行できることを保証できます。</p>
 
-<h3 id="trait-bounds-on-generic-functions">Trait bounds on generic functions</h3>
+<h3 id="trait-bounds-on-generic-functions:c74be9b17bc91cd593608d83085a01f3">Trait bounds on generic functions</h3>
 
 <p>例えば、面積を表示する、以下のジェネリックな関数を作りたいとします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(shape: <span style="color:#a6e22e">T</span>) {
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span>, shape.area());
-}</code></pre></div>
+fn print_area<T>(shape: T) {
+    println!("This shape has an area of {}", shape.area());
+}
+
 <p>これはコンパイルエラーになります。
 <code>print_area()</code>関数が受け取る型<code>T</code>に、<code>area()</code>メソッドが定義されていないからです。
 現行のC++では、実際に<code>print_area()</code>関数をある型について使ったとき、
@@ -256,80 +257,85 @@ Rustではジェネリクス関数を定義しただけでエラーをおこし�
 <code>area()</code>メソッドをもつことを保証するtraitをつくり、
 型<code>T</code>を、そのtraitをもつものに制限します。
 Syntaxは次のとおりです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> HasArea {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span>;
+trait HasArea {
+    fn area(&self) -> f64;
 }
 
-<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Circle</span> {
-    x: <span style="color:#66d9ef">f64</span>,
-    y: <span style="color:#66d9ef">f64</span>,
-    radius: <span style="color:#66d9ef">f64</span>,
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
 }
 
-<span style="color:#66d9ef">impl</span> HasArea <span style="color:#66d9ef">for</span> Circle {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span> {
-        std::<span style="color:#66d9ef">f64</span>::consts::PI <span style="color:#f92672">*</span> (self.radius <span style="color:#f92672">*</span> self.radius)
+impl HasArea for Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
     }
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print_area</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">HasArea</span><span style="color:#f92672">&gt;</span>(shape: <span style="color:#a6e22e">T</span>) {
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;This shape has an area of {}&#34;</span>, shape.area());
-}</code></pre></div>
+fn print_area<T: HasArea>(shape: T) {
+    println!("This shape has an area of {}", shape.area());
+}
+
 <p><code>HasArea</code>traitをつくり、それに<code>area()</code>メソッドを含めます。
 <code>print_area()</code>関数が<code>Circle</code>structに適用するため、
 <code>Circle</code>に<code>HasArea</code>traitを実装します。
 そして<code>print_area()</code>が受け取る型<code>T</code>を、<code>HasArea</code>traitをもつという条件で束縛します。</p>
 
 <p>ほかのstrctに<code>HasArea</code>traitをimplすることもできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Square</span> {
-    x: <span style="color:#66d9ef">f64</span>,
-    y: <span style="color:#66d9ef">f64</span>,
-    side: <span style="color:#66d9ef">f64</span>,
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
 }
 
-<span style="color:#66d9ef">impl</span> HasArea <span style="color:#66d9ef">for</span> Square {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">area</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">f64</span> {
-        self.side <span style="color:#f92672">*</span> self.side
+impl HasArea for Square {
+    fn area(&self) -> f64 {
+        self.side * self.side
     }
-}</code></pre></div>
-<h3 id="trait-bounds-on-generic-structs">Trait bounds on generic structs</h3>
+}
+
+<h3 id="trait-bounds-on-generic-structs:c74be9b17bc91cd593608d83085a01f3">Trait bounds on generic structs</h3>
 
 <p>ジェネリックなstructについても、traitが使えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Rectangle</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    x: <span style="color:#a6e22e">T</span>,
-    y: <span style="color:#a6e22e">T</span>,
-    width: <span style="color:#a6e22e">T</span>,
-    height: <span style="color:#a6e22e">T</span>,
+struct Rectangle<T> {
+    x: T,
+    y: T,
+    width: T,
+    height: T,
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: PartialEq<span style="color:#f92672">&gt;</span> Rectangle<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_square</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
-        self.width <span style="color:#f92672">==</span> self.height
+impl<T: PartialEq> Rectangle<T> {
+    fn is_square(&self) -> bool {
+        self.width == self.height
     }
 }
 
-<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> r <span style="color:#f92672">=</span> Rectangle {
-    x: <span style="color:#ae81ff">0</span>,
-    y: <span style="color:#ae81ff">0</span>,
-    width: <span style="color:#ae81ff">47</span>,
-    height: <span style="color:#ae81ff">47</span>,
-};</code></pre></div>
+let mut r = Rectangle {
+    x: 0,
+    y: 0,
+    width: 47,
+    height: 47,
+};
+
 <p><code>PartialEq</code>は標準ライブラリにあるtraitで、
 対称律と推移律を満たす関係をもつ型にimplされているようです。
 <code>i32</code>はこのtraitをもっているので、<code>Rectangle&lt;i32&gt;</code>がつくれます。
 しかし、<code>PartialEq</code>をもっている型に限定しないと、<code>==</code>がつかえないのでエラーになります。</p>
 
-<h2 id="rules-for-implementing-traits">Rules for implementing traits</h2>
+<h2 id="rules-for-implementing-traits:c74be9b17bc91cd593608d83085a01f3">Rules for implementing traits</h2>
 
 <p>Traitの作成・使用には、いくつかルールがあります。</p>
 
 <p>まず、他のスコープでつくられたtraitは、明示的に<code>use</code>しないと使えません。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> f <span style="color:#f92672">=</span> std::fs::File::open(<span style="color:#e6db74">&#34;foo.txt&#34;</span>).ok().expect(<span style="color:#e6db74">&#34;Couldn’t open foo.txt&#34;</span>);
-<span style="color:#66d9ef">let</span> buf <span style="color:#f92672">=</span> <span style="color:#e6db74">b&#34;whatever&#34;</span>; <span style="color:#75715e">// byte string literal. buf: &amp;[u8; 8]
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> result <span style="color:#f92672">=</span> f.write(buf);</code></pre></div>
+let mut f = std::fs::File::open("foo.txt").ok().expect("Couldn’t open foo.txt");
+let buf = b"whatever"; // byte string literal. buf: &[u8; 8]
+let result = f.write(buf);
+
 <p>これはコンパイルエラーです。
 <code>f.write()</code>のためには、<code>f</code>が<code>Write</code>traitをもっている必要があります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::io::Write;</code></pre></div>
+use std::io::Write;
+
 <p>と書いておけばOKです。
 知らないところで変なtraitが定義されて、それを使ってしまうのを防ぐための仕様です。</p>
 
@@ -337,36 +343,39 @@ Syntaxは次のとおりです。</p>
 例えば、<code>i32</code>に<code>ToString</code>をimplすることはできません
 (そもそもすでにimplされています)。</p>
 
-<h2 id="multiple-traits-bounds">Multiple traits bounds</h2>
+<h2 id="multiple-traits-bounds:c74be9b17bc91cd593608d83085a01f3">Multiple traits bounds</h2>
 
 <p>複数のtraitをもっている型に制限したいときは、<code>+</code>で重ねることができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::fmt::Debug;
+use std::fmt::Debug;
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span>T: Clone <span style="color:#f92672">+</span> Debug<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+fn foo<T: Clone + Debug>(x: T) {
     x.clone();
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, x);
-}</code></pre></div>
+    println!("{:?}", x);
+}
+
 <p><code>std::fmt::Debug</code>traitをもっていると、
 <code>{:?}</code>というフォーマットですこしくわしい情報が得られるようです。</p>
 
-<h2 id="where-clause">Where clause</h2>
+<h2 id="where-clause:c74be9b17bc91cd593608d83085a01f3">Where clause</h2>
 
 <p>ジェネリックパラメータが増えたり、multiple traits boundsしたりすると、
 <code>&lt;&gt;</code>のなかが長くなりがちです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::fmt::Debug;
+use std::fmt::Debug;
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span>T: Clone, K: Clone <span style="color:#f92672">+</span> Debug<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">K</span>) {
+fn foo<T: Clone, K: Clone + Debug>(x: T, y: K) {
     x.clone();
     y.clone();
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, y);
-}</code></pre></div>
+    println!("{:?}", y);
+}
+
 <p>これくらいだとまだいいですが、これ以上長くなってくると読みにくいですね。
 そんなときのために<code>where</code>キーワードがあります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">&lt;</span>T, K<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">K</span>) <span style="color:#66d9ef">where</span> T: Clone, K: Clone <span style="color:#f92672">+</span> Debug {
+fn bar<T, K>(x: T, y: K) where T: Clone, K: Clone + Debug {
     x.clone();
     y.clone();
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, y);
-}</code></pre></div>
+    println!("{:?}", y);
+}
+
 <p><code>where</code>節をかくと、型制約を引数リストのあとに書くことができます。
 関数名と引数が近くなるのでわかりやすいですね。
 また、改行をいれたりもできるので、それによっても可読性が上がります。</p>
@@ -375,78 +384,81 @@ Syntaxは次のとおりです。</p>
 それは、型制約が、型パラメータに直接かかる制約ではなく、
 型パラメータへの間接的な制約であるときです。
 ことばでいってもわかりにくいので、例を見てみます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> ConvertTo<span style="color:#f92672">&lt;</span>Output<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">convert</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">Output</span>;
+trait ConvertTo<Output> {
+    fn convert(&self) -> Output;
 }
 
-<span style="color:#66d9ef">impl</span> ConvertTo<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">convert</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">i64</span> { <span style="color:#f92672">*</span>self <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">i64</span> }
+impl ConvertTo<i64> for i32 {
+    fn convert(&self) -> i64 { *self as i64 }
 }
 
-<span style="color:#75715e">// can be called with T == i32
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">normal</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i64</span><span style="color:#f92672">&gt;&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">T</span>) -&gt; <span style="color:#66d9ef">i64</span> {
+// can be called with T == i32
+fn normal<T: ConvertTo<i64>>(x: &T) -> i64 {
     x.convert()
 }
 
-<span style="color:#75715e">// can be called with T == i64
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">inverse</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() -&gt; <span style="color:#a6e22e">T</span>
-        <span style="color:#75715e">// this is using ConvertTo as if it were &#34;ConvertTo&lt;i64&gt;&#34;
-</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">where</span> <span style="color:#66d9ef">i32</span>: <span style="color:#a6e22e">ConvertTo</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#ae81ff">42.</span>convert()
-}</code></pre></div>
+// can be called with T == i64
+fn inverse<T>() -> T
+        // this is using ConvertTo as if it were "ConvertTo<i64>"
+        where i32: ConvertTo<T> {
+    42.convert()
+}
+
 <p><code>normal()</code>関数は、<code>T</code>が<code>ConvertTo&lt;i64&gt;</code>traitをもっていることが型制約ですが、
 <code>inverse()</code>関数は、<code>T</code>に<code>ConvertTo&lt;T&gt;</code>できるという、間接的な型制約になっています。</p>
 
-<h2 id="default-method">Default method</h2>
+<h2 id="default-method:c74be9b17bc91cd593608d83085a01f3">Default method</h2>
 
 <p>Traitがもつメソッドにデフォルト実装を書くことができます。
 そのtraitをimplする型でoverrideしない場合、デフォルト実装がつかわれることになります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">trait</span> Validation {
-        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_valid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> { <span style="color:#f92672">!</span>self.is_invalid() }
-        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_invalid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> { <span style="color:#f92672">!</span>self.is_valid() }
+fn main() {
+    trait Validation {
+        fn is_valid(&self) -> bool { !self.is_invalid() }
+        fn is_invalid(&self) -> bool { !self.is_valid() }
     }
 
-    <span style="color:#66d9ef">impl</span> Validation <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
-        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_valid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
-            <span style="color:#f92672">*</span>self <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>
+    impl Validation for i32 {
+        fn is_valid(&self) -> bool {
+            *self >= 0
         }
     }
 
-    <span style="color:#66d9ef">impl</span> Validation <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">f64</span> {
-        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">is_invalid</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">bool</span> {
-            <span style="color:#f92672">*</span>self <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0.0</span>
+    impl Validation for f64 {
+        fn is_invalid(&self) -> bool {
+            *self < 0.0
         }
     }
 
-    assert<span style="color:#f92672">!</span>(<span style="color:#ae81ff">1.</span>is_valid());
-    assert<span style="color:#f92672">!</span>((<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>).is_invalid());
-    assert<span style="color:#f92672">!</span>((<span style="color:#ae81ff">1.1</span>).is_valid());
-    assert<span style="color:#f92672">!</span>((<span style="color:#f92672">-</span><span style="color:#ae81ff">1.1</span>).is_invalid());
-}</code></pre></div>
+    assert!(1.is_valid());
+    assert!((-1).is_invalid());
+    assert!((1.1).is_valid());
+    assert!((-1.1).is_invalid());
+}
+
 <p>この例では、<code>Valiadation</code>traitのもつメソッドは、お互いの否定をとるような実装になっています。
 したがって、<code>i32</code>などにimplするとき、
 <code>is_valid()</code>か<code>is_invalid()</code>のどちらか一方のみ実装すれば十分です。</p>
 
-<h2 id="inheritance">Inheritance</h2>
+<h2 id="inheritance:c74be9b17bc91cd593608d83085a01f3">Inheritance</h2>
 
 <p>あるtraitをimplするとき、他のtraitのメソッドが必要になる場合があります。
 AというtraitがBというtraitを継承すると、Aをimplする型はBもimplされていることが要請できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">trait</span> Printable : <span style="color:#a6e22e">std</span>::fmt::Display {
-        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
-            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self)
+fn main() {
+    trait Printable : std::fmt::Display {
+        fn print(&self) {
+            println!("{}", self)
         }
     }
 
-    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {}
-    <span style="color:#ae81ff">1.</span>print();
+    impl Printable for i32 {}
+    1.print();
 
-    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">S</span>;
-    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> S {}
-    <span style="color:#66d9ef">let</span> s <span style="color:#f92672">=</span> S;
+    struct S;
+    impl Printable for S {}
+    let s = S;
     s.print();
-}</code></pre></div>
+}
+
 <p>この例では、<code>Printable</code>traitが<code>std::fmt::Display</code>を継承しているので、
 <code>println!(&quot;{}&quot;, self)</code>が実行できることが保証されます。</p>
 
@@ -454,17 +466,18 @@ AというtraitがBというtraitを継承すると、Aをimplする型はBもim
 
 <p>一方、struct<code>S</code>は<code>std::fmt::Display</code>をimplしていないので、<code>Printable</code>もimplできません。</p>
 
-<h2 id="deriving">Deriving</h2>
+<h2 id="deriving:c74be9b17bc91cd593608d83085a01f3">Deriving</h2>
 
 <p>基本的には、traitは型ごとにimplしないと使えませんが、
 <code>Debug</code>とか<code>Default</code>とかのよく使う標準ライブラリのtraitをいちいちimplするのは面倒ですね。
 そこで、<code>#[derive(Debug)]</code>と書くと、自動的にそれがimplされるようになっています。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Debug)]</span>
-<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span>;
+#[derive(Debug)]
+struct Foo;
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, Foo);
-}</code></pre></div>
+fn main() {
+    println!("{:?}", Foo);
+}
+
 <p>ただし、このattributeがつかえるのは、以下のtraitに限られています。</p>
 
 <ul>
@@ -479,48 +492,51 @@ AというtraitがBというtraitを継承すると、Aをimplする型はBもim
 <li>PartialOrd</li>
 </ul>
 
-<h2 id="drop">Drop</h2>
+<h2 id="drop:c74be9b17bc91cd593608d83085a01f3">Drop</h2>
 
 <p>最後に、標準ライブラリにある便利なtraitを紹介しておきます。</p>
 
 <p><code>Drop</code>traitは、C++でいうデストラクタです。
 <code>Drop</code>をimplした型のVariable bindingがスコープを抜けて破棄されるとき、
 <code>drop()</code>メソッドが呼ばれます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">HasDrop</span>;
+struct HasDrop;
 
-<span style="color:#66d9ef">impl</span> Drop <span style="color:#66d9ef">for</span> HasDrop {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Dropping!&#34;</span>);
+impl Drop for HasDrop {
+    fn drop(&mut self) {
+        println!("Dropping!");
     }
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> HasDrop;
+fn main() {
+    let x = HasDrop;
 
-    <span style="color:#75715e">// do stuff
-</span><span style="color:#75715e"></span>
-} <span style="color:#f92672">//</span> x goes out of scope here</code></pre></div>
+    // do stuff
+
+} // x goes out of scope here
+
 <p>これを実行すると、プログラムが終了するときに、<code>Dropping!</code>と出力されます。</p>
 
 <p>Variable bindingは、宣言と逆順に破棄されていきます。
 StackのLIFOということですね。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Firework</span> {
-    strength: <span style="color:#66d9ef">i32</span>,
+struct Firework {
+    strength: i32,
 }
 
-<span style="color:#66d9ef">impl</span> Drop <span style="color:#66d9ef">for</span> Firework {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;BOOM times {}!!!&#34;</span>, self.strength);
+impl Drop for Firework {
+    fn drop(&mut self) {
+        println!("BOOM times {}!!!", self.strength);
     }
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">let</span> firecracker <span style="color:#f92672">=</span> Firework { strength: <span style="color:#ae81ff">1</span> };
-    <span style="color:#66d9ef">let</span> tnt <span style="color:#f92672">=</span> Firework { strength: <span style="color:#ae81ff">100</span> };
-}</code></pre></div>
+fn main() {
+    let firecracker = Firework { strength: 1 };
+    let tnt = Firework { strength: 100 };
+}
+
 <p><code>tnt</code>が<code>firecracker</code>より後に宣言されているので、出力は逆順の、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">BOOM times <span style="color:#ae81ff">100</span><span style="color:#f92672">!!!</span>
-BOOM times <span style="color:#ae81ff">1</span><span style="color:#f92672">!!!</span></code></pre></div>
+BOOM times 100!!!
+BOOM times 1!!!
+
 <p>となります。</p>
 
 

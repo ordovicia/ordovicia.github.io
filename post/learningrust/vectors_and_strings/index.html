@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Learning Rust - Vectors and Strings &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,12 +230,12 @@
 
   
 
-<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics:d42eb02fed89823b2398b121878b180e">Syntax and Semantics</h1>
 
 <p>今回は、Rustのvectorと文字列を学びます。
 Vectorの使いかたはわかりやすいですが、Rustの文字列は他の言語とすこし違うようです。</p>
 
-<h2 id="vectors">Vectors</h2>
+<h2 id="vectors:d42eb02fed89823b2398b121878b180e">Vectors</h2>
 
 <p>Rustでのvectorのはなしです。</p>
 
@@ -244,37 +244,41 @@ Vectorの使いかたはわかりやすいですが、Rustの文字列は他の�
 (<code>&lt;T&gt;</code>はすぐあとででてくるジェネリクスです。いろんな型のvectorがつくれます。)</p>
 
 <p>Vectorをつくるには、<code>vec![]</code>マクロを使います。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]; <span style="color:#75715e">// v: Vec&lt;i32&gt;
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">let</span> u <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">0</span>; <span style="color:#ae81ff">10</span>]; <span style="color:#f92672">//</span> ten zeros</code></pre></div>
+let v = vec![1, 2, 3, 4, 5]; // v: Vec<i32>
+
+let u = vec![0; 10]; // ten zeros
+
 <p>Vectorの要素はヒープ上に確保されるそうです。</p>
 
-<h3 id="accessing-elements">Accessing elements</h3>
+<h3 id="accessing-elements:d42eb02fed89823b2398b121878b180e">Accessing elements</h3>
 
 <p><code>vector</code>の要素にアクセスするには、<code>[]</code>をつかいます。
 インデックスは0始まりです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>];
+let v = vec![1, 2, 3, 4, 5];
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The third element of v is {}&#34;</span>, v[<span style="color:#ae81ff">2</span>]); <span style="color:#f92672">//</span> <span style="color:#ae81ff">3</span></code></pre></div>
+println!("The third element of v is {}", v[2]); // 3
+
 <p>インデックスをvariable bindingで指定するとき、
 その型は<code>usize</code>でないといけません。
 <code>i32</code>などは不可です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> i: <span style="color:#66d9ef">usize</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
-<span style="color:#66d9ef">let</span> j: <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+let i: usize = 0;
+let j: i32 = 0;
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, v[i]); <span style="color:#75715e">// works
-</span><span style="color:#75715e"></span>println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, v[j]); <span style="color:#f92672">//</span> doesn<span style="color:#a6e22e">&#39;t</span></code></pre></div>
-<h3 id="iterating">Iterating</h3>
+println!("{}", v[i]); // works
+println!("{}", v[j]); // doesn't
+
+<h3 id="iterating:d42eb02fed89823b2398b121878b180e">Iterating</h3>
 
 <p><code>for</code>ループで要素を走査できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>];
+let mut v = vec![1, 2, 3, 4, 5];
 
-<span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#f92672">&amp;</span>v {
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;A reference to {}&#34;</span>, i);
-}</code></pre></div>
+for i in &v {
+    println!("A reference to {}", i);
+}
+
 <p>Immutableな参照<code>&amp;v</code>だけでなく、<code>&amp;mut v, v</code>で受け取るのも可能です。</p>
 
-<h2 id="strings">Strings</h2>
+<h2 id="strings:d42eb02fed89823b2398b121878b180e">Strings</h2>
 
 <p>つぎは、Rustでの文字列のはなしです。
 Rustでは文字列のあつかいが、Cなどと比べて結構違うようです。</p>
@@ -286,73 +290,76 @@ UTF-8にエンコードされます。
 <p>Rustには二つの文字列型があります。
 <code>&amp;str</code>と<code>String</code>です。
 <code>&amp;str</code>は文字列リテラルのスライスです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> greeting <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello there.&#34;</span>; <span style="color:#f92672">//</span> greeting: <span style="color:#66d9ef">&amp;</span>&#39;static <span style="color:#66d9ef">str</span></code></pre></div>
+let greeting = "Hello there."; // greeting: &'static str
+
 <p>文字列リテラルは<code>'static</code>なlifetimeをもち、
 <code>greeting</code>はこの文字列を参照しています。
 文字列リテラルのスライスはimmutableです。</p>
 
 <p>一方、<code>String</code>はヒープ上に確保され、mutableです。
 多くの場合、<code>&amp;str</code>から<code>to_string()</code>メソッドで<code>String</code>に変換されます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Rust" data-lang="Rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string(); <span style="color:#75715e">// mut s: String
-</span><span style="color:#75715e"></span>println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, s);
+let mut s = "Hello".to_string(); // mut s: String
+println!("{}", s);
 
-s.push_str(<span style="color:#e6db74">&#34;, world.&#34;</span>);
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, s);</code></pre></div>
+s.push_str(", world.");
+println!("{}", s);
+
 <p><code>String</code>型のものに<code>&amp;</code>をつけて参照しようとすると、
 勝手に<code>&amp;str</code>型のスライスに変換されます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_slice</span>(slice: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) {
-    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got: {}&#34;</span>, slice);
+fn takes_slice(slice: &str) {
+    println!("Got: {}", slice);
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#66d9ef">let</span> s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>.to_string();
-    takes_slice(<span style="color:#f92672">&amp;</span>s);
-}</code></pre></div>
+fn main() {
+    let s = "Hello".to_string();
+    takes_slice(&s);
+}
+
 <p>というのも、<code>&amp;str</code>を<code>String</code>に変換すると、
 無駄なメモリアロケーションが起こってしまうためです。</p>
 
-<h2 id="indexing">Indexing</h2>
+<h2 id="indexing:d42eb02fed89823b2398b121878b180e">Indexing</h2>
 
 <p>Rustの文字列はUTF-8で、文字によってバイト数がことなるため、
 単純にインデックス指定することはできません。</p>
 
 <p>文字列の初めから調べていって、文字に分解する必要があります。
 そのためのメソッドがちゃんと用意されていて、次のように使います。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> hachiko <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;忠犬ハチ公&#34;</span>;
+let hachiko = "忠犬ハチ公";
 
-<span style="color:#66d9ef">for</span> b <span style="color:#66d9ef">in</span> hachiko.as_bytes() {
-    print<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}, &#34;</span>, b);
+for b in hachiko.as_bytes() {
+    print!("{}, ", b);
 }
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;&#34;</span>);
+println!("");
 
-<span style="color:#66d9ef">for</span> c <span style="color:#66d9ef">in</span> hachiko.chars() {
-    print<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}, &#34;</span>, c);
+for c in hachiko.chars() {
+    print!("{}, ", c);
 }
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;&#34;</span>);
+println!("");
 
-<span style="color:#66d9ef">let</span> dog <span style="color:#f92672">=</span> hachiko.chars().nth(<span style="color:#ae81ff">1</span>);
-<span style="color:#66d9ef">match</span> dog {
-    Some(d) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, d),
-    None <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Error!&#34;</span>),
-}</code></pre></div>
+let dog = hachiko.chars().nth(1);
+match dog {
+    Some(d) => println!("{}", d),
+    None => println!("Error!"),
+}
+
 <p>出力は以下です。</p>
-
-<pre><code>229, 191, 160, 231, 138, 172, 227, 131, 143, 227, 131, 129, 229, 133, 172,
+229, 191, 160, 231, 138, 172, 227, 131, 143, 227, 131, 129, 229, 133, 172,
 忠, 犬, ハ, チ, 公,
 犬
-</code></pre>
 
-<h2 id="slicing">Slicing</h2>
+<h2 id="slicing:d42eb02fed89823b2398b121878b180e">Slicing</h2>
 
 <p>スライスのsyntaxをつかってスライスを得ることもできますが、
 indexが文字単位ではなくバイト単位であることに注意が必要です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> dog <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hachiko&#34;</span>;
-<span style="color:#66d9ef">let</span> hachi <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>dog[<span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">5</span>]; <span style="color:#75715e">// works
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">let</span> dog <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;忠犬ハチ公&#34;</span>;
-<span style="color:#66d9ef">let</span> hachi <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>dog[<span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">2</span>]; <span style="color:#f92672">//</span> runtime error</code></pre></div>
+let dog = "hachiko";
+let hachi = &dog[0..5]; // works
+
+let dog = "忠犬ハチ公";
+let hachi = &dog[0..2]; // runtime error
+
 
   
 <div class="prev-next-post pure-g">

@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>NetBSDの初期設定 &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -235,7 +235,7 @@
 
 <p>基本的にrootで作業します。</p>
 
-<h2 id="環境">環境</h2>
+<h2 id="環境:ad3d94928460cf368a4ab82568476234">環境</h2>
 
 <ul>
 <li>DELL Latitude E6540
@@ -247,62 +247,69 @@
 <li>NetBSD 7.1</li>
 </ul>
 
-<h2 id="コンソール上でcaps-lockをctrlにする">コンソール上でCaps LockをCtrlにする</h2>
+<h2 id="コンソール上でcaps-lockをctrlにする:ad3d94928460cf368a4ab82568476234">コンソール上でCaps LockをCtrlにする</h2>
 
 <p>以下を実行すると、コンソール上でCaps LockがCtrlとしてふるまいます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/wsconsctl -w map<span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;keysym Caps_Lock = Control_R&#39;</span> &gt; /dev/null</code></pre></div>
+/sbin/wsconsctl -w map+='keysym Caps_Lock = Control_R' > /dev/null
+
 <p>起動時にこれを自動で設定するために、<code>/etc/rc.local</code> にこの行を追記します。</p>
 
-<h2 id="dhcp環境下での有線lan設定">DHCP環境下での有線LAN設定</h2>
+<h2 id="dhcp環境下での有線lan設定:ad3d94928460cf368a4ab82568476234">DHCP環境下での有線LAN設定</h2>
 
-<h3 id="ホスト名の設定">ホスト名の設定</h3>
+<h3 id="ホスト名の設定:ad3d94928460cf368a4ab82568476234">ホスト名の設定</h3>
 
 <p><code>/etc/myname</code> に好きなホスト名を書き込みます。</p>
 
-<h3 id="dhcpクライアントの自動起動">DHCPクライアントの自動起動</h3>
+<h3 id="dhcpクライアントの自動起動:ad3d94928460cf368a4ab82568476234">DHCPクライアントの自動起動</h3>
 
 <p><code>/etc/rc.conf</code> に、以下の行を追記します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">dhcpcd=yes</code></pre></div>
+dhcpcd=yes
+
 <p><code>dhcpcd</code>というのがDHCPクライアントのようです。
 DHCPサーバーの<code>dhcpd</code>ではありません。</p>
 
 <p>NetBSDの再起動後、<code>ifconfig</code>でIPアドレスが振られていることが確認できます。</p>
 
-<h2 id="パッケージマネージャの設定">パッケージマネージャの設定</h2>
+<h2 id="パッケージマネージャの設定:ad3d94928460cf368a4ab82568476234">パッケージマネージャの設定</h2>
 
 <p>NetBSDのパッケージマネージャは、<code>PKG_PATH</code>環境変数に格納されているURLからパッケージをダウンロードします。
 この環境変数は<code>~/.profile</code>にかかれているのですが、コメントアウトされているので修正します。</p>
 
 <p>まず、<code>~/.profile</code>の書き込み権限を追加します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"># chmod +w ~/.profile</code></pre></div>
+# chmod +w ~/.profile
+
 <p>次に、<code>~/.profile</code>を編集します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">#export PKG_PATH<span style="color:#f92672">=</span>ftp://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/<span style="color:#66d9ef">$(</span>uname -m<span style="color:#66d9ef">)</span>/7.0/All</code></pre></div>
+#export PKG_PATH=ftp://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -m)/7.0/All
+
 <p>のような行があるので、このコメントアウトを外します。</p>
 
-<h3 id="動作確認">動作確認</h3>
+<h3 id="動作確認:ad3d94928460cf368a4ab82568476234">動作確認</h3>
 
 <p>その後、ログアウトして再ログインすれば、<code>~/.profile</code>が読み込まれます。
 <code>echo $PKG_PATH</code>で環境変数が設定されていることを確認しておきます。</p>
 
 <p>パッケージのインストールは、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"># pkg_add sudo</code></pre></div>
+# pkg_add sudo
+
 <p>のようにすればOKです。</p>
 
-<h2 id="sudoの設定">sudoの設定</h2>
+<h2 id="sudoの設定:ad3d94928460cf368a4ab82568476234">sudoの設定</h2>
 
 <p>上でインストールしたsudoを、<code>wheel</code>グループに属するユーザーが使えるようにします。</p>
 
 <p>Linuxの<code>/etc/sudoers</code>に相当するファイルが、NetBSDでは<code>/usr/pkg/etc/sudoers</code>として存在します。
 そこでこのファイルを開き、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"># %wheel ALL<span style="color:#f92672">=(</span>ALL<span style="color:#f92672">)</span> ALL</code></pre></div>
+# %wheel ALL=(ALL) ALL
+
 <p>のコメントを外します。</p>
 
-<h2 id="pkgin-の導入"><code>pkgin</code>の導入</h2>
+<h2 id="pkgin-の導入:ad3d94928460cf368a4ab82568476234"><code>pkgin</code>の導入</h2>
 
 <p>上で使っている<code>pkg_add</code>など、NetBSD標準のパッケージマネージャは正直使いづらいです。
 そこで<code>pkgin</code>を導入します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"># pkg_add -v pkgin
-# pkgin update</code></pre></div>
+# pkg_add -v pkgin
+# pkgin update
+
 <p>Debian系での<code>apt</code>と同じ感覚で使えます。
 たとえば、</p>
 

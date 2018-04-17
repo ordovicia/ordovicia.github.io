@@ -8,9 +8,7 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Fri, 20 Jan 2017 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/tags/jetson-tx1/index.xml" rel="self" type="application/rss+xml" />
-    
+    <atom:link href="/tags/jetson-tx1/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Jetson TX1 セットアップ</title>
@@ -18,7 +16,62 @@
       <pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/jetson_tx1_initial_setup/</guid>
-      <description>Jetson TX1を買いました。 セットアップの手順を記録しておきます。 JetPackを使ったインストール ホストOSはUbuntu14.04を使います。</description>
+      <description>
+
+&lt;p&gt;Jetson TX1を買いました。
+セットアップの手順を記録しておきます。&lt;/p&gt;
+
+&lt;h1 id=&#34;jetpackを使ったインストール:561e8f0a0ba03963f266df0b103a8848&#34;&gt;JetPackを使ったインストール&lt;/h1&gt;
+
+&lt;p&gt;ホストOSはUbuntu14.04を使います。
+最初Ubuntu16.04で試したのですが、OpenCV4Tegraのビルドに失敗したので、14.04で作業しました。&lt;/p&gt;
+
+&lt;p&gt;ホストPCで、TX1用の最新のJetPackをダウンロードし、マニュアルに従ってインストールします。
+デフォルトの構成だと10GBほどダウンロードされるので、ネットワーク速度が十分な環境で作業しましょう。&lt;/p&gt;
+
+&lt;p&gt;インストール後、Jetsonの電源を入れ直して、&lt;/p&gt;
+$ ssh ubuntu@tegra-ubuntu.local
+
+&lt;p&gt;でログインできればOKです。&lt;/p&gt;
+
+&lt;h1 id=&#34;リカバリー用sdカード作成:561e8f0a0ba03963f266df0b103a8848&#34;&gt;リカバリー用SDカード作成&lt;/h1&gt;
+
+&lt;p&gt;SDカードをさし、マウントします。&lt;code&gt;/dev/mmcblk1&lt;/code&gt;がSDカードになっています。
+ext4でフォーマットします。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://developer.nvidia.com/embedded/downloads&#34;&gt;NVIDIA&lt;/a&gt;から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、&lt;/p&gt;
+$ sudo tar -vxjf &lt;Driver Package&gt;
+$ cd Linux_for_Tegra/rootfs
+$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
+$ cd ..
+$ sudo ./apply_binaries.sh
+
+&lt;p&gt;を実行します。
+SDカードに&lt;code&gt;rootfs&lt;/code&gt;以下をまるごとコピーすると完了です。
+このときroot権限で操作しないと、sudoがつかえなくなって詰みます。&lt;/p&gt;
+
+&lt;p&gt;JetsonTX1は、eMMCの&lt;code&gt;/boot/extlinux/extlinux.conf&lt;/code&gt;を読んでブートディスクを選択します。
+これを編集し、SDカードからブートするようにします。
+具体的には、&lt;code&gt;LABEL primary&lt;/code&gt;以下をファイル末尾にコピペして、&lt;code&gt;LABEL sdcard&lt;/code&gt;にかえ、最後のほうにある&lt;code&gt;root=/dev/mmcblk0p1&lt;/code&gt;を、&lt;code&gt;root=/dev/mmcblk1p1&lt;/code&gt;に変えます。
+最後に、二行目の&lt;code&gt;DEFAULT primary&lt;/code&gt;を&lt;code&gt;DEFAULT sdcard&lt;/code&gt;にして、再起動します。&lt;/p&gt;
+
+&lt;p&gt;起動後、dfなどでディスクを確認しておきます。&lt;/p&gt;
+
+&lt;h1 id=&#34;ssdからのブート:561e8f0a0ba03963f266df0b103a8848&#34;&gt;SSDからのブート&lt;/h1&gt;
+
+&lt;p&gt;SDカードからブートしたとき、eMMCには&lt;code&gt;/dev/mmcblk0p1&lt;/code&gt;からアクセスできます。
+SATAポートに繋いだSSDは&lt;code&gt;/dev/sda&lt;/code&gt;に見えます。
+ともにマウントしたあと、&lt;code&gt;/dev/mmcblk0p1&lt;/code&gt;を&lt;code&gt;/dev/sda1&lt;/code&gt;にまるごとコピーして、eMMCの&lt;code&gt;/boot/extlinux/extlinux.conf&lt;/code&gt;を編集して終わりです。&lt;/p&gt;
+
+&lt;h1 id=&#34;wi-fiアクセスポイント設定:561e8f0a0ba03963f266df0b103a8848&#34;&gt;Wi-Fiアクセスポイント設定&lt;/h1&gt;
+
+&lt;p&gt;JetsonTX1は、単体でWi-Fiのアクセスポイントになることが出来ます。
+&lt;code&gt;/etc/modprobe.d/bcmdhd.conf&lt;/code&gt;に、&lt;/p&gt;
+options bcmdhd op_mode=2
+
+&lt;p&gt;と追記してから、&lt;a href=&#34;https://seravo.fi/2014/create-wireless-access-point-hostapd&#34;&gt;こちら&lt;/a&gt;に従って設定します。
+パスフレーズを8文字以上にすることと、WPAをパーソナルモード(PSK, PSK-SHA-256)にすることに注意しましょう。&lt;/p&gt;
+</description>
     </item>
     
   </channel>

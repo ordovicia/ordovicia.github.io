@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Vecの実装 in Rust - メモリ解放 &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,15 +230,17 @@
 
   
 
-<p><a href="/post/implementingvecinrust/push_and_pop/">前回</a> に引き続き、
+<p><a href="No page found with path or logical name "post/ImplementingVecInRust/push_and_pop".
+">前回</a> に引き続き、
 <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
 
 <p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
 
 <p>rustcのバージョンは以下のとおり。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
-<h2 id="deallocating-https-doc-rust-lang-org-nomicon-vec-dealloc-html"><a href="https://doc.rust-lang.org/nomicon/vec-dealloc.html">Deallocating</a></h2>
+$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)
+
+<h2 id="deallocating-https-doc-rust-lang-org-nomicon-vec-dealloc-html:2de0bf3ea219adede37cfcca051487ab"><a href="https://doc.rust-lang.org/nomicon/vec-dealloc.html">Deallocating</a></h2>
 
 <p>確保したメモリは使わなくなったら解放しなくてはいけない。
 <code>Drop for Vec</code> を実装し、その中で解放処理を書くことにする。
@@ -249,31 +251,33 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <a href="https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.dealloc_one"><code>Alloc::dealloc_one&lt;T&gt;()</code></a> を使う。
 それ以外の場合は、すべての要素を順に <code>pop()</code> することでdropし、
 <a href="https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.dealloc_array"><code>Alloc::dealloc_array&lt;T&gt;()</code></a> を呼ぶ。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Drop <span style="color:#66d9ef">for</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        <span style="color:#66d9ef">if</span> self.cap <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
-            <span style="color:#66d9ef">return</span>;
+impl<T> Drop for Vec<T> {
+    fn drop(&mut self) {
+        if self.cap == 0 {
+            return;
         }
 
-        <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">let</span> Some(_) <span style="color:#f92672">=</span> self.pop() {}
+        while let Some(_) = self.pop() {}
 
-        <span style="color:#66d9ef">unsafe</span> {
-            <span style="color:#66d9ef">if</span> self.cap <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> {
+        unsafe {
+            if self.cap == 1 {
                 self.alloc.dealloc_one(self.ptr.as_non_null());
-            } <span style="color:#66d9ef">else</span> {
-                <span style="color:#66d9ef">let</span> e <span style="color:#f92672">=</span> self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
-                <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Err(e) <span style="color:#f92672">=</span> e {
+            } else {
+                let e = self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
+                if let Err(e) = e {
                     self.alloc.oom(e);
                 }
             }
         }
     }
-}</code></pre></div>
+}
+
 <p>なお、<code>T: !Drop</code> の場合は <code>pop()</code> を呼ぶ処理を省略できる。
 <code>T: Drop</code> かどうかは <a href="https://doc.rust-lang.org/nightly/std/mem/fn.needs_drop.html"><code>mem::needs_drop()</code></a> で判定できる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span> mem::needs_drop::<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() {
-    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">let</span> Some(_) <span style="color:#f92672">=</span> self.pop() {}
-}</code></pre></div>
+if mem::needs_drop::<T>() {
+    while let Some(_) = self.pop() {}
+}
+
 <p>しかし、この最適化を施しても効果はほぼ見られなかった。
 LLVMの最適化がかなり強いらしい。</p>
 

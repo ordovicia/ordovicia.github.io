@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>NetBSDにシステムコールを追加する &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -232,7 +232,7 @@
 
 <p>NetBSDにシステムコールを追加してみます。</p>
 
-<h2 id="環境">環境</h2>
+<h2 id="環境:47e5798739914980ff8a0ec0e9d1451f">環境</h2>
 
 <ul>
 <li>DELL Latitude E6540
@@ -244,25 +244,28 @@
 <li>NetBSD 7.1</li>
 </ul>
 
-<h2 id="システムコールの追加">システムコールの追加</h2>
+<h2 id="システムコールの追加:47e5798739914980ff8a0ec0e9d1451f">システムコールの追加</h2>
 
 <p>まずは<code>sys/kern/syscalls.master</code>に、追加するシステムコールのプロトタイプ情報を追記します。
 今回は何もしない<code>nop</code>システムコールを追加します。
 引数はとらず、即座に0を返します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">481 STD RUMP    { int|sys||nop(void); }</code></pre></div>
+481 STD RUMP    { int|sys||nop(void); }
+
 <p>追記後、<code>sys/kern/makesyscalls.sh</code>を実行します。
 これがおおかたの作業をやってくれるようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console"># sh makesyscalls.sh syscalls.conf syscalls.master</code></pre></div>
+# sh makesyscalls.sh syscalls.conf syscalls.master
+
 <p><code>nop</code>システムコールのなかみを忘れずに定義しておきます。
 ここでは新しいファイル<code>sys/kern/sys_nop.c</code>を追加しました。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/syscallargs.h&gt;</span><span style="color:#75715e">
-</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/systm.h&gt;</span><span style="color:#75715e">
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">int</span>	<span style="color:#a6e22e">sys_nop</span>(<span style="color:#66d9ef">struct</span> lwp<span style="color:#f92672">*</span> _lwp, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> _args, register_t<span style="color:#f92672">*</span> _regs)
+#include <sys/syscallargs.h>
+#include <sys/systm.h>
+
+int	sys_nop(struct lwp* _lwp, const void* _args, register_t* _regs)
 {
-    printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;nop called</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
-    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-}</code></pre></div>
+    printf("nop called\n");
+    return 0;
+}
+
 <p>nopとは言うものの、デバッグ用に<code>printf()</code>しています。
 <code>sys/systm.h</code>のインクルードはそのためです。</p>
 
@@ -270,29 +273,32 @@
 
 <p>今回は新しいファイルを追加したので、ビルドするファイルのリストにそのファイルを追加しておきます。
 編集するファイルは<code>sys/conf/files</code>です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">file    kern/sys_nop.c</code></pre></div>
-<h2 id="ビルド">ビルド</h2>
+file    kern/sys_nop.c
+
+<h2 id="ビルド:47e5798739914980ff8a0ec0e9d1451f">ビルド</h2>
 
 <p><a href="/post/netbsd/build_kernel/">NetBSDカーネルのビルド</a>を参照してください。
 いちど<code>configure</code>からやり直すとうまくいくようです。</p>
 
-<h2 id="動作確認">動作確認</h2>
+<h2 id="動作確認:47e5798739914980ff8a0ec0e9d1451f">動作確認</h2>
 
 <p>libcにラッパーを用意していないので、<code>syscall(2)</code>で呼び出すことにします。
 <code>sys/kern/syscalls.master</code>に<code>nop</code>を追加したときのシステムコール番号を指定します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
-</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/syscall.h&gt;</span><span style="color:#75715e">
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>)
-{
-    <span style="color:#66d9ef">int</span> ret <span style="color:#f92672">=</span> syscall(<span style="color:#ae81ff">481</span>);
-    printf(<span style="color:#e6db74"></span><span style="color:#e6db74">&#34;%d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, ret);
+#include <stdio.h>
+#include <sys/syscall.h>
 
-    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-}</code></pre></div>
+int main(void)
+{
+    int ret = syscall(481);
+    printf("%d\n", ret);
+
+    return 0;
+}
+
 <p>コンパイルして実行し、以下のような出力があれば成功です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">nop called
-0</code></pre></div>
+nop called
+0
+
 
   
 <div class="prev-next-post pure-g">

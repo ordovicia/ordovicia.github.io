@@ -8,9 +8,7 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Sat, 31 Dec 2016 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/tags/program-semantics/index.xml" rel="self" type="application/rss+xml" />
-    
+    <atom:link href="/tags/program-semantics/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>整礎順序集合</title>
@@ -18,7 +16,101 @@
       <pubDate>Sat, 31 Dec 2016 00:00:00 +0000</pubDate>
       
       <guid>/post/well_founded_induction/</guid>
-      <description>五十嵐淳『プログラミング言語の基礎概念』を読んでいます。 整礎順序集合 集合とその上の順序が整礎であるとは、（真の）無限降下列が存在しないことを</description>
+      <description>
+
+&lt;p&gt;五十嵐淳『プログラミング言語の基礎概念』を読んでいます。&lt;/p&gt;
+
+&lt;h2 id=&#34;整礎順序集合:f71d6f0800dc56614270ea4c08ff637e&#34;&gt;整礎順序集合&lt;/h2&gt;
+
+&lt;p&gt;集合とその上の順序が整礎であるとは、（真の）無限降下列が存在しないことをいいます。
+厳密な定義は以下です。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;整礎順序集合(well-founded ordered set)とは、集合 $X$ とその上の二項関係 $\prec \subseteq X \times X$ の組 $(X, \prec)$ で、
+$X$ の任意の空でない部分集合 $S$ が、順序 $\prec$ について極小元をもつこと。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;ちなみに、$x \in X$ が $\prec$ に関して $X$ の極小元であるとは、
+$\forall y \in X . y \nprec x$ であることを言います。&lt;/p&gt;
+
+&lt;h2 id=&#34;整礎帰納法:f71d6f0800dc56614270ea4c08ff637e&#34;&gt;整礎帰納法&lt;/h2&gt;
+
+&lt;p&gt;整礎順序集合について、次のような帰納法を考えることが出来ます。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;整礎帰納法の原理とは、整礎順序集合 $(X, \prec)$ と $X$ の元に関する述語 $P$ が与えられたとき、&lt;/p&gt;
+
+&lt;p&gt;$$
+\forall x \in X . P(x) \Leftrightarrow
+\forall x \in X . (\forall y \in X . y \prec x \Rightarrow P(y)) \Rightarrow P(x)
+$$&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;整礎順序集合について、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;すべての元がある述語をみたすこと&lt;/li&gt;
+&lt;li&gt;すべての元について、「その元より小さいすべての元が述語をみたすならば、その元についても述語が成り立つ」&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;が同値だということです。無限降下列がないということが、この原理の正当性に重要な要素となっています。&lt;/p&gt;
+
+&lt;h2 id=&#34;整礎帰納法の特殊ケース:f71d6f0800dc56614270ea4c08ff637e&#34;&gt;整礎帰納法の特殊ケース&lt;/h2&gt;
+
+&lt;p&gt;よく知られる数学的帰納法などは、この整礎帰納法の特別なケースとなっています。&lt;/p&gt;
+
+&lt;h4 id=&#34;数学的帰納法:f71d6f0800dc56614270ea4c08ff637e&#34;&gt;数学的帰納法&lt;/h4&gt;
+
+&lt;p&gt;整礎帰納法の原理において、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;$X$ として自然数の集合（0を含む）&lt;/li&gt;
+&lt;li&gt;$\prec$ として $n \prec m \Leftrightarrow m = n + 1$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;とすれば、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;$P(0)$ と、&lt;/li&gt;
+&lt;li&gt;$P(k)$ を仮定した上での $P(k + 1)$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;を示すことで、任意の自然数について $P$ が成り立つことを証明する数学的帰納法となります。
+$(\mathbb{N}, \prec)$ が整礎順序集合となっていることが重要です。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;$\prec$ として自然数上の通常の大小関係&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;をとれば、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;$P(0), P(1), \ldots , P(k)$ を仮定した上での $P(k + 1)$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;を示すことによる数学的帰納法となります。&lt;/p&gt;
+
+&lt;h4 id=&#34;構造に関する帰納法:f71d6f0800dc56614270ea4c08ff637e&#34;&gt;構造に関する帰納法&lt;/h4&gt;
+
+&lt;p&gt;ペアノ自然数&lt;/p&gt;
+
+&lt;p&gt;$$
+n \in \mathrm{Nat} ::= Z\ |\ S(n)
+$$&lt;/p&gt;
+
+&lt;p&gt;の構造に関して、&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;$X$ として $\mathrm{Nat}$&lt;/li&gt;
+&lt;li&gt;$\prec$ として $n \prec m \Leftrightarrow m \equiv S(n)$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;をとれば、ペアノ自然数の構造に関する帰納法となります。&lt;/p&gt;
+</description>
     </item>
     
   </channel>

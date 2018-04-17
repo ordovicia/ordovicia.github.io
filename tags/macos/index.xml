@@ -8,9 +8,7 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Tue, 22 Dec 2015 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/tags/macos/index.xml" rel="self" type="application/rss+xml" />
-    
+    <atom:link href="/tags/macos/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>OS X Yosemite上でBoostをGCCでビルドする</title>
@@ -18,7 +16,108 @@
       <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
       
       <guid>/post/gcc_build_boost_on_osx_yosemite/</guid>
-      <description>Mac OSX Yosemite(10.10.5)上で、 Boost1.60.0をGCC5.3でビルドするのが大変だったので記録しておきます。 背景 GCCで</description>
+      <description>
+
+&lt;p&gt;Mac OSX Yosemite(10.10.5)上で、
+Boost1.60.0をGCC5.3でビルドするのが大変だったので記録しておきます。&lt;/p&gt;
+
+&lt;h1 id=&#34;背景:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;背景&lt;/h1&gt;
+
+&lt;p&gt;GCCでビルドしているプロジェクトがあって、
+それにBoost.Program_optionsをつかっています。
+HomebrewをつかえばBoostは簡単にインストールできます。
+しかし、HomebrewでインストールしたBoostは、Clangでビルドされていて、
+GCCでビルドしたコードとうまくリンクできませんでした。
+（参考：&lt;a href=&#34;http://stackoverflow.com/questions/19912862/compiling-boostprogram-options-on-mac-os-x-with-g-4-8-mac-ports&#34;&gt;Compiling boost::program_options on Mac OS X with g++ 4.8 (Mac Ports) &amp;ndash; stackoverflow&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;そこで、GCCをつかいBoostを自分でビルドすることにしました。&lt;/p&gt;
+
+&lt;p&gt;なお、MacPortsを使っているかたは、参考に挙げたページに従えば、
+GCCでビルドされたBoostがインストールできるようです。&lt;/p&gt;
+
+&lt;p&gt;Homebrewを使う方法はいくつか目にしたのですが、
+情報が古かったせいか、うまくいきませんでした。&lt;/p&gt;
+
+&lt;h1 id=&#34;手順:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;手順&lt;/h1&gt;
+
+&lt;h2 id=&#34;homebrewでインストールしたboostを削除:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;HomebrewでインストールしたBoostを削除&lt;/h2&gt;
+
+&lt;p&gt;まず、HomebrewですでにインストールしてあるBoostがあったので、
+それをアンインストールします。&lt;/p&gt;
+$ brew uninstall boost
+
+&lt;h2 id=&#34;boostダウンロード:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;Boostダウンロード&lt;/h2&gt;
+
+&lt;p&gt;まずは&lt;a href=&#34;http://www.Boost.org/&#34;&gt;Boost公式ページ&lt;/a&gt;から、最新版を落としてきます。
+この時点では1.60.0が最新でした。
+適当に展開します。&lt;/p&gt;
+$ tar xjvf boost_1_60_0.tar.bz2
+
+&lt;p&gt;（余談ですが、&lt;code&gt;tar&lt;/code&gt;のオプションとか覚えきれないので、
+zshのsuffix aliasを使っています。
+そのため、実際には上のコマンドは打ち込んでいません。
+参考：&lt;a href=&#34;http://itchyny.hatenablog.com/entry/20130227/1361933011&#34;&gt;zshのalias -s (suffix alias)が神な件 &amp;ndash; プログラムモグモグ&lt;/a&gt;）&lt;/p&gt;
+
+&lt;h2 id=&#34;gccの確認:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;GCCの確認&lt;/h2&gt;
+
+&lt;p&gt;GCC自体は、Homebrewでインストールしたものをつかっています。&lt;/p&gt;
+$ which g++
+g++: aliased to g++-5 -std=c++11 -Wall -Wextra -Wconversion
+
+$ g++-5 -v
+Using built-in specs.
+COLLECT_GCC=gcc-5
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
+Target: x86_64-apple-darwin14.5.0
+Configured with: ../configure --build=x86_64-apple-darwin14.5.0 --prefix=/usr/local/Cellar/gcc/5.3.0 --libdir=/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages=c,c++,objc,obj-c++,fortran --program-suffix=-5 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time=yes --enable-stage1-checking --enable-checking=release --enable-lto --with-build-config=bootstrap-debug --disable-werror --with-pkgversion=&#39;Homebrew gcc 5.3.0&#39; --with-bugurl=https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
+Thread model: posix
+gcc version 5.3.0 (Homebrew gcc 5.3.0)
+
+&lt;h2 id=&#34;gccでビルドするように設定:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;GCCでビルドするように設定&lt;/h2&gt;
+
+&lt;p&gt;このままだとOSXにプリインストールされているclangでビルドされてしまうので、
+設定します。
+これが本当にわかりにくくて大変でした。&lt;/p&gt;
+
+&lt;p&gt;まず、いま展開した&lt;code&gt;boost_1_60_0&lt;/code&gt;ディレクトリにはいって、
+&lt;code&gt;tools/build/example/user-config.jam&lt;/code&gt;を開きます
+（なんでこんなところに設定ファイルがあるんでしょうね）。&lt;/p&gt;
+
+&lt;p&gt;40行目くらいに、&lt;code&gt;GCC configuration&lt;/code&gt;の部分があるので、&lt;/p&gt;
+# ------------------
+# GCC configuration.
+# ------------------
+
+# Configure gcc (default version).
+# using gcc ;
+
+# Configure specific gcc version, giving alternative name to use.
+using gcc : 5 : g++-5 ;
+
+&lt;p&gt;のように、最後の行を書き換えます。&lt;/p&gt;
+
+&lt;h2 id=&#34;ビルド:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;ビルド&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;bootstrap.sh&lt;/code&gt;に、ビルドにつかうコンパイラを教えます。
+&lt;code&gt;g++&lt;/code&gt;ではなく&lt;code&gt;gcc&lt;/code&gt;のようです。&lt;/p&gt;
+$ ./bootstrap.sh --with-toolset=gcc --with-libraries=all
+
+&lt;p&gt;そしてビルドです。
+&lt;code&gt;toolset&lt;/code&gt;にバージョンも合わせてコンパイラを指定します。
+ここでも&lt;code&gt;g++-5&lt;/code&gt;ではなく、&lt;code&gt;gcc-5&lt;/code&gt;のようです。&lt;/p&gt;
+$ ./b2 toolset=gcc-5 cxxflags=&#34;-std=c++11&#34; --with=all -link=static,shared runtime-link=shared threading=multi variant=release --stagedir=&#34;stage/gcc&#34; -j5
+
+&lt;p&gt;&lt;code&gt;ps&lt;/code&gt;してみて&lt;code&gt;g++-5&lt;/code&gt;が使われているようだったら成功です。
+&lt;code&gt;-j5&lt;/code&gt;したので15分くらいですみました。&lt;/p&gt;
+
+&lt;h2 id=&#34;インストール:e13b2a2e9a225871e6894f9318a2f1da&#34;&gt;インストール&lt;/h2&gt;
+
+&lt;p&gt;最後にインストールです。
+&lt;code&gt;boost&lt;/code&gt;ディレクトリにヘッダが、
+先ほど生成した&lt;code&gt;stages/gcc/lib&lt;/code&gt;にライブラリがあるので、
+適当なところにコピーします。
+&lt;code&gt;$ ./b2 install&lt;/code&gt;してもいいかもしれません。&lt;/p&gt;
+</description>
     </item>
     
   </channel>

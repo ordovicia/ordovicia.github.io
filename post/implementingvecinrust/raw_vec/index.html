@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Vecの実装 in Rust - RawVec &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,15 +230,17 @@
 
   
 
-<p><a href="/post/implementingvecinrust/into_iter/">前回</a> に引き続き、
+<p><a href="No page found with path or logical name "post/ImplementingVecInRust/into_iter".
+">前回</a> に引き続き、
 <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
 
 <p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
 
 <p>rustcのバージョンは以下のとおり。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
-<h2 id="rawvec-https-doc-rust-lang-org-nomicon-vec-raw-html"><a href="https://doc.rust-lang.org/nomicon/vec-raw.html">RawVec</a></h2>
+$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)
+
+<h2 id="rawvec-https-doc-rust-lang-org-nomicon-vec-raw-html:6caff5f9ed3448f059ff5d0888564fc8"><a href="https://doc.rust-lang.org/nomicon/vec-raw.html">RawVec</a></h2>
 
 <p>前回実装した <code>IntoIter</code> をよく見ると、</p>
 
@@ -253,27 +255,27 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <p>そこで、メモリ管理処理を <code>RawVec</code> という構造体に切り出してみる。
 標準ライブラリでも <a href="https://doc.rust-lang.org/nightly/alloc/raw_vec/struct.RawVec.html">同様の設計</a>  を取り、
 <a href="https://doc.rust-lang.org/nightly/src/alloc/vec.rs.html#302-305"><code>Vec</code></a>, <a href="https://doc.rust-lang.org/nightly/src/alloc/vec_deque.rs.html#57-66"><code>VecDeque</code></a> などで使われている。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::heap::{Alloc, Heap};
-<span style="color:#66d9ef">use</span> std::mem;
+use std::heap::{Alloc, Heap};
+use std::mem;
 
-<span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) ptr: <span style="color:#a6e22e">OwnedPtr</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) cap: <span style="color:#66d9ef">usize</span>,
-    alloc: <span style="color:#a6e22e">Heap</span>,
+pub(super) struct RawVec<T> {
+    pub(super) ptr: OwnedPtr<T>,
+    pub(super) cap: usize,
+    alloc: Heap,
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Drop <span style="color:#66d9ef">for</span> RawVec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        <span style="color:#66d9ef">if</span> self.cap <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
-            <span style="color:#66d9ef">return</span>;
+impl<T> Drop for RawVec<T> {
+    fn drop(&mut self) {
+        if self.cap == 0 {
+            return;
         }
 
-        <span style="color:#66d9ef">unsafe</span> {
-            <span style="color:#66d9ef">if</span> self.cap <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> {
+        unsafe {
+            if self.cap == 1 {
                 self.alloc.dealloc_one(self.ptr.as_non_null());
-            } <span style="color:#66d9ef">else</span> {
-                <span style="color:#66d9ef">let</span> e <span style="color:#f92672">=</span> self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
-                <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Err(e) <span style="color:#f92672">=</span> e {
+            } else {
+                let e = self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
+                if let Err(e) = e {
                     self.alloc.oom(e);
                 }
             }
@@ -281,105 +283,109 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
     }
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> RawVec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">default</span>() -&gt; <span style="color:#a6e22e">Self</span> {
-        assert<span style="color:#f92672">!</span>(mem::size_of::<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;We&#39;re not ready to handle ZSTs&#34;</span>);
+impl<T> RawVec<T> {
+    pub(super) fn default() -> Self {
+        assert!(mem::size_of::<T>() != 0, "We're not ready to handle ZSTs");
 
         RawVec {
-            ptr: <span style="color:#a6e22e">OwnedPtr</span>::empty(),
-            cap: <span style="color:#ae81ff">0</span>,
-            alloc: <span style="color:#a6e22e">Heap</span>,
+            ptr: OwnedPtr::empty(),
+            cap: 0,
+            alloc: Heap,
         }
     }
 
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">grow</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        <span style="color:#75715e">// unchanged from Vec
-</span><span style="color:#75715e"></span>    }
-}</code></pre></div>
+    pub(super) fn grow(&mut self) {
+        // unchanged from Vec
+    }
+}
+
 <p><code>Drop</code> の実装でメモリ領域を解放する。
 ただし、<code>RawVec</code> は「要素」という概念を持たないので、要素の解放は <code>Vec</code>, <code>IntoIter</code> で処理する必要がある。</p>
 
 <p>この <code>RawVec</code> を使うよう、<code>Vec</code>, <code>IntoIter</code> を修正していく。
 まず <code>impl Drop for Vec</code> は、要素ごとにdropしたあとはメモリ領域の解放を <code>RawVec</code> に任せられる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    buf: <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>,
-    len: <span style="color:#66d9ef">usize</span>,
+pub struct Vec<T> {
+    buf: RawVec<T>,
+    len: usize,
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Drop <span style="color:#66d9ef">for</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        <span style="color:#66d9ef">if</span> mem::needs_drop::<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() {
-            <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">let</span> Some(_) <span style="color:#f92672">=</span> self.pop() {}
+impl<T> Drop for Vec<T> {
+    fn drop(&mut self) {
+        if mem::needs_drop::<T>() {
+            while let Some(_) = self.pop() {}
         }
 
-        <span style="color:#75715e">// deallocation is handled by RawVec
-</span><span style="color:#75715e"></span>    }
-}</code></pre></div>
+        // deallocation is handled by RawVec
+    }
+}
+
 <p><code>Vec</code> の他の部分については、<code>RawVec</code> からポインタを取り出す <code>ptr()</code> メソッドと、キャパシティを得る <code>capacity()</code> を追加し使うようにした以外はほぼ変わらない。
 <code>into_iter()</code> では、<code>RawVec</code> が <code>Copy</code> でないため <code>ptr::read()</code> によりメモリ領域を取り出す必要がある。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#e6db74">/// Returns capacity.
-</span><span style="color:#e6db74"></span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">capacity</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">usize</span> {
+impl<T> Vec<T> {
+    /// Returns capacity.
+    pub fn capacity(&self) -> usize {
         self.buf.cap
     }
 
-    <span style="color:#e6db74">/// Creates an [`IntoIter`] instance from self.
-</span><span style="color:#e6db74"></span>    <span style="color:#e6db74">///
-</span><span style="color:#e6db74"></span>    <span style="color:#e6db74">/// [`IntoIter`]: ../into_iter/struct.IntoIter.html
-</span><span style="color:#e6db74"></span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">into_iter</span>(self) -&gt; <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-        <span style="color:#75715e">// need to use ptr::read to unsafely move the buf out since it&#39;s
-</span><span style="color:#75715e"></span>        <span style="color:#75715e">// not Copy, and Vec implements Drop (so we can&#39;t destructure it).
-</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">let</span> buf <span style="color:#f92672">=</span> <span style="color:#66d9ef">unsafe</span> { ptr::read(<span style="color:#f92672">&amp;</span>self.buf) };
-        <span style="color:#66d9ef">let</span> cap <span style="color:#f92672">=</span> self.capacity();
-        <span style="color:#66d9ef">let</span> len <span style="color:#f92672">=</span> self.len;
+    /// Creates an [`IntoIter`] instance from self.
+    ///
+    /// [`IntoIter`]: ../into_iter/struct.IntoIter.html
+    pub fn into_iter(self) -> IntoIter<T> {
+        // need to use ptr::read to unsafely move the buf out since it's
+        // not Copy, and Vec implements Drop (so we can't destructure it).
+        let buf = unsafe { ptr::read(&self.buf) };
+        let cap = self.capacity();
+        let len = self.len;
 
         mem::forget(self);
 
-        <span style="color:#66d9ef">let</span> start <span style="color:#f92672">=</span> buf.ptr.as_ptr();
+        let start = buf.ptr.as_ptr();
 
         IntoIter::new(
             buf,
             start,
-            <span style="color:#66d9ef">if</span> cap <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
-                <span style="color:#75715e">// can&#39;t offset off this pointer, it&#39;s not allocated!
-</span><span style="color:#75715e"></span>                start
-            } <span style="color:#66d9ef">else</span> {
-                <span style="color:#66d9ef">unsafe</span> { start.offset(len <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>) }
+            if cap == 0 {
+                // can't offset off this pointer, it's not allocated!
+                start
+            } else {
+                unsafe { start.offset(len as isize) }
             },
         )
     }
 
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">ptr</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> T {
+    fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
     }
-}</code></pre></div>
+}
+
 <p>次に、<code>IntoIter</code> を <code>RawVec</code> を使って書き直す。
 <code>Vec</code> と同様に、<code>impl Drop for IntoIter</code> は要素をdropしたあとは <code>RawVec</code> に任せる。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">IntoIter</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    _buf: <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>, <span style="color:#75715e">// we don&#39;t actually care abount this. Just need it to live.
-</span><span style="color:#75715e"></span>    start: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
-    end: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T,
+pub struct IntoIter<T> {
+    _buf: RawVec<T>, // we don't actually care abount this. Just need it to live.
+    start: *const T,
+    end: *const T,
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Drop <span style="color:#66d9ef">for</span> IntoIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">drop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
-        <span style="color:#66d9ef">if</span> mem::needs_drop::<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>() {
-            <span style="color:#66d9ef">for</span> _ <span style="color:#66d9ef">in</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> <span style="color:#f92672">*</span>self {}
+impl<T> Drop for IntoIter<T> {
+    fn drop(&mut self) {
+        if mem::needs_drop::<T>() {
+            for _ in &mut *self {}
         }
 
-        <span style="color:#75715e">// deallocation is handled by RawVec
-</span><span style="color:#75715e"></span>    }
+        // deallocation is handled by RawVec
+    }
 }
 
-<span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> IntoIter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">super</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">new</span>(buf: <span style="color:#a6e22e">RawVec</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>, start: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T, end: <span style="color:#f92672">*</span><span style="color:#66d9ef">const</span> T) -&gt; <span style="color:#a6e22e">Self</span> {
+impl<T> IntoIter<T> {
+    pub(super) fn new(buf: RawVec<T>, start: *const T, end: *const T) -> Self {
         IntoIter {
-            _buf: <span style="color:#a6e22e">buf</span>,
+            _buf: buf,
             start,
             end,
         }
     }
-}</code></pre></div>
+}
+
 
   
 <div class="prev-next-post pure-g">

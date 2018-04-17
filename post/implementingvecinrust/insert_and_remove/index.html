@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Vecの実装 in Rust - Insert &amp; Remove &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,15 +230,17 @@
 
   
 
-<p><a href="/post/implementingvecinrust/deref/">前回</a> に引き続き、
+<p><a href="No page found with path or logical name "post/ImplementingVecInRust/deref".
+">前回</a> に引き続き、
 <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
 
 <p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
 
 <p>rustcのバージョンは以下のとおり。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
-<h2 id="insert-and-remove-https-doc-rust-lang-org-nomicon-vec-insert-remove-html"><a href="https://doc.rust-lang.org/nomicon/vec-insert-remove.html">Insert and Remove</a></h2>
+$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)
+
+<h2 id="insert-and-remove-https-doc-rust-lang-org-nomicon-vec-insert-remove-html:6fc5d28cf2f4e8837bab8804a7d6fe7c"><a href="https://doc.rust-lang.org/nomicon/vec-insert-remove.html">Insert and Remove</a></h2>
 
 <p>スライスへのderef.で提供されないメソッドとして、例えば <code>insert()</code> や <code>remove()</code> がある。
 これらを追加する。</p>
@@ -255,50 +257,52 @@ rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
 <code>ptr::copy()</code> はC言語でいう <code>memmove</code> で、アドレスからアドレスへ指定要素だけその中身をコピーする。
 コピー元・先で領域がオーバーラップしていても正しく扱ってくれる。
 もともとあった要素をシフトした後は、挿入する要素をメモリに書き込み、<code>len</code> をインクリメントして終了である。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">insert</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, index: <span style="color:#66d9ef">usize</span>, elem: <span style="color:#a6e22e">T</span>) {
-        assert<span style="color:#f92672">!</span>(index <span style="color:#f92672">&lt;=</span> self.len, <span style="color:#e6db74">&#34;index out of bounds&#34;</span>);
+impl<T> Vec<T> {
+    pub fn insert(&mut self, index: usize, elem: T) {
+        assert!(index <= self.len, "index out of bounds");
 
-        <span style="color:#66d9ef">if</span> self.len <span style="color:#f92672">==</span> self.cap {
+        if self.len == self.cap {
             self.grow();
         }
 
-        <span style="color:#66d9ef">unsafe</span> {
-            <span style="color:#66d9ef">if</span> index <span style="color:#f92672">&lt;</span> self.len {
-                <span style="color:#75715e">// ptr::copy(src, dest, len): &#34;copy from source to dest len elems&#34;
-</span><span style="color:#75715e"></span>                ptr::copy(
-                    self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>),
-                    self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>),
-                    self.len <span style="color:#f92672">-</span> index,
+        unsafe {
+            if index < self.len {
+                // ptr::copy(src, dest, len): "copy from source to dest len elems"
+                ptr::copy(
+                    self.ptr.as_ptr().offset(index as isize),
+                    self.ptr.as_ptr().offset(index as isize + 1),
+                    self.len - index,
                 );
             }
 
-            ptr::write(self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>), elem);
+            ptr::write(self.ptr.as_ptr().offset(index as isize), elem);
         }
 
-        self.len <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
-    }</code></pre></div>
+        self.len += 1;
+    }
+
 <p>次に <code>Vec::remove()</code> を実装する。
 <code>insert()</code> とは逆に、指定したインデックスの要素を削除し返す。
 もともとあった要素は左にシフトされる。
 <code>insert()</code> と同じように、素直に実装すればよい。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">remove</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, index: <span style="color:#66d9ef">usize</span>) -&gt; <span style="color:#a6e22e">T</span> {
-        assert<span style="color:#f92672">!</span>(index <span style="color:#f92672">&lt;</span> self.len, <span style="color:#e6db74">&#34;index out of bounds&#34;</span>);
+impl<T> Vec<T> {
+    pub fn remove(&mut self, index: usize) -> T {
+        assert!(index < self.len, "index out of bounds");
 
-        self.len <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>;
+        self.len -= 1;
 
-        <span style="color:#66d9ef">unsafe</span> {
-            <span style="color:#66d9ef">let</span> result <span style="color:#f92672">=</span> ptr::read(self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>));
+        unsafe {
+            let result = ptr::read(self.ptr.as_ptr().offset(index as isize));
             ptr::copy(
-                self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>),
-                self.ptr.as_ptr().offset(index <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>),
-                self.len <span style="color:#f92672">-</span> index,
+                self.ptr.as_ptr().offset(index as isize + 1),
+                self.ptr.as_ptr().offset(index as isize),
+                self.len - index,
             );
             result
         }
     }
-}</code></pre></div>
+}
+
 
   
 <div class="prev-next-post pure-g">

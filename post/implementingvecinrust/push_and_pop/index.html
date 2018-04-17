@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Vecの実装 in Rust - Push &amp; Pop &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,82 +230,88 @@
 
   
 
-<p><a href="/post/implementingvecinrust/allocating_memory/">前回</a> に引き続き、
+<p><a href="No page found with path or logical name "post/ImplementingVecInRust/allocating_memory".
+">前回</a> に引き続き、
 <a href="https://doc.rust-lang.org/nomicon">The Rustnomicon</a> の <a href="https://doc.rust-lang.org/nomicon/vec.html">Implementing <code>Vec</code></a> をやってみる。</p>
 
 <p>コード全体は <a href="https://github.com/ordovicia/rustnomicon_vec.git">GitHub上のリポジトリ</a> にある。</p>
 
 <p>rustcのバージョンは以下のとおり。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)</code></pre></div>
-<h2 id="push-and-pop-https-doc-rust-lang-org-nomicon-vec-push-pop-html"><a href="https://doc.rust-lang.org/nomicon/vec-push-pop.html">Push and Pop</a></h2>
+$ rustc --version
+rustc 1.25.0-nightly (27a046e93 2018-02-18)
+
+<h2 id="push-and-pop-https-doc-rust-lang-org-nomicon-vec-push-pop-html:c8c6a45ab74a63250532d84be36c96ef"><a href="https://doc.rust-lang.org/nomicon/vec-push-pop.html">Push and Pop</a></h2>
 
 <p>メモリ確保ができるようになったので、push, popを実装する。</p>
 
 <p>便利メソッドとして <code>OwnedPtr</code> から <code>*mut T</code> を取り出す関数を作っておく。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T: <span style="color:#f92672">?</span>Sized<span style="color:#f92672">&gt;</span> OwnedPtr<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span>(<span style="color:#66d9ef">crate</span>) <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">as_ptr</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#f92672">*</span><span style="color:#66d9ef">mut</span> T {
+impl<T: ?Sized> OwnedPtr<T> {
+    pub(crate) fn as_ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
-}</code></pre></div>
+}
+
 <p>まずは <code>Vec::push()</code> だが、素直に実装すればよい。
 確保したメモリ領域が足りなくなったら伸ばし、<code>ptr::write()</code> で要素を書き込む。
 書き込むアドレスは、<code>OwnedPtr</code> から取り出した <code>*mut T</code> に <code>self.len</code> だけオフセットを加えたものとする。
 <code>ptr::write()</code> 時にpanicした場合を考慮して、<code>self.len</code> のインクリメントは最後におこなう。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">push</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, elem: <span style="color:#a6e22e">T</span>) {
-        <span style="color:#66d9ef">if</span> self.len <span style="color:#f92672">==</span> self.cap {
+impl<T> Vec<T> {
+    pub fn push(&mut self, elem: T) {
+        if self.len == self.cap {
             self.grow();
         }
 
-        <span style="color:#66d9ef">unsafe</span> {
-            <span style="color:#66d9ef">let</span> ptr_last <span style="color:#f92672">=</span> self.ptr.as_ptr().offset(self.len <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>);
+        unsafe {
+            let ptr_last = self.ptr.as_ptr().offset(self.len as isize);
             ptr::write(ptr_last, elem);
         }
 
-        self.len <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
+        self.len += 1;
     }
-}</code></pre></div>
+}
+
 <p><code>Vec::pop()</code> も同様に、<code>ptr::read()</code> を使い実装する。
 読み込むアドレスは、<code>OwnedPtr</code> から取り出した <code>*mut T</code> に <code>self.len</code> だけオフセットを加えたものとする。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Vec<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">pop</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) -&gt; Option<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
-        <span style="color:#66d9ef">if</span> self.len <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+impl<T> Vec<T> {
+    pub fn pop(&mut self) -> Option<T> {
+        if self.len == 0 {
             None
-        } <span style="color:#66d9ef">else</span> {
-            self.len <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>;
+        } else {
+            self.len -= 1;
 
-            <span style="color:#66d9ef">unsafe</span> {
-                <span style="color:#66d9ef">let</span> ptr_last <span style="color:#f92672">=</span> self.ptr.as_ptr().offset(self.len <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">isize</span>);
+            unsafe {
+                let ptr_last = self.ptr.as_ptr().offset(self.len as isize);
                 Some(ptr::read(ptr_last))
             }
         }
     }
-}</code></pre></div>
+}
+
 <p>簡単なテストを書き、動作確認しておく。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[cfg(test)]</span>
-<span style="color:#66d9ef">mod</span> tests {
-    <span style="color:#66d9ef">use</span> <span style="color:#66d9ef">super</span>::<span style="color:#f92672">*</span>;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    <span style="color:#75715e">#[test]</span>
-    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">push_pop</span>() {
-        <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> v <span style="color:#f92672">=</span> Vec::new();
+    #[test]
+    fn push_pop() {
+        let mut v = Vec::new();
 
-        <span style="color:#66d9ef">const</span> ELEM_NUM: <span style="color:#66d9ef">usize</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">32</span>;
-        <span style="color:#66d9ef">let</span> elems <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>..ELEM_NUM;
+        const ELEM_NUM: usize = 32;
+        let elems = 0..ELEM_NUM;
 
-        <span style="color:#66d9ef">for</span> (i, e) <span style="color:#66d9ef">in</span> elems.clone().enumerate() {
+        for (i, e) in elems.clone().enumerate() {
             v.push(e);
-            assert_eq<span style="color:#f92672">!</span>(v.len(), i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+            assert_eq!(v.len(), i + 1);
         }
 
-        <span style="color:#66d9ef">for</span> (i, e) <span style="color:#66d9ef">in</span> elems.rev().enumerate() {
-            <span style="color:#66d9ef">let</span> p <span style="color:#f92672">=</span> v.pop();
-            assert<span style="color:#f92672">!</span>(p.is_some() <span style="color:#f92672">&amp;&amp;</span> p.unwrap() <span style="color:#f92672">==</span> e);
-            assert_eq<span style="color:#f92672">!</span>(v.len(), ELEM_NUM <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> i);
+        for (i, e) in elems.rev().enumerate() {
+            let p = v.pop();
+            assert!(p.is_some() && p.unwrap() == e);
+            assert_eq!(v.len(), ELEM_NUM - 1 - i);
         }
     }
-}</code></pre></div>
+}
+
 
   
 <div class="prev-next-post pure-g">

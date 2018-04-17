@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>OS X Yosemite上でBoostをGCCでビルドする &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -237,7 +237,7 @@
 <p>Mac OSX Yosemite(10.10.5)上で、
 Boost1.60.0をGCC5.3でビルドするのが大変だったので記録しておきます。</p>
 
-<h1 id="背景">背景</h1>
+<h1 id="背景:e13b2a2e9a225871e6894f9318a2f1da">背景</h1>
 
 <p>GCCでビルドしているプロジェクトがあって、
 それにBoost.Program_optionsをつかっています。
@@ -254,39 +254,42 @@ GCCでビルドされたBoostがインストールできるようです。</p>
 <p>Homebrewを使う方法はいくつか目にしたのですが、
 情報が古かったせいか、うまくいきませんでした。</p>
 
-<h1 id="手順">手順</h1>
+<h1 id="手順:e13b2a2e9a225871e6894f9318a2f1da">手順</h1>
 
-<h2 id="homebrewでインストールしたboostを削除">HomebrewでインストールしたBoostを削除</h2>
+<h2 id="homebrewでインストールしたboostを削除:e13b2a2e9a225871e6894f9318a2f1da">HomebrewでインストールしたBoostを削除</h2>
 
 <p>まず、HomebrewですでにインストールしてあるBoostがあったので、
 それをアンインストールします。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ brew uninstall boost</code></pre></div>
-<h2 id="boostダウンロード">Boostダウンロード</h2>
+$ brew uninstall boost
+
+<h2 id="boostダウンロード:e13b2a2e9a225871e6894f9318a2f1da">Boostダウンロード</h2>
 
 <p>まずは<a href="http://www.Boost.org/">Boost公式ページ</a>から、最新版を落としてきます。
 この時点では1.60.0が最新でした。
 適当に展開します。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ tar xjvf boost_1_60_0.tar.bz2</code></pre></div>
+$ tar xjvf boost_1_60_0.tar.bz2
+
 <p>（余談ですが、<code>tar</code>のオプションとか覚えきれないので、
 zshのsuffix aliasを使っています。
 そのため、実際には上のコマンドは打ち込んでいません。
 参考：<a href="http://itchyny.hatenablog.com/entry/20130227/1361933011">zshのalias -s (suffix alias)が神な件 &ndash; プログラムモグモグ</a>）</p>
 
-<h2 id="gccの確認">GCCの確認</h2>
+<h2 id="gccの確認:e13b2a2e9a225871e6894f9318a2f1da">GCCの確認</h2>
 
 <p>GCC自体は、Homebrewでインストールしたものをつかっています。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ which g++
-g++: aliased to g++-5 -std<span style="color:#f92672">=</span>c++11 -Wall -Wextra -Wconversion
+$ which g++
+g++: aliased to g++-5 -std=c++11 -Wall -Wextra -Wconversion
 
 $ g++-5 -v
 Using built-in specs.
-COLLECT_GCC<span style="color:#f92672">=</span>gcc-5
-COLLECT_LTO_WRAPPER<span style="color:#f92672">=</span>/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
+COLLECT_GCC=gcc-5
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/5.3.0/libexec/gcc/x86_64-apple-darwin14.5.0/5.3.0/lto-wrapper
 Target: x86_64-apple-darwin14.5.0
-Configured with: ../configure --build<span style="color:#f92672">=</span>x86_64-apple-darwin14.5.0 --prefix<span style="color:#f92672">=</span>/usr/local/Cellar/gcc/5.3.0 --libdir<span style="color:#f92672">=</span>/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages<span style="color:#f92672">=</span>c,c++,objc,obj-c++,fortran --program-suffix<span style="color:#f92672">=</span>-5 --with-gmp<span style="color:#f92672">=</span>/usr/local/opt/gmp --with-mpfr<span style="color:#f92672">=</span>/usr/local/opt/mpfr --with-mpc<span style="color:#f92672">=</span>/usr/local/opt/libmpc --with-isl<span style="color:#f92672">=</span>/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time<span style="color:#f92672">=</span>yes --enable-stage1-checking --enable-checking<span style="color:#f92672">=</span>release --enable-lto --with-build-config<span style="color:#f92672">=</span>bootstrap-debug --disable-werror --with-pkgversion<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Homebrew gcc 5.3.0&#39;</span> --with-bugurl<span style="color:#f92672">=</span>https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
+Configured with: ../configure --build=x86_64-apple-darwin14.5.0 --prefix=/usr/local/Cellar/gcc/5.3.0 --libdir=/usr/local/Cellar/gcc/5.3.0/lib/gcc/5 --enable-languages=c,c++,objc,obj-c++,fortran --program-suffix=-5 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-system-zlib --enable-libstdcxx-time=yes --enable-stage1-checking --enable-checking=release --enable-lto --with-build-config=bootstrap-debug --disable-werror --with-pkgversion='Homebrew gcc 5.3.0' --with-bugurl=https://github.com/Homebrew/homebrew/issues --enable-plugin --disable-nls --enable-multilib
 Thread model: posix
-gcc version <span style="color:#ae81ff">5</span>.3.0 <span style="color:#f92672">(</span>Homebrew gcc <span style="color:#ae81ff">5</span>.3.0<span style="color:#f92672">)</span></code></pre></div>
-<h2 id="gccでビルドするように設定">GCCでビルドするように設定</h2>
+gcc version 5.3.0 (Homebrew gcc 5.3.0)
+
+<h2 id="gccでビルドするように設定:e13b2a2e9a225871e6894f9318a2f1da">GCCでビルドするように設定</h2>
 
 <p>このままだとOSXにプリインストールされているclangでビルドされてしまうので、
 設定します。
@@ -297,8 +300,7 @@ gcc version <span style="color:#ae81ff">5</span>.3.0 <span style="color:#f92672"
 （なんでこんなところに設定ファイルがあるんでしょうね）。</p>
 
 <p>40行目くらいに、<code>GCC configuration</code>の部分があるので、</p>
-
-<pre><code># ------------------
+# ------------------
 # GCC configuration.
 # ------------------
 
@@ -307,23 +309,24 @@ gcc version <span style="color:#ae81ff">5</span>.3.0 <span style="color:#f92672"
 
 # Configure specific gcc version, giving alternative name to use.
 using gcc : 5 : g++-5 ;
-</code></pre>
 
 <p>のように、最後の行を書き換えます。</p>
 
-<h2 id="ビルド">ビルド</h2>
+<h2 id="ビルド:e13b2a2e9a225871e6894f9318a2f1da">ビルド</h2>
 
 <p><code>bootstrap.sh</code>に、ビルドにつかうコンパイラを教えます。
 <code>g++</code>ではなく<code>gcc</code>のようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ./bootstrap.sh --with-toolset<span style="color:#f92672">=</span>gcc --with-libraries<span style="color:#f92672">=</span>all</code></pre></div>
+$ ./bootstrap.sh --with-toolset=gcc --with-libraries=all
+
 <p>そしてビルドです。
 <code>toolset</code>にバージョンも合わせてコンパイラを指定します。
 ここでも<code>g++-5</code>ではなく、<code>gcc-5</code>のようです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ./b2 toolset<span style="color:#f92672">=</span>gcc-5 cxxflags<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-std=c++11&#34;</span> --with<span style="color:#f92672">=</span>all -link<span style="color:#f92672">=</span>static,shared runtime-link<span style="color:#f92672">=</span>shared threading<span style="color:#f92672">=</span>multi variant<span style="color:#f92672">=</span>release --stagedir<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;stage/gcc&#34;</span> -j5</code></pre></div>
+$ ./b2 toolset=gcc-5 cxxflags="-std=c++11" --with=all -link=static,shared runtime-link=shared threading=multi variant=release --stagedir="stage/gcc" -j5
+
 <p><code>ps</code>してみて<code>g++-5</code>が使われているようだったら成功です。
 <code>-j5</code>したので15分くらいですみました。</p>
 
-<h2 id="インストール">インストール</h2>
+<h2 id="インストール:e13b2a2e9a225871e6894f9318a2f1da">インストール</h2>
 
 <p>最後にインストールです。
 <code>boost</code>ディレクトリにヘッダが、

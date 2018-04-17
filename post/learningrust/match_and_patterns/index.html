@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.36.1" />
+  <meta name="generator" content="Hugo 0.16-DEV" />
 
   <title>Learning Rust - Match and Patterns &middot; 外部記憶</title>
 
@@ -65,6 +65,12 @@
       
       
         <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -78,12 +84,6 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,24 +230,25 @@
 
   
 
-<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics:8fc70f65c68c7b71e752634a750534f7">Syntax and Semantics</h1>
 
 <p>Rustには強力なパターンマッチがあります。
 今回はその紹介です。</p>
 
-<h2 id="match">Match</h2>
+<h2 id="match:8fc70f65c68c7b71e752634a750534f7">Match</h2>
 
 <p>まずは簡単な例から。<code>match</code>のsyntaxは以下のようになっています。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+let x = 5;
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#ae81ff">1</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;one&#34;</span>);
-    <span style="color:#ae81ff">2</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;two&#34;</span>);
-    <span style="color:#ae81ff">3</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;three&#34;</span>);
-    <span style="color:#ae81ff">4</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;four&#34;</span>);
-    <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;five&#34;</span>);
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;something else&#34;</span>);
-}</code></pre></div>
+match x {
+    1 => println!("one");
+    2 => println!("two");
+    3 => println!("three");
+    4 => println!("four");
+    5 => println!("five");
+    _ => println!("something else");
+}
+
 <p><code>match</code>はexpressionをとり、<code>{}</code>で囲んで、
 <code>val =&gt; expression</code>の形で枝を連ねます。</p>
 
@@ -258,98 +259,106 @@ Haskellとおなじですね。</p>
 <code>match</code>はすべての場合を網羅することがコンパイル時にチェックされます。</p>
 
 <p>ちなみに、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> x {
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;something else&#34;</span>);
-    <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;five&#34;</span>);
-}</code></pre></div>
+match x {
+    _ => println!("something else");
+    5 => println!("five");
+}
+
 <p>のように、<code>_</code>を上に書くと、<code>5</code>の枝に分岐しないよ！
 というコンパイルエラーがでました。</p>
 
 <p><code>match</code>自体もexpressionなので、代入できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+let x = 5;
 
-<span style="color:#66d9ef">let</span> number <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> x {
-    <span style="color:#ae81ff">1</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;one&#34;</span>,
-    <span style="color:#ae81ff">2</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;two&#34;</span>,
-    <span style="color:#ae81ff">3</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;three&#34;</span>,
-    <span style="color:#ae81ff">4</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;four&#34;</span>,
-    <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;five&#34;</span>,
-    _ <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;somehing else&#34;</span>,
+let number = match x {
+    1 => "one",
+    2 => "two",
+    3 => "three",
+    4 => "four",
+    5 => "five",
+    _ => "somehing else",
 }
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x is {}&#34;</span>, number);</code></pre></div>
-<h2 id="matching-on-enums">Matching on enums</h2>
+println!("x is {}", number);
+
+<h2 id="matching-on-enums:8fc70f65c68c7b71e752634a750534f7">Matching on enums</h2>
 
 <p><code>match</code>と相性がいいのがenumです。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Message</span> {
+enum Message {
     Quit,
-    ChangeColor(<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>),
-    Move { x: <span style="color:#66d9ef">i32</span>, y: <span style="color:#66d9ef">i32</span> },
+    ChangeColor(i32, i32, i32),
+    Move { x: i32, y: i32 },
     Write(String),
 }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">quit</span>() { <span style="color:#75715e">/* ... */</span> }
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">change_color</span>(r: <span style="color:#66d9ef">i32</span>, g: <span style="color:#66d9ef">i32</span>, b: <span style="color:#66d9ef">i32</span>) { <span style="color:#75715e">/* ... */</span> }
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">move_cursor</span>(x: <span style="color:#66d9ef">i32</span>, y: <span style="color:#66d9ef">i32</span>) { <span style="color:#75715e">/* ... */</span> }
+fn quit() { /* ... */ }
+fn change_color(r: i32, g: i32, b: i32) { /* ... */ }
+fn move_cursor(x: i32, y: i32) { /* ... */ }
 
-<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">process_message</span>(msg: <span style="color:#a6e22e">Message</span>) {
-    <span style="color:#66d9ef">match</span> msg {
-        Message::Quit <span style="color:#f92672">=&gt;</span> quit(),
-        Message::ChangeColor(r, g, b) <span style="color:#f92672">=&gt;</span> change_color(r, g, b),
-        Message::Move { x: <span style="color:#a6e22e">x</span>, y: <span style="color:#a6e22e">y</span> } <span style="color:#f92672">=&gt;</span> move_cursor(x, y),
-        Message::Write(s) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, s),
+fn process_message(msg: Message) {
+    match msg {
+        Message::Quit => quit(),
+        Message::ChangeColor(r, g, b) => change_color(r, g, b),
+        Message::Move { x: x, y: y } => move_cursor(x, y),
+        Message::Write(s) => println!("{}", s),
     };
-}</code></pre></div>
+}
+
 <p>Enumをmatchするときも、すべての場合を網羅しているかチェックされます。</p>
 
 <p>上の例のように、Matchの際にstructの中身をとりだすことができます。
 このような、patternの詳細は次の章から詳しく見ていきます。</p>
 
-<h2 id="patterns">Patterns</h2>
+<h2 id="patterns:8fc70f65c68c7b71e752634a750534f7">Patterns</h2>
 
 <p>もっとも簡単なpatternの例は最初に扱いました。
 次に進みましょう。</p>
 
-<h3 id="multiple-patterns">Multiple patterns</h3>
+<h3 id="multiple-patterns:8fc70f65c68c7b71e752634a750534f7">Multiple patterns</h3>
 
 <p><code>|</code>をつかうと、orパターンが実現できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+let x = 1;
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#ae81ff">1</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;one or two&#34;</span>),
-    <span style="color:#ae81ff">3</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;three&#34;</span>),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;anything&#34;</span>),
-}</code></pre></div>
-<h3 id="destructing">Destructing</h3>
+match x {
+    1 | 2 => println!("one or two"),
+    3 => println!("three"),
+    _ => println!("anything"),
+}
+
+<h3 id="destructing:8fc70f65c68c7b71e752634a750534f7">Destructing</h3>
 
 <p>Enumのmatchで扱いましたが、
 <code>struct</code>や<code>enum</code>などの複合型をmatchするときは、
 そのなかみをとりだすことができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span> {
-    x: <span style="color:#66d9ef">i32</span>,
-    y: <span style="color:#66d9ef">i32</span>,
+struct Point {
+    x: i32,
+    y: i32,
 }
 
-<span style="color:#66d9ef">let</span> origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span> };
+let origin = Point { x: 0, y: 0 };
 
-<span style="color:#66d9ef">match</span> origin {
-    Point { x, y } <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;({},{})&#34;</span>, x, y),
-}</code></pre></div>
+match origin {
+    Point { x, y } => println!("({},{})", x, y),
+}
+
 <p><code>struct</code>なら、要素に別の名前をつけることもできます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> origin {
-    Point { x: <span style="color:#a6e22e">x1</span>, y: <span style="color:#a6e22e">y1</span> } <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;({},{})&#34;</span>, x1, y1),
-}</code></pre></div>
+match origin {
+    Point { x: x1, y: y1 } => println!("({},{})", x1, y1),
+}
+
 <p>さらに、すべての要素が必要でない問は、<code>..</code>が使えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> origin {
-    Point { y, .. } <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;y is {}&#34;</span>, y),
-}</code></pre></div>
-<h3 id="ignoring-bindings">Ignoring bindings</h3>
+match origin {
+    Point { y, .. } => println!("y is {}", y),
+}
+
+<h3 id="ignoring-bindings:8fc70f65c68c7b71e752634a750534f7">Ignoring bindings</h3>
 
 <p><code>_</code>をつかえばなんにでもmatchしますが、次のようにも使えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> some_value {
-    Ok(value) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;got a value: {}&#34;</span>, value),
-    Err(_) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;an error occurred&#34;</span>),
-}</code></pre></div>
+match some_value {
+    Ok(value) => println!("got a value: {}", value),
+    Err(_) => println!("an error occurred"),
+}
+
 <p><code>some_value</code>は<code>Result&lt;T, E&gt;</code>という型で、
 <code>Ok</code>か<code>Err</code>という<code>enum</code>の可能性があります。</p>
 
@@ -357,148 +366,159 @@ println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x i
 中身がなんであるかは捨てています。</p>
 
 <p><code>match</code>以外でも<code>_</code>が使えて、たとえば、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">coodinate</span>() -&gt; (<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>) {
-    <span style="color:#75715e">// generate and return some sort of triple tuple
-</span><span style="color:#75715e"></span>}
+fn coodinate() -> (i32, i32, i32) {
+    // generate and return some sort of triple tuple
+}
 
-<span style="color:#66d9ef">let</span> (x, _, z) <span style="color:#f92672">=</span> coodinate();</code></pre></div>
+let (x, _, z) = coodinate();
+
 <p>のように、tupleを返す関数の戻り値の一部を捨てることができます。</p>
 
 <p>また、複数のものを捨てるときは、<code>_, _</code>などの代わりに、<code>..</code>が使えます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">OptionalTuple</span> {
-    Value(<span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>, <span style="color:#66d9ef">i32</span>),
+enum OptionalTuple {
+    Value(i32, i32, i32),
     Missing,
 }
 
-<span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> OptionalTuple::Value(<span style="color:#ae81ff">5</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>);
+let x = OptionalTuple::Value(5, -2, 3);
 
-<span style="color:#66d9ef">match</span> x {
-    OptionalTuple::Value(..) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got a tuple!&#34;</span>),
-    OptionalTuple::Missing <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;No such luck.&#34;</span>),
-}</code></pre></div>
-<h3 id="ref-and-ref-mut">ref and ref mut</h3>
+match x {
+    OptionalTuple::Value(..) => println!("Got a tuple!"),
+    OptionalTuple::Missing => println!("No such luck."),
+}
+
+<h3 id="ref-and-ref-mut:8fc70f65c68c7b71e752634a750534f7">ref and ref mut</h3>
 
 <p>Matchしたものを参照で受け取りたいときは、<code>ref</code>をつけます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+let x = 5;
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#66d9ef">ref</span> r <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got a reference to {}&#34;</span>, r),
-}</code></pre></div>
+match x {
+    ref r => println!("Got a reference to {}", r),
+}
+
 <p>このとき<code>r</code>の型は<code>&amp;i32</code>になっています。</p>
 
 <p>mutableな参照なら、<code>ref mut</code>とします。</p>
 
-<h3 id="ranges">Ranges</h3>
+<h3 id="ranges:8fc70f65c68c7b71e752634a750534f7">Ranges</h3>
 
 <p>整数型と<code>char</code>は、<code>...</code>を使ってrangeでmatchができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+let x = 1;
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#ae81ff">1</span> ... <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;one through five&#34;</span>),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;anything&#34;</span>),
-}</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;💅&#39;</span>
+match x {
+    1 ... 5 => println!("one through five"),
+    _ => println!("anything"),
+}
+let x = '💅'
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#e6db74">&#39;a&#39;</span> ... <span style="color:#e6db74">&#39;j&#39;</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;early letter&#34;</span>),
-    <span style="color:#e6db74">&#39;k&#39;</span> ... <span style="color:#e6db74">&#39;z&#39;</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;late letter&#34;</span>),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;something else&#34;</span>),
-}</code></pre></div>
-<h3 id="bindings">Bindings</h3>
-
-<p>Matchした結果を<code>@</code>をつかってbindすることができます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
-
-<span style="color:#66d9ef">match</span> x {
-    e <span style="color:#f92672">@</span> <span style="color:#ae81ff">1</span> ... <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;got a range element {}&#34;</span>, e),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;anything&#34;</span>),
-}</code></pre></div>
-<p>この例だと、<code>x</code>を表示すればいいですが、
-複雑な<code>struct</code>などにつかうと便利です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Debug)]</span>
-<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Person</span> {
-    name: Option<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span>,
+match x {
+    'a' ... 'j' => println!("early letter"),
+    'k' ... 'z' => println!("late letter"),
+    _ => println!("something else"),
 }
 
-<span style="color:#66d9ef">let</span> name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Steve&#34;</span>.to_string();
-<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x: Option<span style="color:#f92672">&lt;</span>Person<span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> Some(Person { name: Some(name) });
+<h3 id="bindings:8fc70f65c68c7b71e752634a750534f7">Bindings</h3>
 
-<span style="color:#66d9ef">match</span> x {
-    Some(Person { name: <span style="color:#a6e22e">ref</span> a <span style="color:#f92672">@</span> Some(_), .. }) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, a),
-    _ <span style="color:#f92672">=&gt;</span> {}
-}</code></pre></div>
+<p>Matchした結果を<code>@</code>をつかってbindすることができます。</p>
+let x = 1;
+
+match x {
+    e @ 1 ... 5 => println!("got a range element {}", e),
+    _ => println!("anything"),
+}
+
+<p>この例だと、<code>x</code>を表示すればいいですが、
+複雑な<code>struct</code>などにつかうと便利です。</p>
+#[derive(Debug)]
+struct Person {
+    name: Option<String>,
+}
+
+let name = "Steve".to_string();
+let mut x: Option<Person> = Some(Person { name: Some(name) });
+
+match x {
+    Some(Person { name: ref a @ Some(_), .. }) => println!("{:?}", a),
+    _ => {}
+}
+
 <p><code>a</code>に<code>name</code>をbindしています。</p>
 
 <p><code>@</code>を<code>|</code>といっしょにつかうときは、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
-<span style="color:#66d9ef">match</span> x {
-    e <span style="color:#f92672">@</span> <span style="color:#ae81ff">1</span> ... <span style="color:#ae81ff">5</span> <span style="color:#f92672">|</span> e <span style="color:#f92672">@</span> <span style="color:#ae81ff">8</span> ... <span style="color:#ae81ff">10</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;got a range element {}&#34;</span>, e),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;anything&#34;</span>),
-}</code></pre></div>
+let x = 5;
+match x {
+    e @ 1 ... 5 | e @ 8 ... 10 => println!("got a range element {}", e),
+    _ => println!("anything"),
+}
+
 <p>のように、<code>|</code>で区切ったすべての部分についてbindするように書きます。</p>
 
-<h3 id="guards">Guards</h3>
+<h3 id="guards:8fc70f65c68c7b71e752634a750534f7">Guards</h3>
 
 <p>Matchの条件に<code>if</code>を書くことで、guardも実現できます。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">OptionalInt</span> {
-    Value(<span style="color:#66d9ef">i32</span>),
+enum OptionalInt {
+    Value(i32),
     Missing,
 }
 
-<span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> OptionalInt::Value(<span style="color:#ae81ff">5</span>);
+let x = OptionalInt::Value(5);
 
-<span style="color:#66d9ef">match</span> x {
-    OptionalInt::Value(i) <span style="color:#66d9ef">if</span> i <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got an int bigger than five!&#34;</span>),
-    OptionalInt::Value(..) <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got an int!&#34;</span>),
-    OptionalInt::Missing <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;No such luck.&#34;</span>),
-}</code></pre></div>
+match x {
+    OptionalInt::Value(i) if i > 5 => println!("Got an int bigger than five!"),
+    OptionalInt::Value(..) => println!("Got an int!"),
+    OptionalInt::Missing => println!("No such luck."),
+}
+
 <p><code>i &gt; 5</code>が<code>false</code>なので、ひとつ目のパターンにはマッチせず、
 ふたつ目に入ります。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> x {
-    OptionalInt::Value(i) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">if</span> i <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span> {
-            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got an int bigger than five!&#34;</span>);
-        } <span style="color:#66d9ef">else</span> {
-            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Got an int!&#34;</span>),
+match x {
+    OptionalInt::Value(i) => if i > 5 {
+            println!("Got an int bigger than five!");
+        } else {
+            println!("Got an int!"),
         },
-    OptionalInt::Missing <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;No such luck.&#34;</span>),
-}</code></pre></div>
+    OptionalInt::Missing => println!("No such luck."),
+}
+
 <p>としても同じですが、guardをつかったほうが多少わかりやすいでしょうか。</p>
 
 <p><code>|</code>と組み合わせるときは、guardの<code>if</code>は<code>|</code>で区切ったすべての部分に掛かります。
 つまり、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
-<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+let x = 4;
+let y = false;
 
-<span style="color:#66d9ef">match</span> x {
-    <span style="color:#ae81ff">4</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">5</span> <span style="color:#66d9ef">if</span> y <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;yes&#34;</span>),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;no&#34;</span>),
-}</code></pre></div>
+match x {
+    4 | 5 if y => println!("yes"),
+    _ => println!("no"),
+}
+
 <p>と書くと、<code>4 | (5 if y)</code>ではなく、<code>(4 | 5) if y</code>と解釈されます。</p>
 
 <p>ちなみに、</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+let x = 4;
 
-<span style="color:#66d9ef">match</span> x {
-    i <span style="color:#66d9ef">if</span> i <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;even&#34;</span>),
-    <span style="color:#ae81ff">4</span> <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;four&#34;</span>),
-    _ <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;something else&#34;</span>),
-}</code></pre></div>
+match x {
+    i if i % 2 == 0 => println!("even"),
+    4 => println!("four"),
+    _ => println!("something else"),
+}
+
 <p>と書くと、最初のguardにマッチするので、<code>4 =&gt;</code>のpatternは起こりえません。
 <code>_</code>を最後以外に書いたときとちがって、この場合は警告も出ないようです。</p>
 
 <p>最後にひとつ注意です。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;x&#39;</span>;
-<span style="color:#66d9ef">let</span> c <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;c&#39;</span>;
+let x = 'x';
+let c = 'c';
 
-<span style="color:#66d9ef">match</span> c {
-    x <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x: {}, c: {}&#34;</span>, x, c),
+match c {
+    x => println!("x: {}, c: {}", x, c),
 }
 
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x: {}&#34;</span>, x);</code></pre></div>
-<p>は、</p>
+println!("x: {}", x);
 
-<pre><code>x: c, c: c
+<p>は、</p>
+x: c, c: c
 x: x
-</code></pre>
 
 <p>を出力します。
 Matchの結果をbindした変数は、
