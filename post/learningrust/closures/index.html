@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Closures &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,27 +230,26 @@
 
   
 
-<h1 id="syntax-and-semantics:21265edca0d7f804bef4c22f58216f40">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
-<h2 id="closures:21265edca0d7f804bef4c22f58216f40">Closures</h2>
+<h2 id="closures">Closures</h2>
 
 <p>Rustにも言語レベルでclosureの機能があります。
 今回はそのclosureを学びます。</p>
 
-<h2 id="syntax:21265edca0d7f804bef4c22f58216f40">Syntax</h2>
+<h2 id="syntax">Syntax</h2>
 
 <p>まず、closureの基本的なsyntaxは以下です。</p>
-let plus_one = |x: i32| x + 1;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> plus_one <span style="color:#f92672">=</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
 
-let plus_two = |x| {
-    let mut result: i32 = x;
+<span style="color:#66d9ef">let</span> plus_two <span style="color:#f92672">=</span> <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> {
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> result: <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> x;
 
-    result += 1;
-    result += 1;
+    result <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
+    result <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
 
     result
-};
-
+};</code></pre></div>
 <p><code>fn</code>ではなく<code>let</code>で宣言し、引数は<code>||</code>で挟みます。
 その後<code>{}</code>内にexpressionを書きますが、一行なら<code>{}</code>を省略できます。
 でも省略しないほうがわかりやすいのではないでしょうか。</p>
@@ -262,38 +261,34 @@ closureは一時的なものとしてつくられることが多く、その場�
 というのが理由の一つのようです。
 同様に、<code>-&gt; i32</code>のような戻り値の型も省略できます。</p>
 
-<h2 id="closures-and-their-environment:21265edca0d7f804bef4c22f58216f40">Closures and their environment</h2>
+<h2 id="closures-and-their-environment">Closures and their environment</h2>
 
 <p>Closureはclosureなので状態をもてます。
 こんな感じです。</p>
-let num = 5;
-let plus_num = |x: i32| x + num;
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> plus_num <span style="color:#f92672">=</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> num;</code></pre></div>
 <p>ここで、<code>plus_num</code>は、<code>num</code>をimmutableにborrowしています。
 よって、次のように、closureで<code>num</code>をborrowして、さらにmutableにborrowしようとすると、
 コンパイルエラーになります。</p>
-let mut num = 5;
-let plus_num = |x: i32| x + num;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> plus_num <span style="color:#f92672">=</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> num;
 
-let y = &mut num; // コンパイルエラー
-
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> num; <span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">コンパイルエラー</span></code></pre></div>
 <p>しかし、<code>Vec&lt;T&gt;</code>はtrivially copyableではないので、moveしてclosureに取り込まれます。
 よって、closureを作ったあとにそのvectorを使おうとすると、コンパイルエラーになります。
 この挙動は普通の関数と同じです。</p>
-let nums = vec![1, 2, 3];
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> nums <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 
-let takes_nums = || nums;
+<span style="color:#66d9ef">let</span> takes_nums <span style="color:#f92672">=</span> <span style="color:#f92672">||</span> nums;
 
-println!("{:?}", nums); // コンパイルエラー
-
-<h2 id="move-closure:21265edca0d7f804bef4c22f58216f40"><code>move</code> closure</h2>
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{:?}&#34;</span>, nums); <span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">コンパイルエラー</span></code></pre></div>
+<h2 id="move-closure"><code>move</code> closure</h2>
 
 <p>Closureが、ownershipを得ながら状態を取り込むことができます。
 <code>move</code>キーワードをつかいます。</p>
-let num = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
-let owns_num = move |x: i32| x + num;
-
+<span style="color:#66d9ef">let</span> owns_num <span style="color:#f92672">=</span> <span style="color:#66d9ef">move</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> num;</code></pre></div>
 <p>Moveセマンティクスは、moveする型にあったセマンティクスになります。
 つまり、上の例では<code>i32</code>をmoveしていますが、<code>i32</code>は<code>Copy</code>traitをもっているので、
 ここでは<code>num</code>をdeep copyしたもののownershipをもつことになります。</p>
@@ -302,115 +297,108 @@ let owns_num = move |x: i32| x + num;
 参照になるということです(この例ではmutableな参照です)。</p>
 
 <p>この違いは下の例でわかります。</p>
-let mut num = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
 {
-    let mut add_num = |x: i32| num += x; // not move; num: &mut i32
-
-    add_num(5);
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> add_num <span style="color:#f92672">=</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> num <span style="color:#f92672">+=</span> x; <span style="color:#75715e">// not move; num: &amp;mut i32
+</span><span style="color:#75715e"></span>
+    add_num(<span style="color:#ae81ff">5</span>);
 }
 
-assert_eq!(10, num);
-let mut num = 5;
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">10</span>, num);</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
 {
-    let mut add_num = move |x: i32| num += x; // move; num: i32
-
-    add_num(5);
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> add_num <span style="color:#f92672">=</span> <span style="color:#66d9ef">move</span> <span style="color:#f92672">|</span>x: <span style="color:#66d9ef">i32</span><span style="color:#f92672">|</span> num <span style="color:#f92672">+=</span> x; <span style="color:#75715e">// move; num: i32
+</span><span style="color:#75715e"></span>
+    add_num(<span style="color:#ae81ff">5</span>);
 }
 
-assert_eq!(5, num);
-
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">5</span>, num);</code></pre></div>
 <p>違う見かたをすると、move closureは自分自身のスタックフレームをもちますが、
 moveしないclosureは、それを作ったスタックフレームとつながっています。
 よって、後述するclosureを返す関数は、move closureしか返せないということになります。</p>
 
-<h2 id="closure-implementation:21265edca0d7f804bef4c22f58216f40">Closure implementation</h2>
+<h2 id="closure-implementation">Closure implementation</h2>
 
 <p>実は、closureは、特別なtraitをimplされたstructのシンタックスシュガーです。
 Closureには<code>()</code>が作用できますね。
 これはそのためのtraitをimplして、overloadしているからです。</p>
-pub trait Fn<Args> : FnMut<Args> {
-    extern "rust-call" fn call(&self, args: Args) -> Self::Output;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">trait</span> Fn<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span> : FnMut<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">extern</span> <span style="color:#e6db74">&#34;rust-call&#34;</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(<span style="color:#f92672">&amp;</span>self, args: <span style="color:#a6e22e">Args</span>) -&gt; <span style="color:#a6e22e">Self</span>::Output;
 }
 
-pub trait FnMut<Args> : FnOnce<Args> {
-    extern "rust-call" fn call_mut(&mut self, args: Args) -> Self::Output;
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">trait</span> FnMut<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span> : FnOnce<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">extern</span> <span style="color:#e6db74">&#34;rust-call&#34;</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call_mut</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, args: <span style="color:#a6e22e">Args</span>) -&gt; <span style="color:#a6e22e">Self</span>::Output;
 }
 
-pub trait FnOnce<Args> {
-    type Output;
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">trait</span> FnOnce<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Output</span>;
 
-    extern "rust-call" fn call_once(self, args: Args) -> Self::Output;
-}
-
+    <span style="color:#66d9ef">extern</span> <span style="color:#e6db74">&#34;rust-call&#34;</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call_once</span>(self, args: <span style="color:#a6e22e">Args</span>) -&gt; <span style="color:#a6e22e">Self</span>::Output;
+}</code></pre></div>
 <p>関数の(型理論的な)型がtraitになっているわけです。
 Closureを書くと、環境を取り込んだstructを作り、この<code>Fn</code>をimplします。
 たしかC++のラムダ式も関数オブジェクトなclassをつくるシンタックスシュガーだった気がします。</p>
 
-<h2 id="taking-closures-as-argument:21265edca0d7f804bef4c22f58216f40">Taking closures as argument</h2>
+<h2 id="taking-closures-as-argument">Taking closures as argument</h2>
 
 <p>さて、closureもtraitをimplしたただのstructであることがわかりました。
 ということは、これまでと同じように、何も特別なことなく扱えますね。</p>
 
 <p>例えば、closureをとる関数を考えてみます。</p>
-fn call_with_one<F>(some_closure: F) -> i32
-    where F : Fn(i32) -> i32 {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call_with_one</span><span style="color:#f92672">&lt;</span>F<span style="color:#f92672">&gt;</span>(some_closure: <span style="color:#a6e22e">F</span>) -&gt; <span style="color:#66d9ef">i32</span>
+    <span style="color:#a6e22e">where</span> F : Fn(<span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span> {
 
-    some_closure(1)
+    some_closure(<span style="color:#ae81ff">1</span>)
 }
 
-let answer = call_with_one(|x| x + 2);
+<span style="color:#66d9ef">let</span> answer <span style="color:#f92672">=</span> call_with_one(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>);
 
-assert_eq!(3, answer);
-
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">3</span>, answer);</code></pre></div>
 <p><code>i32</code>をとって<code>i32</code>を返すclosureをとるために、
 <code>Fn(i32) -&gt; i32</code>traitをもつ型をとっています。</p>
 
 <p>動的ディスパッチもできます。</p>
-fn call_with_one(some_closure: &Fn(i32) -> i32) -> i32 {
-    some_closure(1)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call_with_one</span>(some_closure: <span style="color:#66d9ef">&amp;</span>Fn(<span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span> {
+    some_closure(<span style="color:#ae81ff">1</span>)
 }
 
-let answer = call_with_one(&|x| x + 2);
+<span style="color:#66d9ef">let</span> answer <span style="color:#f92672">=</span> call_with_one(<span style="color:#f92672">&amp;|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>);
 
-assert_eq!(3, answer);
-
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">3</span>, answer);</code></pre></div>
 <p><code>as</code>で型変換もできますが、<code>&amp;Fn(i32) -&gt; i32</code>と二度書くことにになるので、
 上のような書きかたをするのがよさそうです。</p>
 
-<h2 id="function-pointers-and-closures:21265edca0d7f804bef4c22f58216f40">Function pointers and closures</h2>
+<h2 id="function-pointers-and-closures">Function pointers and closures</h2>
 
 <p>普通の関数は、状態をもたないclosureとみなせるので、closureとして他の関数に渡したりできます。</p>
-fn call_with_one(some_closure: &Fn(i32) -> i32) -> i32 {
-    some_closure(1)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call_with_one</span>(some_closure: <span style="color:#66d9ef">&amp;</span>Fn(<span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span> {
+    some_closure(<span style="color:#ae81ff">1</span>)
 }
 
-fn add_one(i: i32) -> i32 {
-    i + 1
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">add_one</span>(i: <span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span> {
+    i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 }
 
-let answer = call_with_one(&add_one);
+<span style="color:#66d9ef">let</span> answer <span style="color:#f92672">=</span> call_with_one(<span style="color:#f92672">&amp;</span>add_one);
 
-assert_eq!(2, answer);
-
-<h2 id="returning-closures:21265edca0d7f804bef4c22f58216f40">Returning closures</h2>
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">2</span>, answer);</code></pre></div>
+<h2 id="returning-closures">Returning closures</h2>
 
 <p>Closureを渡すだけではなく、closureを返すこともできます。
 ただし、Rustコンパイラに怒られないように、いくつか注意する必要があります。</p>
 
 <p>結論から言うと、次のようにかけばclosureが返せます。</p>
-fn factory() -> Box<Fn(i32) -> i32> {
-    let num = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">factory</span>() -&gt; Box<span style="color:#f92672">&lt;</span>Fn(<span style="color:#66d9ef">i32</span>) -&gt; <span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">let</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
-    Box::new(move |x| x + num)
+    Box::new(<span style="color:#66d9ef">move</span> <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">+</span> num)
 }
 
-let f = factory();
+<span style="color:#66d9ef">let</span> f <span style="color:#f92672">=</span> factory();
 
-let answer = f(1);
-assert_eq!(6, answer);
-
+<span style="color:#66d9ef">let</span> answer <span style="color:#f92672">=</span> f(<span style="color:#ae81ff">1</span>);
+assert_eq<span style="color:#f92672">!</span>(<span style="color:#ae81ff">6</span>, answer);</code></pre></div>
 <p>まず、返すclosureは<code>Box&lt;Fn&gt;</code>の形でboxに包んでいます。
 <code>Box</code>というのは、ヒープ上に確保した、所有者が一つだけのポインタを表しています。
 <code>Box</code>はコンパイル時にlifetimeがきまるので、Rustが自動的に破棄処理をしてくれるようです。</p>

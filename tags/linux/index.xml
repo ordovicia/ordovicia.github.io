@@ -8,7 +8,9 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Sun, 24 Dec 2017 00:00:00 +0000</lastBuildDate>
-    <atom:link href="/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>LinuxとNetBSDのデュアルブート</title>
@@ -16,70 +18,7 @@
       <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/dualboot_linux_and_netbsd/</guid>
-      <description>
-
-&lt;p&gt;LinuxとNetBSDをデュアルブートする方法をメモしておきます。&lt;/p&gt;
-
-&lt;h2 id=&#34;環境:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;環境&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;DELL Latitude E6540
-
-&lt;ul&gt;
-&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
-&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;linuxのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;Linuxのインストール&lt;/h2&gt;
-
-&lt;p&gt;Linuxのディストーションとして、今回はUbuntu Desktop 16.04をインストールします。
-Ubuntuは通常どおり、&lt;a href=&#34;http://releases.ubuntu.com/16.04/&#34;&gt;公式のリリースページ&lt;/a&gt;からISOファイルをダウンロードし、USBメモリなどに焼いてインストールすればOKです。
-ただしあとでNetBSDをインストールするパーティションを確保しておきましょう。&lt;/p&gt;
-
-&lt;h2 id=&#34;netbsdのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのインストール&lt;/h2&gt;
-
-&lt;p&gt;まずは&lt;a href=&#34;https://www.netbsd.org/releases/index.html&#34;&gt;公式のリリースページ&lt;/a&gt;からUSBメモリ用のイメージをダウンロードし、焼きます。
-USBメモリから起動してインストーラを実行します。
-基本的な流れは、&lt;a href=&#34;https://www.netbsd.org/docs/guide/en/chap-exinst.html&#34;&gt;NetBSD公式のインストールガイド&lt;/a&gt;や
-&lt;a href=&#34;https://www.webzoit.net/hp/it/internet/homepage/env/os/bsd_unix_linux/netbsd/03_install&#34;&gt;webzoit.netさん&lt;/a&gt;がたいへん参考になります。
-そこで、デュアルブートのために必要な手順のみ説明します。&lt;/p&gt;
-
-&lt;p&gt;ちなみに、インストールの終盤でユーザーを追加できます。
-&lt;code&gt;wheel&lt;/code&gt;グループへの追加などもできるので、ここで設定しておくと便利です。&lt;/p&gt;
-
-&lt;h3 id=&#34;netbsdのブートローダをインストールしない:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのブートローダをインストールしない&lt;/h3&gt;
-
-&lt;p&gt;NetBSDのインストール中に、「bootselect codeをインストールするか？」と聞かれるステップがあります。
-これはUbuntuで使っているブートローダを上書きしてしまうので、Noと答えます。&lt;/p&gt;
-
-&lt;h3 id=&#34;ubuntuのgrubからnetbsdが起動できるよう設定:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;UbuntuのGRUBからNetBSDが起動できるよう設定&lt;/h3&gt;
-
-&lt;p&gt;NetBSDのブートローダは使わずに、Ubuntuの領域にインストールしたGRUBからNetBSDがブートできるように設定します。&lt;/p&gt;
-
-&lt;p&gt;まず、&lt;code&gt;/etc/grub.d/40-custom&lt;/code&gt; に以下のようなエントリーを追記します。&lt;/p&gt;
-menuentry `NetBSD 7.1 on sda3` {
-    insmod bsd
-    set root=(hd0,3)
-    chainloader (hd0,3)+1
-}
-
-&lt;p&gt;エントリーの名前は好きなものに設定してください。
-&lt;code&gt;root&lt;/code&gt;, &lt;code&gt;chainloader&lt;/code&gt;で設定するパーティションは、NetBSDをインストールしたところ指すように設定するため、環境によって変わります。
-NetBSDをインストールしたパーティションの番号や&lt;code&gt;fdisk&lt;/code&gt;の結果から決めてください。&lt;/p&gt;
-
-&lt;p&gt;次に、&lt;code&gt;/etc/default/grub&lt;/code&gt; を編集します。
-7, 8行目付近に &lt;code&gt;GRUB_HIDDEN_TIMEOUT&lt;/code&gt; を含む二行があるので、これをコメントアウトします。
-GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリーを選べるようにするためです。&lt;/p&gt;
-
-&lt;p&gt;最後に &lt;code&gt;sudo update-grub&lt;/code&gt; を実行し、GRUBの設定を更新します。&lt;/p&gt;
-
-&lt;h2 id=&#34;動作確認:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;動作確認&lt;/h2&gt;
-
-&lt;p&gt;以上でデュアルブートの設定は終わりです。
-再起動してGRUBのメニューにNetBSDが現れることを確認しましょう。&lt;/p&gt;
-</description>
+      <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
     </item>
     
     <item>
@@ -88,63 +27,7 @@ GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリ�
       <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
       
       <guid>/post/archlinuxonraspi/devel_setup/</guid>
-      <description>
-
-&lt;h1 id=&#34;開発環境のセットアップ:fc7ba458904420f257bf836d7df4e71c&#34;&gt;開発環境のセットアップ&lt;/h1&gt;
-
-&lt;p&gt;前回作成したユーザーcyanで作業します。&lt;/p&gt;
-
-&lt;h2 id=&#34;基本的な開発用ソフトウェア群:fc7ba458904420f257bf836d7df4e71c&#34;&gt;基本的な開発用ソフトウェア群&lt;/h2&gt;
-
-&lt;p&gt;まずは基本的なソフトウェア群をインストールします。&lt;/p&gt;
-$ sudo pacman -s --needed base-devel
-
-&lt;p&gt;&lt;code&gt;base-devel&lt;/code&gt;はDebianでいう&lt;code&gt;build-essential&lt;/code&gt;のようなものらしく、
-&lt;code&gt;make&lt;/code&gt;とか&lt;code&gt;gcc&lt;/code&gt;とかが入っています。
-すこし時間がかかります。&lt;/p&gt;
-
-&lt;h2 id=&#34;個人設定:fc7ba458904420f257bf836d7df4e71c&#34;&gt;個人設定&lt;/h2&gt;
-
-&lt;h3 id=&#34;dotfiles:fc7ba458904420f257bf836d7df4e71c&#34;&gt;Dotfiles&lt;/h3&gt;
-
-&lt;p&gt;私は&lt;code&gt;.zshrc&lt;/code&gt;などのdotfilesをgithubにあるリポジトリで管理しています。
-そのため、まずはgitをインストールし、dotfilesをcloneしてシンボリックリンクを張っておきます。&lt;/p&gt;
-$ sudo pacman -S git
-$ git clone https://github.com/***/dotfiles.git .dotfiles
-$ ln -s .dotfiles/.zshrc .
-$ ln -s .dotfiles/.zshrc_linux .
-$ ...
-
-&lt;h3 id=&#34;zsh:fc7ba458904420f257bf836d7df4e71c&#34;&gt;Zsh&lt;/h3&gt;
-
-&lt;p&gt;Zshをつかっているので、&lt;code&gt;$ sudo pacman -S zsh&lt;/code&gt;でインストールし、
-&lt;code&gt;$ chsh&lt;/code&gt; でログインシェルを変えておきます。
-いったんexitしてから再度sshではいって、
-さきほどcloneしてきた&lt;code&gt;.zshrc&lt;/code&gt;がただしく読み込まれているかチェックします。&lt;/p&gt;
-
-&lt;h3 id=&#34;vim:fc7ba458904420f257bf836d7df4e71c&#34;&gt;Vim&lt;/h3&gt;
-
-&lt;p&gt;sshで作業するのでエディタはVimを使います。
-まずは&lt;code&gt;$ sudo pacman -S vim&lt;/code&gt;でインストール。&lt;/p&gt;
-
-&lt;p&gt;プラグイン管理には&lt;a href=&#34;https://github.com/Shougo/neobundle.vim&#34;&gt;Neobundle&lt;/a&gt;を使っています。
-GitHubのページに書いてあるとおりにインストールします。&lt;/p&gt;
-
-&lt;p&gt;カラースキームは&lt;a href=&#34;https://github.com/tomasr/molokai&#34;&gt;molokai&lt;/a&gt;を使っているので、
-これをcloneしてきて&lt;code&gt;molokai/colors/molokai.vim&lt;/code&gt;ファイルを&lt;code&gt;~/.vim/colors&lt;/code&gt;に
-コピーします。&lt;/p&gt;
-$ cd ~/.vim
-$ git clone https://github.com/tomasr/molokai.git
-$ mkdir colors
-$ cp molokai/colors/molokai.vim colors
-
-&lt;p&gt;あとはVimを開けばNeobundleによってプラグインがインストールできます。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;少し作業してみて、RasPi上でコンパイルするのはけっこうつらいことがわかりました。
-クロスコンパイルができないか調べてみます。&lt;/p&gt;
-</description>
+      <description>開発環境のセットアップ 前回作成したユーザーcyanで作業します。 基本的な開発用ソフトウェア群 まずは基本的なソフトウェア群をインストールします</description>
     </item>
     
     <item>
@@ -153,125 +36,7 @@ $ cp molokai/colors/molokai.vim colors
       <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
       
       <guid>/post/archlinuxonraspi/initial_setup/</guid>
-      <description>
-
-&lt;p&gt;先日Raspberry Pi 2を買いました。
-試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。&lt;/p&gt;
-
-&lt;h1 id=&#34;arch-linuxのインストール:ad3d94928460cf368a4ab82568476234&#34;&gt;Arch Linuxのインストール&lt;/h1&gt;
-
-&lt;p&gt;Ubuntu15.04で、
-&lt;a href=&#34;http://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2&#34;&gt;Arch Linux ARMのページ&lt;/a&gt;
-の通りに作業をおこなうと、なにも詰まらずにインストールができました。
-ただし&lt;code&gt;fdisk, mkfs&lt;/code&gt;などは&lt;code&gt;sudo&lt;/code&gt;をつけて実行し、
-&lt;code&gt;bsdtar&lt;/code&gt;コマンドは新たにaptでインストールして実行しました。&lt;/p&gt;
-
-&lt;p&gt;インストールが済んだら、RasPi2に挿してLANケーブルをつなぎ、
-電源ケーブルをつなぎます。&lt;/p&gt;
-
-&lt;p&gt;sshでrootユーザーとして入ろうとしたのですが、
-なぜが初期パスワードのはずの&amp;rsquo;root&amp;rsquo;を入力しても&amp;rsquo;Permission denied&amp;rsquo;でした。
-そこでalarmユーザーではいりました。
-このユーザーの初期パスワードは&amp;rsquo;alarm&amp;rsquo;です。&lt;/p&gt;
-Welcome to Arch Linux ARM
-
-     Website: http://archlinuxarm.org
-       Forum: http://archlinuxarm.org/forum
-         IRC: #archlinux-arm on irc.Freenode.net
-Last login: Wed Dec  9 12:54:36 2015 from 192.168.0.4
-
-&lt;p&gt;こんな出力がでたので成功のようです。&lt;/p&gt;
-
-&lt;h1 id=&#34;初期セットアップ:ad3d94928460cf368a4ab82568476234&#34;&gt;初期セットアップ&lt;/h1&gt;
-
-&lt;h2 id=&#34;更新:ad3d94928460cf368a4ab82568476234&#34;&gt;更新&lt;/h2&gt;
-
-&lt;p&gt;&lt;code&gt;sudo&lt;/code&gt;コマンドがなかったので、
-&lt;code&gt;$ su&lt;/code&gt;でrootになり（このときは&amp;rsquo;root&amp;rsquo;がパスワードでした）、
-とりあえず&lt;/p&gt;
-$ pacman -Syu
-
-&lt;p&gt;しました。
-けっこう時間がかかります。&lt;/p&gt;
-
-&lt;p&gt;なお、この前に&lt;code&gt;/etc/pacman.d/mirrorlist&lt;/code&gt;を編集して、
-ミラーサーバーを近所の台湾あたりにしておくといいそうです。
-&lt;a href=&#34;http://qiita.com/masahixixi/items/97b40ff0e9d126b296bd#%E5%88%9D%E6%9C%9F%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97&#34;&gt;参考：「Raspberry Pi に ArchARM をインストールする」 - Qiita&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;更新したら&lt;code&gt;$ reboot&lt;/code&gt;しておきます。&lt;/p&gt;
-
-&lt;h2 id=&#34;microsdカード:ad3d94928460cf368a4ab82568476234&#34;&gt;microSDカード&lt;/h2&gt;
-
-&lt;p&gt;microSDカードの容量が2GBまでしか認識されないとどこかで聞いた気がしたのですが、&lt;/p&gt;
-$ df -h
-
-&lt;p&gt;で確認すると、本来の16GB近くの値が表示されていたので、
-気にしないことにしました。
-RasPi1だけの問題だったのでしょうか。&lt;/p&gt;
-
-&lt;h2 id=&#34;パスワードの変更:ad3d94928460cf368a4ab82568476234&#34;&gt;パスワードの変更&lt;/h2&gt;
-
-&lt;p&gt;root, alarmユーザーともに、&lt;code&gt;$ passwd&lt;/code&gt;でパスワードを変更しておきます。&lt;/p&gt;
-
-&lt;h2 id=&#34;時刻合わせ:ad3d94928460cf368a4ab82568476234&#34;&gt;時刻合わせ&lt;/h2&gt;
-$ timedatectl set-timezone Asia/Tokyo
-
-&lt;p&gt;で、タイムゾーンを合わせます。
-さらに&lt;/p&gt;
-$ timedatectl set-ntp true
-
-&lt;p&gt;しておくと、時刻サーバーと同期がとれるようです。&lt;/p&gt;
-
-&lt;h2 id=&#34;ipアドレスの固定:ad3d94928460cf368a4ab82568476234&#34;&gt;IPアドレスの固定&lt;/h2&gt;
-
-&lt;p&gt;しようとしましたが、うまく行きませんでした。
-&lt;a href=&#34;https://wiki.archlinuxjp.org/index.php/Netctl&#34;&gt;netctl&lt;/a&gt;をつかって設定したつもりでも、
-設定したIPアドレスで接続できませんでした。
-&lt;code&gt;$ ifconfig&lt;/code&gt;を見るとinetが設定したIPアドレスになっているかと思ったら
-rebootするとまた変わっていたりしました。
-このとき、設定したネットワークの&lt;code&gt;$ netctl status&lt;/code&gt;を見ると、
-設定ファイルが読み込まれていないようでした。&lt;/p&gt;
-
-&lt;p&gt;また困ったら調べてみます。&lt;/p&gt;
-
-&lt;h2 id=&#34;ホストネームの設定:ad3d94928460cf368a4ab82568476234&#34;&gt;ホストネームの設定&lt;/h2&gt;
-
-&lt;p&gt;ここからは&lt;a href=&#34;http://ochaochaocha3.hateblo.jp/entry/2014/04/19/raspberry-pi-initial-setting-of-arch-linux-for-ssh-connecting&#34;&gt;「Raspberry Pi: Arch Linux の初期設定（SSH 接続まで）」 - ochalog&lt;/a&gt;を参考にしました。&lt;/p&gt;
-$ hostnamectl set-hostname raspi
-
-&lt;p&gt;これで&lt;code&gt;/etc/hostname&lt;/code&gt;にホストネームが書き込まれます。&lt;/p&gt;
-
-&lt;h2 id=&#34;sshでrootでのログインを禁止する:ad3d94928460cf368a4ab82568476234&#34;&gt;sshでrootでのログインを禁止する&lt;/h2&gt;
-
-&lt;p&gt;&lt;code&gt;/etc/ssh/sshd_config&lt;/code&gt;を開き、&lt;/p&gt;
-PermitRootLogin no
-
-&lt;p&gt;と編集します。これでsshでrootでのログインを禁止できました。
-（もともと何故かできなかったんですけどね。）&lt;/p&gt;
-
-&lt;h2 id=&#34;sudoのインストール:ad3d94928460cf368a4ab82568476234&#34;&gt;sudoのインストール&lt;/h2&gt;
-$ pacman -S sudo
-
-&lt;p&gt;で&lt;code&gt;sudo&lt;/code&gt;をインストールし、wheelグループが使えるように、
-&lt;code&gt;$ visudo&lt;/code&gt;を実行して&lt;/p&gt;
-%wheel ALL=(ALL) ALL
-
-&lt;p&gt;の部分のコメントアウトを解除しました。&lt;/p&gt;
-
-&lt;h2 id=&#34;ユーザーの追加:ad3d94928460cf368a4ab82568476234&#34;&gt;ユーザーの追加&lt;/h2&gt;
-
-&lt;p&gt;ユーザーを追加し、パスワードを設定して、さらに&lt;code&gt;sudo&lt;/code&gt;がつかえるように、
-wheelグループに追加します。&lt;/p&gt;
-$ useradd -m cyan
-$ passwd cyan
-$ gpasswd -a cyan wheel
-
-&lt;hr /&gt;
-
-&lt;p&gt;これで初期セットアップが完了しました。
-IPアドレスの固定はできていませんが、困ったらまた調べることにします。
-ユーザーグループとかも何も知らないので、ぼちぼちArch LinuxのWikiを読んでみます。&lt;/p&gt;
-</description>
+      <description>先日Raspberry Pi 2を買いました。 試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。 Arch Linux</description>
     </item>
     
   </channel>

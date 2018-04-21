@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Universal Function Call Syntax &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,38 +230,36 @@
 
   
 
-<h1 id="syntax-and-semantics:4b42cfc991e20e3b64c42f7d11a437ee">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
-<h2 id="universal-function-call-syntax:4b42cfc991e20e3b64c42f7d11a437ee">Universal Function Call Syntax</h2>
+<h2 id="universal-function-call-syntax">Universal Function Call Syntax</h2>
 
 <p>別々のtraitが同名の関数を持っていることがありますね。</p>
-fn main() {
-    trait Foo {
-        fn f(&self);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Foo {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self);
     }
 
-    trait Bar {
-        fn f(&self);
+    <span style="color:#66d9ef">trait</span> Bar {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self);
     }
 
-    struct Baz;
+    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Baz</span>;
 
-    impl Foo for Baz {
-        fn f(&self) { println!("Baz’s impl of Foo"); }
+    <span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> Baz {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self) { println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Baz’s impl of Foo&#34;</span>); }
     }
 
-    impl Bar for Baz {
-        fn f(&self) { println!("Baz’s impl of Bar"); }
+    <span style="color:#66d9ef">impl</span> Bar <span style="color:#66d9ef">for</span> Baz {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span>self) { println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Baz’s impl of Bar&#34;</span>); }
     }
 
-    let b = Baz;
-}
-
+    <span style="color:#66d9ef">let</span> b <span style="color:#f92672">=</span> Baz;
+}</code></pre></div>
 <p><code>Foo</code>と<code>Bar</code>というtraitがともに<code>f()</code>メソッドをもっていて、
 それらを<code>Baz</code>structにimplしました。
 これだけではエラーにはなりませんが、<code>b.f()</code>を呼ぶとエラーです。</p>
-b.f(); // Error
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">b.f(); <span style="color:#f92672">//</span> Error</code></pre></div>
 <p>これはシグネチャが違っていても(<code>Bar</code>の<code>f()</code>が<code>f(&amp;self, i32)</code>とかでも)、
 コンパイルエラーになるようです。</p>
 
@@ -269,36 +267,33 @@ b.f(); // Error
 &lsquo;universal function call syntax&rsquo;を使えば可能です。</p>
 
 <p>Syntaxは以下のように、</p>
-Foo::f(&b);
-Bar::f(&b);
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">Foo::f(<span style="color:#f92672">&amp;</span>b);
+Bar::f(<span style="color:#f92672">&amp;</span>b);</code></pre></div>
 <p>C++の名前空間みたいにtraitを指定します。
 <code>b.f()</code>のようなメソッド呼び出しとは違い、<code>&amp;b</code>は明示的に渡さなければいけません。</p>
 
-<h2 id="angle-bracket-form:4b42cfc991e20e3b64c42f7d11a437ee">Angle-bracket Form</h2>
+<h2 id="angle-bracket-form">Angle-bracket Form</h2>
 
 <p>実はこの&rsquo;universal function call syntax&rsquo;は、
 &lsquo;Angle-bracket form&rsquo;の短縮版らしいです。
 Angle-bracket formは、</p>
-<Type as Trait>::method(args);
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#f92672">&lt;</span>Type <span style="color:#66d9ef">as</span> Trait<span style="color:#f92672">&gt;</span>::method(args);</code></pre></div>
 <p>のようなsyntaxで記述します。
 <code>Type</code>にimplされている<code>Trait</code>がもつ<code>method</code>を呼ぶ、ということですね。</p>
-trait Foo {
-    fn clone(&self);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> Foo {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone</span>(<span style="color:#f92672">&amp;</span>self);
 }
 
-#[derive(Clone)]
-struct Bar;
+<span style="color:#75715e">#[derive(Clone)]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Bar</span>;
 
-impl Foo for Bar {
-    fn clone(&self) {
-        println!("Making a clone of Bar");
+<span style="color:#66d9ef">impl</span> Foo <span style="color:#66d9ef">for</span> Bar {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">clone</span>(<span style="color:#f92672">&amp;</span>self) {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Making a clone of Bar&#34;</span>);
 
-        <Bar as Clone>::clone(self);
+        <span style="color:#f92672">&lt;</span>Bar <span style="color:#66d9ef">as</span> Clone<span style="color:#f92672">&gt;</span>::clone(self);
     }
-}
-
+}</code></pre></div>
 <p>上のように使えますが、<code>Clone::clone(self)</code>でも大丈夫なようです。
 どっちでもいいということでしょうか。</p>
 

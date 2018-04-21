@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Guessing Game &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -233,7 +233,7 @@
 <p><a href="https://doc.rust-lang.org/book/README.html">公式ドキュメント</a>
 にしたがってRustを学んでいこうと思います。</p>
 
-<h1 id="learn-rust:f169768f3ff91796ee75c07bd53827d9">Learn Rust</h1>
+<h1 id="learn-rust">Learn Rust</h1>
 
 <p>Rustのoverview的なチュートリアルです。</p>
 
@@ -246,30 +246,29 @@
 <p>という3つの節がありますが、このうち最初の二つを読んでみます。
 今回はGuessing Gameです。</p>
 
-<h2 id="guessing-game:f169768f3ff91796ee75c07bd53827d9">Guessing Game</h2>
+<h2 id="guessing-game">Guessing Game</h2>
 
 <p>よくある、ランダムな数値をあてるゲームですね。
 数値を推測して入力するごとに、答えより大きい・小さいかが出力されるようにします。</p>
 
-<h3 id="processing-a-guess:f169768f3ff91796ee75c07bd53827d9">Processing a Guess</h3>
+<h3 id="processing-a-guess">Processing a Guess</h3>
 
 <p>まずはユーザーが入力した数値を出力してみます。コードは以下のようになります。</p>
-use std::io;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::io;
 
-fn main() {
-    println!("Guess the number!");
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Guess the number!&#34;</span>);
 
-    println!("Please input your guess.");
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Please input your guess.&#34;</span>);
 
-    let mut guess = String::new();
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> guess <span style="color:#f92672">=</span> String::new();
 
-    io::stdin().read_line(&mut guess)
+    io::stdin().read_line(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> guess)
         .ok()
-        .expect("Failed to read line");
+        .expect(<span style="color:#e6db74">&#34;Failed to read line&#34;</span>);
 
-    println!("You guessed: {}", guess);
-}
-
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You guessed: {}&#34;</span>, guess);
+}</code></pre></div>
 <p>C++とあんまり変わりませんね。</p>
 
 <p>variable binding(変数、と言ってしまうとRustでのデータの扱いを正しく表現できないので、
@@ -286,9 +285,8 @@ mutableな<code>String</code>の参照ということらしいです。</p>
 強い制約ですが安全性の強化や内部でのメモリ管理に役立っているのでしょう。</p>
 
 <p><code>read_line()</code>の戻り値にさらにメソッドを作用させています。</p>
-.ok()
-.expect("Failed to read line");
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">.ok()
+.expect(<span style="color:#e6db74">&#34;Failed to read line&#34;</span>);</code></pre></div>
 <p>なんでしょうねこれ。一見すると例外処理のようですが。
 ドキュメントを読み進めると、まさにその通りでした。</p>
 
@@ -297,8 +295,7 @@ mutableな<code>String</code>の参照ということらしいです。</p>
 プログラムが終了し例外メッセージが吐かれる、ということのようです。</p>
 
 <p>最後の行です。</p>
-println!("You guessed: {}", guess);
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You guessed: {}&#34;</span>, guess);</code></pre></div>
 <p>出力しています。<code>println!()</code>はmacroで、<code>!</code>がmacroであることの印である、
 と書いてありました。
 ただしCのようなmacroではなく、型安全性に不安をもつ必要はないそうです。</p>
@@ -310,34 +307,32 @@ println!("You guessed: {}", guess);
 <p>ここまででvariable bindingの作り方と入出力がわかりました。
 次はランダムな数値を作って当てるまでループしてみます。</p>
 
-<h3 id="generating-a-secret-number:f169768f3ff91796ee75c07bd53827d9">Generating a secret number</h3>
+<h3 id="generating-a-secret-number">Generating a secret number</h3>
 
 <p>ランダムな数値を生成するには、開発チームが提供しているパッケージを使います。
 rand crateといって、crateはRustコードのパッケージを意味するそうです。</p>
 
 <p>ビルドツールCargoの設定ファイル、<code>Cargo.toml</code>に以下のように書きます。</p>
-[dependencies]
-rand="0.3.0"
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">[dependencies]
+rand<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0.3.0&#34;</span></code></pre></div>
 <p>そして<code>cargo build</code>するとrand crateとそれが依存しているパッケージが
 githubから落ちてきました。crateはgithub上にあるんですね。おもしろいです。</p>
 
 <p>ランダムな数値を生成したコードが以下になります。</p>
-extern crate rand;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">crate</span> rand;
 
-use std::io;
-use rand::Rng;
+<span style="color:#66d9ef">use</span> std::io;
+<span style="color:#66d9ef">use</span> rand::Rng;
 
-fn main() {
-    println!("Guess the number!");
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Guess the number!&#34;</span>);
 
-    let secret_number = rand::thread_rng().gen_range(1, 101);
+    <span style="color:#66d9ef">let</span> secret_number <span style="color:#f92672">=</span> rand::thread_rng().gen_range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">101</span>);
 
-    println!("The secret number is: {}", secret_number);
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The secret number is: {}&#34;</span>, secret_number);
 
-    // 略
-}
-
+    <span style="color:#75715e">// 略
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>crateを使うには<code>extern crate rand;</code>などと書くようですね。</p>
 
 <p><code>use rand::Rng</code>という行が加わっています。<code>std::io</code>についてはコード中に<code>io::stdin()</code>が
@@ -346,76 +341,72 @@ fn main() {
 ここではおまじないとしておきます。</p>
 
 <p>ランダムな数値を生成しているのが、</p>
-let secret_number = rand::thread_rng().gen_range(1, 101);
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> secret_number <span style="color:#f92672">=</span> rand::thread_rng().gen_range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">101</span>);</code></pre></div>
 <p>という行のようです。<code>rand::thread_rng()</code>でmain threadに乱数生成器をコピーしている
 とのことです。そして<code>use rand::Rng</code>しているので<code>gen_range()</code>関数が使えると
 書いてありました。
 この時点で&rsquo;traits&rsquo;がなんなのかよくわかりませんが、とりあえず[1, 101)の乱数が
 得られて<code>secret_number</code>にbindされていることは推測できます。</p>
 
-<h3 id="comparing-guesses:f169768f3ff91796ee75c07bd53827d9">Comparing guesses</h3>
+<h3 id="comparing-guesses">Comparing guesses</h3>
 
 <p>さて、入力した数値と答えを比較してみます。</p>
-extern crate rand;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">crate</span> rand;
 
-use std::io;
-use std::cmp::Ordering;
-use rand::Rng;
+<span style="color:#66d9ef">use</span> std::io;
+<span style="color:#66d9ef">use</span> std::cmp::Ordering;
+<span style="color:#66d9ef">use</span> rand::Rng;
 
-fn main() {
-    println!("Guess the number!");
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Guess the number!&#34;</span>);
 
-    let secret_number = rand::thread_rng().gen_range(1, 101);
+    <span style="color:#66d9ef">let</span> secret_number <span style="color:#f92672">=</span> rand::thread_rng().gen_range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">101</span>);
 
-    println!("The secret number is: {}", secret_number);
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The secret number is: {}&#34;</span>, secret_number);
 
-    println!("Please input your guess.");
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Please input your guess.&#34;</span>);
 
-    let mut guess = String::new();
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> guess <span style="color:#f92672">=</span> String::new();
 
-    io::stdin().read_line(&mut guess)
+    io::stdin().read_line(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> guess)
         .ok()
-        .expect("failed to read line");
+        .expect(<span style="color:#e6db74">&#34;failed to read line&#34;</span>);
 
-    println!("You guessed: {}", guess);
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You guessed: {}&#34;</span>, guess);
 
-    match guess.cmp(&secret_number) {
-        Ordering::Less    => println!("Too small!"),
-        Ordering::Greater => println!("Too big!"),
-        Ordering::Equal   => println!("You win!"),
+    <span style="color:#66d9ef">match</span> guess.cmp(<span style="color:#f92672">&amp;</span>secret_number) {
+        Ordering::Less    <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too small!&#34;</span>),
+        Ordering::Greater <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too big!&#34;</span>),
+        Ordering::Equal   <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You win!&#34;</span>),
     }
-}
-
+}</code></pre></div>
 <p><code>std::cmp::Ordering</code>という型をscopeにいれました。これで<code>Ordering::Less</code>などの
 値が使えるようになります。</p>
 
 <p>Rustにはパターンマッチ構文が用意されています。それが最後の5行です。</p>
-match guess.cmp(&secret_number) {
-    Ordering::Less    => println!("Too small!"),
-    Ordering::Greater => println!("Too big!"),
-    Ordering::Equal   => println!("You win!"),
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> guess.cmp(<span style="color:#f92672">&amp;</span>secret_number) {
+    Ordering::Less    <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too small!&#34;</span>),
+    Ordering::Greater <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too big!&#34;</span>),
+    Ordering::Equal   <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You win!&#34;</span>),
+}</code></pre></div>
 <p><code>guess</code>を<code>secret_number</code>の参照と<code>cmp</code>して、その戻り値を<code>match</code>構文でパターンマッチ
 しているようです。
 <code>Ordering</code>はEnumで、その要素には<code>Ordering::Less</code>のようにアクセスすることがわかります。
 C++の<code>enum class</code>と同じですね。</p>
 
 <p>実はこのコードはコンパイルエラーになります。エラーメッセージは、</p>
-src/main.rs:24:21: 24:35 error: mismatched types:
- expected `&collections::string::String`,
-    found `&_`
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">src/main.rs:24:21: 24:35 error: mismatched types:
+ expected `&amp;collections::string::String`,
+    found `&amp;_`
 (expected struct `collections::string::String`,
     found integral variable) [E0308]
-src/main.rs:24     match guess.cmp(&secret_number) {
+src/main.rs:24     match guess.cmp(&amp;secret_number) {
                                    ^~~~~~~~~~~~~~
 src/main.rs:24:21: 24:35 help: run `rustc --explain E0308` to see a detailed explanation
 error: aborting due to previous error
 Could not compile `guessing_game`.
 
-To learn more, run the command again with --verbose.
-
+To learn more, run the command again with --verbose.</code></pre></div>
 <p>のようになります。<code>guess.cmp()</code>で<code>mismathed types</code>と言われています。
 <code>guess</code>は<code>String</code>型なのに、数値である<code>&amp;secret_number</code>と比較しているのが原因のようです。</p>
 
@@ -424,10 +415,9 @@ To learn more, run the command again with --verbose.
 Rustの整数型には他に<code>i64, u32, u64</code>などがあるようです。</p>
 
 <p><code>guess</code>を整数に変換してみます。<code>read_line()</code>で読み込んだ後につぎの処理を加えます。</p>
-let guess: u32 = guess.trim().parse()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> guess: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> guess.trim().parse()
     .ok()
-    .expect("Please type a number!");
-
+    .expect(<span style="color:#e6db74">&#34;Please type a number!&#34;</span>);</code></pre></div>
 <p>なんと<code>guess</code>をもういちど作っています。Rustでは同名のvariable bindingを作ることができ、
 古いものを隠せるようです。便利ですね。</p>
 
@@ -441,59 +431,57 @@ let guess: u32 = guess.trim().parse()
 <p>これでコンパイルエラーが直りました。<code>cargo run</code>で実行してみると、答えと入力に合わせて
 <code>Too small!</code>, <code>Too big!</code>, <code>You win!</code>のどれかが正しく表示されているのがわかります。</p>
 
-<h3 id="looping:f169768f3ff91796ee75c07bd53827d9">Looping</h3>
+<h3 id="looping">Looping</h3>
 
 <p>最後に、正解するまでループするようにしてみましょう。
 <code>loop</code>キーワードを使うと無限ループを作ることができます。</p>
-extern crate rand;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">crate</span> rand;
 
-use std::io;
-use std::cmp::Ordering;
-use rand::Rng;
+<span style="color:#66d9ef">use</span> std::io;
+<span style="color:#66d9ef">use</span> std::cmp::Ordering;
+<span style="color:#66d9ef">use</span> rand::Rng;
 
-fn main() {
-    println!("Guess the number!");
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Guess the number!&#34;</span>);
 
-    let secret_number = rand::thread_rng().gen_range(1, 101);
+    <span style="color:#66d9ef">let</span> secret_number <span style="color:#f92672">=</span> rand::thread_rng().gen_range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">101</span>);
 
-    println!("The secret number is: {}", secret_number);
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The secret number is: {}&#34;</span>, secret_number);
 
-    loop {
-        println!("Please input your guess.");
+    <span style="color:#66d9ef">loop</span> {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Please input your guess.&#34;</span>);
 
-        let mut guess = String::new();
+        <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> guess <span style="color:#f92672">=</span> String::new();
 
-        io::stdin().read_line(&mut guess)
+        io::stdin().read_line(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> guess)
             .ok()
-            .expect("failed to read line");
+            .expect(<span style="color:#e6db74">&#34;failed to read line&#34;</span>);
 
-        let guess: u32 = guess.trim().parse()
+        <span style="color:#66d9ef">let</span> guess: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> guess.trim().parse()
             .ok()
-            .expect("Please type a number!");
+            .expect(<span style="color:#e6db74">&#34;Please type a number!&#34;</span>);
 
-        println!("You guessed: {}", guess);
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You guessed: {}&#34;</span>, guess);
 
-        match guess.cmp(&secret_number) {
-            Ordering::Less    => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
-            Ordering::Equal   => {
-                println!("You win!");
-                break;
+        <span style="color:#66d9ef">match</span> guess.cmp(<span style="color:#f92672">&amp;</span>secret_number) {
+            Ordering::Less    <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too small!&#34;</span>),
+            Ordering::Greater <span style="color:#f92672">=&gt;</span> println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Too big!&#34;</span>),
+            Ordering::Equal   <span style="color:#f92672">=&gt;</span> {
+                println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;You win!&#34;</span>);
+                <span style="color:#66d9ef">break</span>;
             }
         }
     }
-}
-
+}</code></pre></div>
 <p>波括弧<code>{}</code>を使うのはC++と同じですね。
 パターンマッチのところで、<code>Ordering::Equal</code>にマッチしたら<code>break</code>するようにしました。
 簡単ですね。</p>
 
 <p>入力をparseするところの例外処理を少し変更してみます。</p>
-let guess: u32 = match guess.trim().parse() {
-    Ok(num) => num,
-    Err(_) => continue,
-};
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> guess: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> guess.trim().parse() {
+    Ok(num) <span style="color:#f92672">=&gt;</span> num,
+    Err(_) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">continue</span>,
+};</code></pre></div>
 <p>ここでもパターンマッチを使います。<code>parse()</code>の戻り値<code>Result</code>型はEnumで、<code>Ok</code>と<code>Err</code>という
 値をもっているようです。でも値がまた<code>num</code>などの引数をとるのでしょうか？
 Haskellの型コンストラクタのようなものでしょうか？</p>

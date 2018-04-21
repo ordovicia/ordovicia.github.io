@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Ownership &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,7 +230,7 @@
 
   
 
-<h1 id="syntax-and-semantics:98ce1841cead9b5af67fecc02a280dcb">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
 <p>今回扱うのは、Rustのリソース管理システムであるownershipの概念です。</p>
 
@@ -250,7 +250,7 @@ Rustの目標の一つであった&rdquo;Zero-cost abstraction&rdquo;を達成�
 というのは、ownershipシステムが難しくて(と、ドキュメントに書いてあります)、
 Lifetimesまではまだ理解できていないからです(半分くらいは英語力のせいですが)。</p>
 
-<h2 id="ownership:98ce1841cead9b5af67fecc02a280dcb">Ownership</h2>
+<h2 id="ownership">Ownership</h2>
 
 <p>variabe bindingsはownershipをもちます。
 そしてvariable bindingsがスコープを抜けると、それがもっているデータは
@@ -259,44 +259,40 @@ Lifetimesまではまだ理解できていないからです(半分くらいは�
 <p>次の例では、vectorがヒープ上につくられ、
 <code>v</code>というvariable bindingがそのownershipをもち、
 <code>foo()</code>のスコープを抜けるとこのvectorに関するすべてのデータが削除されます。</p>
-fn foo() {
-    let v = vec![1, 2, 3];
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>() {
+    <span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+}</code></pre></div>
 <p>ヒープに確保されるんですね。驚きです。</p>
 
-<h2 id="move-semantics:98ce1841cead9b5af67fecc02a280dcb">Move semantics</h2>
+<h2 id="move-semantics">Move semantics</h2>
 
 <p>Rustではメモリ上に確保されたひとつのデータのownershipをもつ
 variable bindingはたったひとつだけです。
 よって、例えばvectorを他のvectorに代入できますが、そのときmoveが起こります。</p>
-let v = vec![1, 2, 3];
-let v2 = v;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+<span style="color:#66d9ef">let</span> v2 <span style="color:#f92672">=</span> v;
 
-println!("v[0] is: {}", v[0]);
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;v[0] is: {}&#34;</span>, v[<span style="color:#ae81ff">0</span>]);</code></pre></div>
 <p>このコードはコンパイルエラーになります。2行目で<code>v</code>が<code>v2</code>にmoveされて
 vectorのownershipを失っているので、
 <code>v[0]</code>という操作ができなくなっているのです。</p>
 
 <p>関数に渡したときもmoveが起こり、下のコードもコンパイルエラーとなります。</p>
-fn take(v: Vec<i32>) {
-    // what happens here isn’t important.
-}
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">take</span>(v: Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) {
+    <span style="color:#75715e">// what happens here isn’t important.
+</span><span style="color:#75715e"></span>}
 
-let v = vec![1, 2, 3];
+<span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 take(v);
 
-println!("v[0] is: {}", v[0]);
-
-<h2 id="the-details:98ce1841cead9b5af67fecc02a280dcb">The details</h2>
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;v[0] is: {}&#34;</span>, v[<span style="color:#ae81ff">0</span>]);</code></pre></div>
+<h2 id="the-details">The details</h2>
 
 <p>Rustのメモリアロケーションがどのように働き、
 なぜmoveが起こるのか、次のコードを題材に詳しく見ていきます。</p>
-let v = vec![1, 2, 3];
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 
-let v2 = v;
-
+<span style="color:#66d9ef">let</span> v2 <span style="color:#f92672">=</span> v;</code></pre></div>
 <p>1行目では、vectorのメモリアロケーションが起こります。
 vectorの要素(<code>[1, 2, 3]</code>)がヒープ上に確保され、
 それを指すポインタがvectorオブジェクトとしてスタックに確保されます。
@@ -309,14 +305,13 @@ vectorの要素(<code>[1, 2, 3]</code>)がヒープ上に確保され、
 これはdata raceの起こりえないことを保証する
 Rustのシステムに反することになるため、 以降<code>v</code>をつかっていないことがコンパイル時に確かめられるようです。</p>
 
-<h2 id="copy-types:98ce1841cead9b5af67fecc02a280dcb"><code>Copy</code> types</h2>
+<h2 id="copy-types"><code>Copy</code> types</h2>
 
 <p>vectorは代入でmoveが起こりましたが、下のコードはエラーになりません。</p>
-let v = 1;
-let v2 = v;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> v <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+<span style="color:#66d9ef">let</span> v2 <span style="color:#f92672">=</span> v;
 
-println!("v is: {}", v);
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;v is: {}&#34;</span>, v);</code></pre></div>
 <p>これは、<code>v</code>の型である<code>i32</code>が<code>Copy</code>traitを持っているためです。
 vectorとちがって<code>i32</code>は軽くポインタを利用していないので、
 moveではなくdeep copyが起きる、ということのようです。</p>
@@ -325,21 +320,20 @@ moveではなくdeep copyが起きる、ということのようです。</p>
 よって関数に渡したりほかのvariable bindingsに代入しても
 moveは起こりません。</p>
 
-<h2 id="more-than-ownership:98ce1841cead9b5af67fecc02a280dcb">More than ownership</h2>
+<h2 id="more-than-ownership">More than ownership</h2>
 
 <p>こんなコードを書けばコンパイルエラーは起こりません。</p>
-fn foo(v1: Vec<i32>, v2: Vec<i32>) -> (Vec<i32>, Vec<i32>, i32) {
-    // do stuff with v1 and v2
-
-    // hand back ownership, and the result of our function
-    (v1, v2, 42)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(v1: Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>, v2: Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; (Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>, Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>, <span style="color:#66d9ef">i32</span>) {
+    <span style="color:#75715e">// do stuff with v1 and v2
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e">// hand back ownership, and the result of our function
+</span><span style="color:#75715e"></span>    (v1, v2, <span style="color:#ae81ff">42</span>)
 }
 
-let v1 = vec![1, 2, 3];
-let v2 = vec![1, 2, 3];
+<span style="color:#66d9ef">let</span> v1 <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+<span style="color:#66d9ef">let</span> v2 <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 
-let (v1, v2, answer) = foo(v1, v2);
-
+<span style="color:#66d9ef">let</span> (v1, v2, answer) <span style="color:#f92672">=</span> foo(v1, v2);</code></pre></div>
 <p><code>foo()</code>に<code>v1, v2</code>のownershipを渡していますが、
 <code>foo()</code>からまたownershipも返すようにしています。
 ちゃんと動きます(Rustは同じ変数名を付けて、古いものを隠せるんでしたね)。</p>
@@ -348,23 +342,22 @@ let (v1, v2, answer) = foo(v1, v2);
 やりたくないですよね。
 ほかの現代的な言語とおなじように、Rustにもちゃんと解決策があります。</p>
 
-<h1 id="references-and-borrowing:98ce1841cead9b5af67fecc02a280dcb">References and Borrowing</h1>
+<h1 id="references-and-borrowing">References and Borrowing</h1>
 
-<h2 id="borrowing:98ce1841cead9b5af67fecc02a280dcb">Borrowing</h2>
+<h2 id="borrowing">Borrowing</h2>
 
 <p>上のコードを次のように改善します。</p>
-fn foo(v1: &Vec<i32>, v2: &Vec<i32>) -> i32 {
-    // do stuff with v1 and v2
-
-    // return the answer
-    42
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(v1: <span style="color:#66d9ef">&amp;</span>Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>, v2: <span style="color:#66d9ef">&amp;</span>Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#66d9ef">i32</span> {
+    <span style="color:#75715e">// do stuff with v1 and v2
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e">// return the answer
+</span><span style="color:#75715e"></span>    <span style="color:#ae81ff">42</span>
 }
 
-let v1 = vec![1, 2, 3];
-let v2 = vec![1, 2, 3];
+<span style="color:#66d9ef">let</span> v1 <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+<span style="color:#66d9ef">let</span> v2 <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 
-let answer = foo(&v1, &v2);
-
+<span style="color:#66d9ef">let</span> answer <span style="color:#f92672">=</span> foo(<span style="color:#f92672">&amp;</span>v1, <span style="color:#f92672">&amp;</span>v2);</code></pre></div>
 <p>まず、<code>foo()</code>の引数の型<code>Vec&lt;i32&gt;</code>に<code>&amp;</code>をつけました。
 さらに引数<code>v1, v2</code>にも<code>&amp;</code>をつけます。
 こうすることで参照の受け渡しとなりました。</p>
@@ -372,20 +365,19 @@ let answer = foo(&v1, &v2);
 <p>参照はメモリ上のデータのownershipをもつのではなく、借ります。
 参照がスコープを抜けてもメモリの解放はおこなわれません。</p>
 
-<h2 id="mut-references:98ce1841cead9b5af67fecc02a280dcb"><code>&amp;mut</code> references</h2>
+<h2 id="mut-references"><code>&amp;mut</code> references</h2>
 
 <p>Rustはデフォルトでimmutableなので、上のように参照を定義しても、
 それを通して書き換えることはできません。
 書き換えたい場合は<code>&amp;mut Type</code>のように明示します。</p>
-let mut x = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
 {
-    let y = &mut x;
-    *y += 1;
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> x;
+    <span style="color:#f92672">*</span>y <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
 }
 
-println!("{}", x)
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x)</code></pre></div>
 <p>このコードは&rsquo;6&rsquo;を出力します。
 <code>{}</code>内で<code>&amp;mut</code>な参照<code>y</code>をつくり、<code>*y</code>で間接参照してインクリメントしました。
 C++とおなじように、参照先は<code>*</code>でアクセスできます。</p>
@@ -394,30 +386,28 @@ C++とおなじように、参照先は<code>*</code>でアクセスできます
 次のコードは順に5, 5, 6, 6, 6を出力します。
 出力部で<code>p</code>と<code>*p</code>がどっちも使えるのは、
 <code>println!()</code>マクロのポリモーフィズムのおかげでしょうか？</p>
-let mut q = 5;
-let p = &mut q;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> q <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> p <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> q;
 
-println!("{}", p);
-println!("{}", *p);
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, p);
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, <span style="color:#f92672">*</span>p);
 
-*p += 1; // p += 1 はコンパイルエラー
-
-println!("{}", p);
-println!("{}", *p);
-println!("{}", q)
-
-<h2 id="the-rules:98ce1841cead9b5af67fecc02a280dcb">The Rules</h2>
+<span style="color:#f92672">*</span>p <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">// p += 1 はコンパイルエラー
+</span><span style="color:#75715e"></span>
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, p);
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, <span style="color:#f92672">*</span>p);
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, q)</code></pre></div>
+<h2 id="the-rules">The Rules</h2>
 
 <p>さて、上に挙げた</p>
-let mut x = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
 {
-    let y = &mut x;
-    *y += 1;
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> x;
+    <span style="color:#f92672">*</span>y <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
 }
 
-println!("{}", x)
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x)</code></pre></div>
 <p>のコードは、<code>{}</code>でスコープをつくり、<code>y</code>を囲っていますね。
 実はこの<code>{}</code>を取り除くと、コンパイルエラーになります。</p>
 
@@ -442,62 +432,58 @@ println!("{}", x)
 <p><code>{}</code>を取り除くと、この二つ目に反することになります。
 mutableな参照<code>y</code>が存在しているうちに、<code>println!()</code>においてまた<code>x</code>の
 参照が作られようとするからです。</p>
-let mut x = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
-let y = &mut x;    // -+ &mut borrow of x starts here
-*y += 1;           //  |
-                   //  |
-println!("{}", x); // -+ - try to borrow x here
-                   // -+ &mut borrow of x ends here
-
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> x;    <span style="color:#75715e">// -+ &amp;mut borrow of x starts here
+</span><span style="color:#75715e"></span><span style="color:#f92672">*</span>y <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;           <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>                   <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x); <span style="color:#75715e">// -+ - try to borrow x here
+</span><span style="color:#75715e"></span>                   <span style="color:#f92672">//</span> <span style="color:#f92672">-+</span> <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> borrow of x ends here</code></pre></div>
 <p>そこで<code>y</code>を<code>{}</code>で囲むと、参照の存在がconflictせず、
 data raceがないことが保証できます。</p>
 
-<h2 id="issues-borrowing-prevents:98ce1841cead9b5af67fecc02a280dcb">Issues borrowing prevents</h2>
+<h2 id="issues-borrowing-prevents">Issues borrowing prevents</h2>
 
 <p>このようにRustは厳格(すぎる)リソース管理システムを持っています。
 なぜこのような制限が必要なのか一度確認しておきましょう。</p>
 
-<h3 id="use-after-free:98ce1841cead9b5af67fecc02a280dcb">Use after free</h3>
+<h3 id="use-after-free">Use after free</h3>
 
 <p>まずはひとつ目の、参照が元データより長く存在してはいけないというルールです。</p>
-let y: &i32;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> y: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">i32</span>;
 
 {
-    let x = 5;
-    y = &x;
+    <span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+    y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
 }
 
-println!("{}", y);
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, y);</code></pre></div>
 <p>このコードは、<code>x</code>を参照する<code>y</code>が<code>x</code>より長く存在しているので違反となります。
 参照先が不定になると再現性の無いバグとなって大変ですね。
 Rustではこのようなスコープ解析がコンパイル時におこなわれます。</p>
 
 <p>さらに次のコードもコンパイルエラーになります。</p>
-let y: &i32;
-let x = 5;
-y = &x;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> y: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">i32</span>;
+<span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>x;
 
-println!("{}", y);
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, y);</code></pre></div>
 <p>スコープは同じですが、<code>y</code>が<code>x</code>より先に定義されているため、
 スコープを抜けるときは逆順に、
 つまり<code>x</code>の次に<code>y</code>が削除されることになるからです。
 スタックの下にあるものしか参照できないということでしょう。厳しいですね。</p>
 
-<h3 id="iterator-invalidation:98ce1841cead9b5af67fecc02a280dcb">Iterator invalidation</h3>
+<h3 id="iterator-invalidation">Iterator invalidation</h3>
 
 <p>二つ目のルールを確認します。
 次のコードはコンパイルエラーです。</p>
-let mut v = vec![1, 2, 3];
-v.push(42);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> v <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
+v.push(<span style="color:#ae81ff">42</span>);
 
-for i in &v {
-    println!("{}", i);
-    v.push(34);
-}
-
+<span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#f92672">&amp;</span>v {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, i);
+    v.push(<span style="color:#ae81ff">34</span>);
+}</code></pre></div>
 <p>まず、一行目でvectorの<code>v</code>を<code>mut</code>として定義しました。
 二行目では<code>push</code>を行うために、<code>v</code>のmutableな参照が一時的につくられ、
 <code>push</code>後すぐに破棄されるようです。</p>

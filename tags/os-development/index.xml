@@ -8,7 +8,9 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Mon, 24 Apr 2017 00:00:00 +0000</lastBuildDate>
-    <atom:link href="/tags/os-development/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="/tags/os-development/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>xv6の紹介</title>
@@ -16,28 +18,7 @@
       <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/introducing_xv6/</guid>
-      <description>
-
-&lt;h1 id=&#34;xv6とは:4b88f979364b0686110c233f4c7f6d02&#34;&gt;xv6とは&lt;/h1&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://pdos.csail.mit.edu/6.828/2014/xv6.html&#34;&gt;xv6&lt;/a&gt;は、MITで教材用に作られたコンパクトなOSです。
-他のいくつかの大学でも使われているようです[&lt;a href=&#34;https://ja.wikipedia.org/wiki/Xv6&#34;&gt;xv6 - Wikipedia&lt;/a&gt;]。&lt;/p&gt;
-
-&lt;p&gt;ANSI Cで書かれ、x86で動きます。マルチコアにも対応もしているようです。&lt;/p&gt;
-
-&lt;p&gt;ソースコードは&lt;a href=&#34;https://github.com/mit-pdos/xv6-public&#34;&gt;GitHub&lt;/a&gt;でMITライセンス下で公開されています。
-&lt;a href=&#34;https://pdos.csail.mit.edu/6.828/2014/xv6/xv6-rev8.pdf&#34;&gt;PDF版&lt;/a&gt;もあります。
-&lt;a href=&#34;https://pdos.csail.mit.edu/6.828/2014/xv6/book-rev8.pdf&#34;&gt;xv6のコードと、OSの重要概念の解説&lt;/a&gt;や、
-&lt;a href=&#34;https://pdos.csail.mit.edu/6.828/2014/schedule.html&#34;&gt;MITでの授業で使われた資料&lt;/a&gt;も入手できます。&lt;/p&gt;
-
-&lt;h1 id=&#34;xv6のビルド:4b88f979364b0686110c233f4c7f6d02&#34;&gt;xv6のビルド&lt;/h1&gt;
-
-&lt;p&gt;macOS 10.11.6上のQEMU上で動かします。&lt;/p&gt;
-
-&lt;p&gt;macOSはx64でELFじゃないので、xv6のビルド・実行にはクロスコンパイルが必要です。
-環境構築については&lt;a href=&#34;http://sairoutine.hatenablog.com/entry/2016/09/02/232318&#34;&gt;こちら&lt;/a&gt;の方法がたいへん参考になります。
-Homebrewを使う方法は依存関係がコンフリクトしていると言われ出来なかったので、binutilsとgccをビルドしました。&lt;/p&gt;
-</description>
+      <description>xv6とは xv6は、MITで教材用に作られたコンパクトなOSです。 他のいくつかの大学でも使われているようです[xv6 - Wikipedia]。</description>
     </item>
     
   </channel>

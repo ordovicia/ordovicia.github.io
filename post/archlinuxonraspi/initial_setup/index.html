@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Arch Linux on Raspberry Pi 2 - 初期セットアップ &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -235,7 +235,7 @@
 <p>先日Raspberry Pi 2を買いました。
 試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。</p>
 
-<h1 id="arch-linuxのインストール:ad3d94928460cf368a4ab82568476234">Arch Linuxのインストール</h1>
+<h1 id="arch-linuxのインストール">Arch Linuxのインストール</h1>
 
 <p>Ubuntu15.04で、
 <a href="http://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2">Arch Linux ARMのページ</a>
@@ -250,24 +250,22 @@
 なぜが初期パスワードのはずの&rsquo;root&rsquo;を入力しても&rsquo;Permission denied&rsquo;でした。
 そこでalarmユーザーではいりました。
 このユーザーの初期パスワードは&rsquo;alarm&rsquo;です。</p>
-Welcome to Arch Linux ARM
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Welcome to Arch Linux ARM
 
      Website: http://archlinuxarm.org
        Forum: http://archlinuxarm.org/forum
-         IRC: #archlinux-arm on irc.Freenode.net
-Last login: Wed Dec  9 12:54:36 2015 from 192.168.0.4
-
+         IRC: <span style="color:#75715e">#archlinux-arm on irc.Freenode.net
+</span><span style="color:#75715e"></span>Last login: Wed Dec  <span style="color:#ae81ff">9</span> <span style="color:#ae81ff">12</span>:54:36 <span style="color:#ae81ff">2015</span> from <span style="color:#ae81ff">192</span>.168.0.4</code></pre></div>
 <p>こんな出力がでたので成功のようです。</p>
 
-<h1 id="初期セットアップ:ad3d94928460cf368a4ab82568476234">初期セットアップ</h1>
+<h1 id="初期セットアップ">初期セットアップ</h1>
 
-<h2 id="更新:ad3d94928460cf368a4ab82568476234">更新</h2>
+<h2 id="更新">更新</h2>
 
 <p><code>sudo</code>コマンドがなかったので、
 <code>$ su</code>でrootになり（このときは&rsquo;root&rsquo;がパスワードでした）、
 とりあえず</p>
-$ pacman -Syu
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ pacman -Syu</code></pre></div>
 <p>しました。
 けっこう時間がかかります。</p>
 
@@ -277,29 +275,26 @@ $ pacman -Syu
 
 <p>更新したら<code>$ reboot</code>しておきます。</p>
 
-<h2 id="microsdカード:ad3d94928460cf368a4ab82568476234">microSDカード</h2>
+<h2 id="microsdカード">microSDカード</h2>
 
 <p>microSDカードの容量が2GBまでしか認識されないとどこかで聞いた気がしたのですが、</p>
-$ df -h
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ df -h</code></pre></div>
 <p>で確認すると、本来の16GB近くの値が表示されていたので、
 気にしないことにしました。
 RasPi1だけの問題だったのでしょうか。</p>
 
-<h2 id="パスワードの変更:ad3d94928460cf368a4ab82568476234">パスワードの変更</h2>
+<h2 id="パスワードの変更">パスワードの変更</h2>
 
 <p>root, alarmユーザーともに、<code>$ passwd</code>でパスワードを変更しておきます。</p>
 
-<h2 id="時刻合わせ:ad3d94928460cf368a4ab82568476234">時刻合わせ</h2>
-$ timedatectl set-timezone Asia/Tokyo
-
+<h2 id="時刻合わせ">時刻合わせ</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ timedatectl set-timezone Asia/Tokyo</code></pre></div>
 <p>で、タイムゾーンを合わせます。
 さらに</p>
-$ timedatectl set-ntp true
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ timedatectl set-ntp true</code></pre></div>
 <p>しておくと、時刻サーバーと同期がとれるようです。</p>
 
-<h2 id="ipアドレスの固定:ad3d94928460cf368a4ab82568476234">IPアドレスの固定</h2>
+<h2 id="ipアドレスの固定">IPアドレスの固定</h2>
 
 <p>しようとしましたが、うまく行きませんでした。
 <a href="https://wiki.archlinuxjp.org/index.php/Netctl">netctl</a>をつかって設定したつもりでも、
@@ -311,38 +306,33 @@ rebootするとまた変わっていたりしました。
 
 <p>また困ったら調べてみます。</p>
 
-<h2 id="ホストネームの設定:ad3d94928460cf368a4ab82568476234">ホストネームの設定</h2>
+<h2 id="ホストネームの設定">ホストネームの設定</h2>
 
 <p>ここからは<a href="http://ochaochaocha3.hateblo.jp/entry/2014/04/19/raspberry-pi-initial-setting-of-arch-linux-for-ssh-connecting">「Raspberry Pi: Arch Linux の初期設定（SSH 接続まで）」 - ochalog</a>を参考にしました。</p>
-$ hostnamectl set-hostname raspi
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ hostnamectl set-hostname raspi</code></pre></div>
 <p>これで<code>/etc/hostname</code>にホストネームが書き込まれます。</p>
 
-<h2 id="sshでrootでのログインを禁止する:ad3d94928460cf368a4ab82568476234">sshでrootでのログインを禁止する</h2>
+<h2 id="sshでrootでのログインを禁止する">sshでrootでのログインを禁止する</h2>
 
 <p><code>/etc/ssh/sshd_config</code>を開き、</p>
-PermitRootLogin no
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">PermitRootLogin no</code></pre></div>
 <p>と編集します。これでsshでrootでのログインを禁止できました。
 （もともと何故かできなかったんですけどね。）</p>
 
-<h2 id="sudoのインストール:ad3d94928460cf368a4ab82568476234">sudoのインストール</h2>
-$ pacman -S sudo
-
+<h2 id="sudoのインストール">sudoのインストール</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ pacman -S sudo</code></pre></div>
 <p>で<code>sudo</code>をインストールし、wheelグループが使えるように、
 <code>$ visudo</code>を実行して</p>
-%wheel ALL=(ALL) ALL
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">%wheel ALL<span style="color:#f92672">=(</span>ALL<span style="color:#f92672">)</span> ALL</code></pre></div>
 <p>の部分のコメントアウトを解除しました。</p>
 
-<h2 id="ユーザーの追加:ad3d94928460cf368a4ab82568476234">ユーザーの追加</h2>
+<h2 id="ユーザーの追加">ユーザーの追加</h2>
 
 <p>ユーザーを追加し、パスワードを設定して、さらに<code>sudo</code>がつかえるように、
 wheelグループに追加します。</p>
-$ useradd -m cyan
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ useradd -m cyan
 $ passwd cyan
-$ gpasswd -a cyan wheel
-
+$ gpasswd -a cyan wheel</code></pre></div>
 <hr />
 
 <p>これで初期セットアップが完了しました。

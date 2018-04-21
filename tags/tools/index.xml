@@ -8,7 +8,9 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Thu, 29 Jun 2017 00:00:00 +0000</lastBuildDate>
-    <atom:link href="/tags/tools/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="/tags/tools/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>MardownをPDFに変換する</title>
@@ -16,99 +18,7 @@
       <pubDate>Thu, 29 Jun 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/convert_markdown_to_pdf/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;https://hackmd.io&#34;&gt;HackMD&lt;/a&gt; というサービスをよく使っています。
-これで書いたものをPDF化したくなったことがあったので、その方法について調べたことをメモしておきます。&lt;/p&gt;
-
-&lt;p&gt;もともとHackMDにはPDFでエクスポートする機能があったのですが、
-サーバー負荷が重かったらしく、現在は削除されています。
-&lt;a href=&#34;https://github.com/hackmdio/hackmd/issues/33&#34;&gt;PDF化機能を追加するというissue&lt;/a&gt;は存在していて、
-開発は続けていらっしゃるようです。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;HackMDにかぎらずMarkdownをPDF化する方法には、少なくとも以下のものがあります。
-このようなサービスやMarkdownエディタは数え切れないほどあり（逆に言うと決定的なのがないのですが）、
-方法は他にもたくさんあると思います。&lt;/p&gt;
-
-&lt;h3 id=&#34;markdown-html:6fbcd732116c0383a0b8a966e461eed5&#34;&gt;Markdown -&amp;gt; HTML&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Atomで開いてHTMLで保存
-
-&lt;ul&gt;
-&lt;li&gt;MathJaxが使る&lt;/li&gt;
-&lt;li&gt;リアルタイムプレビュー&lt;/li&gt;
-&lt;li&gt;ほかのMarkdownエディタも同じようなもの？&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Gist
-
-&lt;ul&gt;
-&lt;li&gt;数式が使えない&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/joeyespo/grip&#34;&gt;grip&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;GitHubのAPIに投げてレンダリングするので、結果はおよそGistと同じ&lt;/li&gt;
-&lt;li&gt;だが、gripはソースをいじったりAPIを使ったりすることで自分でカスタマイズでき、例えばMathJaxを使ったりもできる&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://pandoc.org/&#34;&gt;pandoc&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;CSSで見た目をカスタマイズできる&lt;/li&gt;
-&lt;li&gt;デフォルトだとあまり見栄えしない&lt;/li&gt;
-&lt;li&gt;HackMDの拡張Markdow記法（の多く）が扱える&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;html-pdf:6fbcd732116c0383a0b8a966e461eed5&#34;&gt;HTML -&amp;gt; PDF&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;ブラウザの印刷機能
-
-&lt;ul&gt;
-&lt;li&gt;見た目が変わることがある&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://wkhtmltopdf.org/&#34;&gt;wkhtmltopdf&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;見た目が変わることがある&lt;/li&gt;
-&lt;li&gt;動作が遅い&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;markdown-pdf:6fbcd732116c0383a0b8a966e461eed5&#34;&gt;Markdown -&amp;gt; PDF&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;pandoc + LaTeX&lt;/li&gt;
-&lt;li&gt;pandoc + wkhtmltopdf&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.npmjs.com/package/markdown-pdf&#34;&gt;markdown-pdf&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;見た目の調整が面倒&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;いろいろ試したところでは、&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;CSSで見た目を調節しながら、pandocでHTMLを出力し、&lt;/li&gt;
-&lt;li&gt;ブラウザの印刷機能でPDFに変換する&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;のがベストかなと思いました。
-この方法ならHackMDの拡張記法も扱えるようです。&lt;/p&gt;
-
-&lt;p&gt;CSSはよくわからないので、&lt;a href=&#34;https://gist.github.com/andyferra/2554919&#34;&gt;github.css&lt;/a&gt; をそのまま使わせてもらいました。&lt;/p&gt;
-
-&lt;p&gt;Pandocは次のように使います。&lt;/p&gt;
-$ pandoc -s --mathjax -c github.css
-
-&lt;p&gt;追加で、&lt;code&gt;--indented-code-classes&lt;/code&gt; でコードハイライトを有効にしたり、&lt;code&gt;-H, -B, -A&lt;/code&gt; でヘッダ・フッタを指定すると満足度の高いPDFが得られます。&lt;/p&gt;
-</description>
+      <description>HackMD というサービスをよく使っています。 これで書いたものをPDF化したくなったことがあったので、その方法について調べたことをメモしておきます。 も</description>
     </item>
     
   </channel>

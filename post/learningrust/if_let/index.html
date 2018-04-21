@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - If let &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,50 +230,46 @@
 
   
 
-<h1 id="syntax-and-semantics:b79c186110a99d92369d5f1aae030784">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
-<h2 id="if-let:b79c186110a99d92369d5f1aae030784"><code>if let</code></h2>
+<h2 id="if-let"><code>if let</code></h2>
 
 <p><code>if let</code>は、ある種のパターンマッチのwrapperです。
 Overheadをなくす効果もあるそうです。</p>
-match option {
-    Some(x) => { foo(x) },
-    None => {},
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">match</span> option {
+    Some(x) <span style="color:#f92672">=&gt;</span> { foo(x) },
+    None <span style="color:#f92672">=&gt;</span> {},
+}</code></pre></div>
 <p>のように、あるパターンにマッチした場合のみ処理をおこなうとき、
 <code>if let</code>を使うと次のように書けます。</p>
-if let Some(x) = option {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
     foo(x);
-}
-
+}</code></pre></div>
 <p><code>Some(x)</code>にマッチした場合は<code>foo(x)</code>が実行されますが、
 マッチしなかった場合、なにも起きずに通り過ぎます。</p>
 
 <p>マッチしなかった場合の処理は、<code>else</code>節で書くこともできます。</p>
-if let Some(x) = option {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">if</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
     foo(x);
-} else {
+} <span style="color:#66d9ef">else</span> {
     bar();
-}
-
-<h2 id="while-let:b79c186110a99d92369d5f1aae030784"><code>while let</code></h2>
+}</code></pre></div>
+<h2 id="while-let"><code>while let</code></h2>
 
 <p>同じように、<code>while let</code>もあります。
 あるパターンにマッチする限り処理を繰り返します。</p>
 
 <p>例えば、次のコードは10から0までを順に出力します。</p>
-let mut option = Some(10);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> option <span style="color:#f92672">=</span> Some(<span style="color:#ae81ff">10</span>);
 
-while let Some(x) = option {
-    println!("{}", x);
-    option = if x == 0 {
+<span style="color:#66d9ef">while</span> <span style="color:#66d9ef">let</span> Some(x) <span style="color:#f92672">=</span> option {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);
+    option <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
         None
-    } else {
-        Some(x - 1)
+    } <span style="color:#66d9ef">else</span> {
+        Some(x <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)
     }
-}
-
+}</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

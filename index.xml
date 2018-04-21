@@ -8,7 +8,9 @@
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
     <lastBuildDate>Sat, 24 Feb 2018 00:00:00 +0900</lastBuildDate>
-    <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Vecの実装 in Rust - Handling Zero-Sized Types</title>
@@ -16,159 +18,7 @@
       <pubDate>Sat, 24 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/handling_zero-sized_types/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/drain&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;handling-zero-sized-types-https-doc-rust-lang-org-nomicon-vec-zsts-html:6c180c463723d44d0b4f6dffbfe89ab3&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-zsts.html&#34;&gt;Handling Zero-Sized Types&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;最後に、&lt;a href=&#34;https://doc.rust-lang.org/nomicon/exotic-sizes.html#zero-sized-types-zsts&#34;&gt;ZST (Zero Sized Type)&lt;/a&gt; に対応する。
-これに際して、二点考慮する必要がある。&lt;/p&gt;
-
-&lt;p&gt;まず、&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html&#34;&gt;&lt;code&gt;heap::Alloc&lt;/code&gt;&lt;/a&gt; はZSTを正しく扱えるとは限ず、このtraitを実装する型に依存する。
-今回は &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/struct.Heap.html&#34;&gt;&lt;code&gt;heap::Heap&lt;/code&gt;&lt;/a&gt; を用いることがわかっているが、あまりドキュメントもないので実装に依存しないことにする。&lt;/p&gt;
-
-&lt;p&gt;ZSTに対応するため、&lt;code&gt;RawVec&lt;/code&gt; に以下の修正を加える。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;default()&lt;/code&gt; では、キャパシティをはじめから &lt;code&gt;usize::MAX&lt;/code&gt; に設定してしまう &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:6c180c463723d44d0b4f6dffbfe89ab3:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:6c180c463723d44d0b4f6dffbfe89ab3:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;grow()&lt;/code&gt; が呼ばれたら &lt;code&gt;panic!()&lt;/code&gt; する。キャパシティが &lt;code&gt;usize::MAX&lt;/code&gt; なので、&lt;code&gt;grow()&lt;/code&gt; が呼ばれるということはそれを超える要素が格納されようとしていることを意味する。&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;drop()&lt;/code&gt; ではメモリ解放しない。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;つまり、次のように変更する。&lt;/p&gt;
-impl&lt;T&gt; RawVec&lt;T&gt; {
-    pub(super) fn default() -&gt; Self {
-        // !0 is usize::MAX. This branch should be stripped at compile time.
-        let cap = if mem::size_of::&lt;T&gt;() == 0 { !0 } else { 0 };
-
-        RawVec {
-            ptr: OwnedPtr::empty(),
-            cap: cap,
-            alloc: Heap,
-        }
-    }
-
-    pub(super) fn grow(&amp;mut self) {
-        let elem_size = mem::size_of::&lt;T&gt;();
-
-        // since we set the capacity to usize::MAX when elem_size is
-        // 0, getting to here necessarily means the Vec is overfull.
-        assert!(elem_size != 0, &#34;capacity overflow&#34;);
-
-        let (ptr, new_cap) = if self.cap == 0 {
-            (self.alloc.alloc_one::&lt;T&gt;(), 1)
-        } else {
-            let old_num_bytes = self.cap * elem_size;
-
-            ...
-        };
-
-        ...
-    }
-}
-
-impl&lt;T&gt; Drop for RawVec&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        let elem_size = mem::size_of::&lt;T&gt;();
-
-        // don&#39;t free zero-sized allocations, as they were never allocated.
-        if self.cap == 0 || elem_size == 0 {
-            return;
-        }
-
-        ...
-    }
-}
-
-&lt;p&gt;次に考慮する点として、イテレータはこれまでのように &lt;code&gt;ptr.offset()&lt;/code&gt; でポインタを進めていくわけにはいかない。
-サイズがゼロなので、 &lt;code&gt;ptr.offset()&lt;/code&gt; は何もしない。
-そこで、ポインタを &lt;code&gt;usize&lt;/code&gt; にキャストして整数としてインクリメント・デクリメントしていくことにする。&lt;/p&gt;
-impl&lt;T&gt; RawValIter&lt;T&gt; {
-    pub(super) unsafe fn new(slice: &amp;[T]) -&gt; Self {
-        let start = slice.as_ptr();
-
-        RawValIter {
-            start,
-            end: if mem::size_of::&lt;T&gt;() == 0 {
-                ((start as usize) + slice.len()) as *const _
-            } else if slice.is_empty() {
-                start
-            } else {
-                start.offset(slice.len() as isize)
-            },
-        }
-    }
-}
-
-impl&lt;T&gt; Iterator for RawValIter&lt;T&gt; {
-    type Item = T;
-    fn next(&amp;mut self) -&gt; Option&lt;T&gt; {
-        if self.start == self.end {
-            None
-        } else {
-            unsafe {
-                let result = ptr::read(self.start);
-                self.start = if mem::size_of::&lt;T&gt;() == 0 {
-                    (self.start as usize + 1) as *const _
-                } else {
-                    self.start.offset(1)
-                };
-                Some(result)
-            }
-        }
-    }
-
-    ...
-}
-
-impl&lt;T&gt; DoubleEndedIterator for RawValIter&lt;T&gt; {
-    fn next_back(&amp;mut self) -&gt; Option&lt;T&gt; {
-        if self.start == self.end {
-            None
-        } else {
-            unsafe {
-                self.end = if mem::size_of::&lt;T&gt;() == 0 {
-                    (self.end as usize - 1) as *const _
-                } else {
-                    self.end.offset(-1)
-                };
-                Some(ptr::read(self.end))
-            }
-        }
-    }
-}
-
-&lt;p&gt;最後に、&lt;code&gt;Iterator::size_hint()&lt;/code&gt; を修正する。
-要素のサイズでイテレータの差を割るので、ZSTではゼロで割ることになってしまう。&lt;/p&gt;
-impl&lt;T&gt; Iterator for RawValIter&lt;T&gt; {
-    ...
-
-    fn size_hint(&amp;self) -&gt; (usize, Option&lt;usize&gt;) {
-        let elem_size = mem::size_of::&lt;T&gt;();
-        let len = (self.end as usize - self.start as usize)
-                  / if elem_size == 0 { 1 } else { elem_size };
-        (len, Some(len))
-    }
-}
-&lt;div class=&#34;footnotes&#34;&gt;
-
-&lt;hr /&gt;
-
-&lt;ol&gt;
-&lt;li id=&#34;fn:6c180c463723d44d0b4f6dffbfe89ab3:1&#34;&gt;Rustnomiconでも &lt;a href=&#34;https://doc.rust-lang.org/nightly/src/alloc/raw_vec.rs.html#53&#34;&gt;標準ライブラリの &lt;code&gt;RawVec&lt;/code&gt;&lt;/a&gt; でも、&lt;code&gt;usize::MAX&lt;/code&gt; を表すのに &lt;code&gt;!0&lt;/code&gt; としているが、はじめから &lt;code&gt;usize::MAX&lt;/code&gt; にすればいいのでは&amp;hellip;&amp;hellip;？
- &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:6c180c463723d44d0b4f6dffbfe89ab3:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Handling</description>
     </item>
     
     <item>
@@ -177,173 +27,7 @@ impl&lt;T&gt; Iterator for RawValIter&lt;T&gt; {
       <pubDate>Fri, 23 Feb 2018 00:00:01 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/drain/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/raw_vec&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;drain-https-doc-rust-lang-org-nomicon-vec-drain-html:1a3000761c0962c281e57308b055a5dd&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-drain.html&#34;&gt;Drain&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;&lt;code&gt;IntoIter&lt;/code&gt; に続く有用なイテレータとして、&lt;code&gt;Drain&lt;/code&gt; を実装する。
-&lt;code&gt;Drain&lt;/code&gt; はおよそ &lt;code&gt;IntoIter&lt;/code&gt; と同じだが、&lt;code&gt;Vec&lt;/code&gt; の要素を消費せず借用して取り出し、メモリ領域の管理は移さない。
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/vec/struct.Drain.html&#34;&gt;標準ライブラリの &lt;code&gt;vec::Drain&lt;/code&gt;&lt;/a&gt; は取り出す要素をrangeで指定でき、一部だけ取り出すこともできる。
-今回は簡単に、開始位置だけ指定でき、そこから最後の要素までを取り出すバージョンを書いてみる &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1a3000761c0962c281e57308b055a5dd:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1a3000761c0962c281e57308b055a5dd:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
-
-&lt;p&gt;まず、&lt;code&gt;Drain&lt;/code&gt; 構造体の定義を考える。
-&lt;code&gt;IntoIter&lt;/code&gt; と同じく、&lt;code&gt;Iterator&lt;/code&gt; と &lt;code&gt;DoubleEndedIterator&lt;/code&gt; を &lt;code&gt;Drain&lt;/code&gt; に実装したいので、前方・後方イテレータを用いる実装がよさそうだ。
-そうすると、&lt;code&gt;IntoIter&lt;/code&gt; の実装とかぶる部分がでてくるので、この部分を切り出し抽象的なイテレータ構造を定義できそうだと考える。&lt;/p&gt;
-pub(super) struct RawValIter&lt;T&gt; {
-    start: *const T,
-    end: *const T,
-}
-
-impl&lt;T&gt; RawValIter&lt;T&gt; {
-    pub(super) unsafe fn new(slice: &amp;[T]) -&gt; Self {
-        let start = slice.as_ptr();
-
-        RawValIter {
-            start,
-            end: if slice.len() == 0 {
-                start
-            } else {
-                start.offset(slice.len() as isize)
-            },
-        }
-    }
-}
-
-&lt;p&gt;前方・後方イテレータをもつ抽象的なイテレータ構造ができた。
-&lt;code&gt;new()&lt;/code&gt; がunsafeなのは、スライスから生ポインタを取り出すことでlifetimeの情報が失われるためである。
-あとで &lt;code&gt;RawValIter&lt;/code&gt; を &lt;code&gt;RawVec&lt;/code&gt; と同じ構造体に入れるので、lifetime情報を付与したままにはできない。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;RawValIter&lt;/code&gt; に実装する &lt;code&gt;Iterator&lt;/code&gt; と &lt;code&gt;DoubleEndedIterator&lt;/code&gt; は、 &lt;code&gt;IntoIter&lt;/code&gt; に定義したものと同様に定義しておく。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;RawValIter&lt;/code&gt; を用いて、&lt;code&gt;IntoIter&lt;/code&gt; および &lt;code&gt;Vec::into_iter()&lt;/code&gt; は次のように修正できる。
-&lt;code&gt;Iterator&lt;/code&gt;, &lt;code&gt;DoubleEndedIterator&lt;/code&gt; の実装は、内部に持つ &lt;code&gt;RawValIter&lt;/code&gt; の実装に委任できる。&lt;/p&gt;
-pub struct IntoIter&lt;T&gt; {
-    _buf: RawVec&lt;T&gt;,
-    iter: RawValIter&lt;T&gt;,
-}
-
-impl&lt;T&gt; Iterator for IntoIter&lt;T&gt; {
-    type Item = T;
-
-    fn next(&amp;mut self) -&gt; Option&lt;T&gt; {
-        self.iter.next()
-    }
-
-    fn size_hint(&amp;self) -&gt; (usize, Option&lt;usize&gt;) {
-        self.iter.size_hint()
-    }
-}
-
-impl&lt;T&gt; DoubleEndedIterator for IntoIter&lt;T&gt; {
-    fn next_back(&amp;mut self) -&gt; Option&lt;T&gt; {
-        self.iter.next_back()
-    }
-}
-
-impl&lt;T&gt; IntoIter&lt;T&gt; {
-    pub(super) fn new(buf: RawVec&lt;T&gt;, iter: RawValIter&lt;T&gt;) -&gt; Self {
-        IntoIter { _buf: buf, iter }
-    }
-}
-impl&lt;T&gt; for Vec&lt;T&gt; {
-    pub fn into_iter(self) -&gt; IntoIter&lt;T&gt; {
-        unsafe {
-            let iter = RawValIter::new(&amp;self);
-
-            let buf = ptr::read(&amp;self.buf);
-            mem::forget(self);
-
-            IntoIter::new(buf, iter)
-        }
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Drain&lt;/code&gt; を実装する。
-&lt;code&gt;Vec&lt;/code&gt; から要素を借用するのでlifetime引数をとるが、定義には現れないので &lt;code&gt;PhantomData&lt;/code&gt; を用いる。&lt;/p&gt;
-use std::marker::PhantomData;
-
-pub struct Drain&lt;&#39;a, T: &#39;a&gt; {
-    // Need to bound the lifetime here, so we do it with `&amp;&#39;a mut Vec&lt;T&gt;`
-    // because that&#39;s semantically what we contain. We&#39;re &#34;just&#34; calling
-    // `pop()` and `remove(0)`.
-    _vec: PhantomData&lt;&amp;&#39;a mut Vec&lt;T&gt;&gt;,
-    iter: RawValIter&lt;T&gt;,
-}
-
-impl&lt;&#39;a, T&gt; Drop for Drain&lt;&#39;a, T&gt; {
-    fn drop(&amp;mut self) {
-        for _ in &amp;mut self.iter {}
-    }
-}
-
-impl&lt;&#39;a, T&gt; Drain&lt;&#39;a, T&gt; {
-    pub(super) fn new(iter: RawValIter&lt;T&gt;) -&gt; Self {
-        Drain {
-            _vec: PhantomData,
-            iter,
-        }
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Vec::drain()&lt;/code&gt; は次のように書ける。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn drain(&amp;mut self, start: usize) -&gt; Drain&lt;T&gt; {
-        assert!(start &lt; len);
-
-        unsafe {
-            let iter = RawValIter::new(&amp;self[start..]);
-            self.len = start;
-            Drain::new(iter)
-        }
-    }
-}
-
-&lt;p&gt;簡単なテストを書き動作確認する。&lt;/p&gt;
-#![feature(crate_in_paths)] // in lib.rs
-
-#[cfg(test)]
-mod tests {
-    use crate::vec::Vec;
-
-    #[test]
-    fn drain() {
-        let mut v = Vec::default();
-        v.push(0);
-        v.push(1);
-
-        {
-            let mut drain = v.drain(1);
-            assert_eq!(drain.next(), Some(1));
-            assert_eq!(drain.next(), None);
-        }
-
-        assert_eq!(v.len(), 1);
-
-        let mut iter = v.into_iter();
-        assert_eq!(iter.next(), Some(0));
-        assert_eq!(iter.next(), None);
-    }
-}
-&lt;div class=&#34;footnotes&#34;&gt;
-
-&lt;hr /&gt;
-
-&lt;ol&gt;
-&lt;li id=&#34;fn:1a3000761c0962c281e57308b055a5dd:1&#34;&gt;Rustnomiconでは全範囲を取り出すバージョンを書いているが、それではあまりに単純すぎる。
- &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1a3000761c0962c281e57308b055a5dd:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Drain</description>
     </item>
     
     <item>
@@ -352,164 +36,7 @@ mod tests {
       <pubDate>Fri, 23 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/raw_vec/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/into_iter&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;rawvec-https-doc-rust-lang-org-nomicon-vec-raw-html:6caff5f9ed3448f059ff5d0888564fc8&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-raw.html&#34;&gt;RawVec&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;前回実装した &lt;code&gt;IntoIter&lt;/code&gt; をよく見ると、&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;OwnedPtr&lt;/code&gt; と &lt;code&gt;cap&lt;/code&gt;, &lt;code&gt;alloc&lt;/code&gt; による、確保したメモリ領域の管理&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Drop&lt;/code&gt; の実装におけるメモリ解放処理&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;が &lt;code&gt;Vec&lt;/code&gt; とかぶっていることが分かる。
-こんなとき、重複部分を切り出して抽象化したくなるのが人の情である。&lt;/p&gt;
-
-&lt;p&gt;そこで、メモリ管理処理を &lt;code&gt;RawVec&lt;/code&gt; という構造体に切り出してみる。
-標準ライブラリでも &lt;a href=&#34;https://doc.rust-lang.org/nightly/alloc/raw_vec/struct.RawVec.html&#34;&gt;同様の設計&lt;/a&gt;  を取り、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/src/alloc/vec.rs.html#302-305&#34;&gt;&lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt;, &lt;a href=&#34;https://doc.rust-lang.org/nightly/src/alloc/vec_deque.rs.html#57-66&#34;&gt;&lt;code&gt;VecDeque&lt;/code&gt;&lt;/a&gt; などで使われている。&lt;/p&gt;
-use std::heap::{Alloc, Heap};
-use std::mem;
-
-pub(super) struct RawVec&lt;T&gt; {
-    pub(super) ptr: OwnedPtr&lt;T&gt;,
-    pub(super) cap: usize,
-    alloc: Heap,
-}
-
-impl&lt;T&gt; Drop for RawVec&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        if self.cap == 0 {
-            return;
-        }
-
-        unsafe {
-            if self.cap == 1 {
-                self.alloc.dealloc_one(self.ptr.as_non_null());
-            } else {
-                let e = self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
-                if let Err(e) = e {
-                    self.alloc.oom(e);
-                }
-            }
-        }
-    }
-}
-
-impl&lt;T&gt; RawVec&lt;T&gt; {
-    pub(super) fn default() -&gt; Self {
-        assert!(mem::size_of::&lt;T&gt;() != 0, &#34;We&#39;re not ready to handle ZSTs&#34;);
-
-        RawVec {
-            ptr: OwnedPtr::empty(),
-            cap: 0,
-            alloc: Heap,
-        }
-    }
-
-    pub(super) fn grow(&amp;mut self) {
-        // unchanged from Vec
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Drop&lt;/code&gt; の実装でメモリ領域を解放する。
-ただし、&lt;code&gt;RawVec&lt;/code&gt; は「要素」という概念を持たないので、要素の解放は &lt;code&gt;Vec&lt;/code&gt;, &lt;code&gt;IntoIter&lt;/code&gt; で処理する必要がある。&lt;/p&gt;
-
-&lt;p&gt;この &lt;code&gt;RawVec&lt;/code&gt; を使うよう、&lt;code&gt;Vec&lt;/code&gt;, &lt;code&gt;IntoIter&lt;/code&gt; を修正していく。
-まず &lt;code&gt;impl Drop for Vec&lt;/code&gt; は、要素ごとにdropしたあとはメモリ領域の解放を &lt;code&gt;RawVec&lt;/code&gt; に任せられる。&lt;/p&gt;
-pub struct Vec&lt;T&gt; {
-    buf: RawVec&lt;T&gt;,
-    len: usize,
-}
-
-impl&lt;T&gt; Drop for Vec&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        if mem::needs_drop::&lt;T&gt;() {
-            while let Some(_) = self.pop() {}
-        }
-
-        // deallocation is handled by RawVec
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Vec&lt;/code&gt; の他の部分については、&lt;code&gt;RawVec&lt;/code&gt; からポインタを取り出す &lt;code&gt;ptr()&lt;/code&gt; メソッドと、キャパシティを得る &lt;code&gt;capacity()&lt;/code&gt; を追加し使うようにした以外はほぼ変わらない。
-&lt;code&gt;into_iter()&lt;/code&gt; では、&lt;code&gt;RawVec&lt;/code&gt; が &lt;code&gt;Copy&lt;/code&gt; でないため &lt;code&gt;ptr::read()&lt;/code&gt; によりメモリ領域を取り出す必要がある。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    /// Returns capacity.
-    pub fn capacity(&amp;self) -&gt; usize {
-        self.buf.cap
-    }
-
-    /// Creates an [`IntoIter`] instance from self.
-    ///
-    /// [`IntoIter`]: ../into_iter/struct.IntoIter.html
-    pub fn into_iter(self) -&gt; IntoIter&lt;T&gt; {
-        // need to use ptr::read to unsafely move the buf out since it&#39;s
-        // not Copy, and Vec implements Drop (so we can&#39;t destructure it).
-        let buf = unsafe { ptr::read(&amp;self.buf) };
-        let cap = self.capacity();
-        let len = self.len;
-
-        mem::forget(self);
-
-        let start = buf.ptr.as_ptr();
-
-        IntoIter::new(
-            buf,
-            start,
-            if cap == 0 {
-                // can&#39;t offset off this pointer, it&#39;s not allocated!
-                start
-            } else {
-                unsafe { start.offset(len as isize) }
-            },
-        )
-    }
-
-    fn ptr(&amp;self) -&gt; *mut T {
-        self.buf.ptr.as_ptr()
-    }
-}
-
-&lt;p&gt;次に、&lt;code&gt;IntoIter&lt;/code&gt; を &lt;code&gt;RawVec&lt;/code&gt; を使って書き直す。
-&lt;code&gt;Vec&lt;/code&gt; と同様に、&lt;code&gt;impl Drop for IntoIter&lt;/code&gt; は要素をdropしたあとは &lt;code&gt;RawVec&lt;/code&gt; に任せる。&lt;/p&gt;
-pub struct IntoIter&lt;T&gt; {
-    _buf: RawVec&lt;T&gt;, // we don&#39;t actually care abount this. Just need it to live.
-    start: *const T,
-    end: *const T,
-}
-
-impl&lt;T&gt; Drop for IntoIter&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        if mem::needs_drop::&lt;T&gt;() {
-            for _ in &amp;mut *self {}
-        }
-
-        // deallocation is handled by RawVec
-    }
-}
-
-impl&lt;T&gt; IntoIter&lt;T&gt; {
-    pub(super) fn new(buf: RawVec&lt;T&gt;, start: *const T, end: *const T) -&gt; Self {
-        IntoIter {
-            _buf: buf,
-            start,
-            end,
-        }
-    }
-}
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) RawVec</description>
     </item>
     
     <item>
@@ -518,157 +45,7 @@ impl&lt;T&gt; IntoIter&lt;T&gt; {
       <pubDate>Thu, 22 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/into_iter/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/insert_and_remove&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;intoiter-https-doc-rust-lang-org-nomicon-vec-into-iter-html:31c8e7c8658a9d77d89ee5160d15fa2e&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-into-iter.html&#34;&gt;IntoIter&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;スライスへのderef.を実装したことで、イテレータに関するかなりのメソッドが定義できた。
-しかし、標準ライブラリの &lt;code&gt;Vec&lt;/code&gt; は、他にも有用な種類のイテレータも実装している。
-&lt;code&gt;into_iter()&lt;/code&gt; と &lt;code&gt;drain()&lt;/code&gt; である。
-この記事ではまず &lt;code&gt;into_iter()&lt;/code&gt; を扱う。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;into_iter()&lt;/code&gt; が返す &lt;code&gt;IntoIter&lt;/code&gt; は、スライスと違い要素を所有する。
-従って &lt;code&gt;Vec&lt;/code&gt; が持っているメモリ領域の管理を &lt;code&gt;IntoIter&lt;/code&gt; に移す必要がある。&lt;/p&gt;
-
-&lt;p&gt;また、標準ライブラリの &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/iter/trait.IntoIterator.html&#34;&gt;&lt;code&gt;vec::IntoIter&lt;/code&gt;&lt;/a&gt; は、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/iter/trait.DoubleEndedIterator.html&#34;&gt;&lt;code&gt;DoubleEndedIterator&lt;/code&gt;&lt;/a&gt; も実装している。
-&lt;code&gt;DoubleEndedIterator&lt;/code&gt; を実装するには、配列の最後の要素を消費して取り出す &lt;code&gt;next_back()&lt;/code&gt; を提供しなければならない。
-こんなときよく使われる方法が、配列の最初と最後（のひとつ後）を指すポインタをそれぞれ前方・後方イテレータとして用意する方法である。&lt;/p&gt;
-          S  E
-[X, X, X, O, X, X, X]
-
-&lt;p&gt;&lt;code&gt;X&lt;/code&gt; はすでに消費した要素、&lt;code&gt;O&lt;/code&gt; は未消費の要素を表す。
-&lt;code&gt;S (start)&lt;/code&gt;, &lt;code&gt;E (end)&lt;/code&gt; という二つのポインタで前方・後方イテレータを表す。&lt;/p&gt;
-
-&lt;p&gt;そこで、今回実装する &lt;code&gt;IntoIter&lt;/code&gt; の定義は以下のようになる。
-&lt;code&gt;buf&lt;/code&gt;, &lt;code&gt;cap&lt;/code&gt;, &lt;code&gt;alloc&lt;/code&gt; が &lt;code&gt;Vec&lt;/code&gt; から受け継いだメモリ領域に関するものである。&lt;/p&gt;
-use std::heap::Heap;
-
-pub struct IntoIter&lt;T&gt; {
-    pub(super) buf: OwnedPtr&lt;T&gt;,
-    pub(super) cap: usize,
-    pub(super) start: *const T,
-    pub(super) end: *const T,
-    pub(super) alloc: Heap,
-}
-
-&lt;p&gt;そして &lt;code&gt;Vec::into_iter()&lt;/code&gt; は次のように実装できる。
-気をつけないといけないのが、&lt;code&gt;Vec&lt;/code&gt; が確保したメモリ領域を管理する責任は &lt;code&gt;IntoIter&lt;/code&gt; に移ることである。
-従って、&lt;code&gt;Vec::drop()&lt;/code&gt; が呼ばれないように &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/mem/fn.forget.html&#34;&gt;&lt;code&gt;mem::forget()&lt;/code&gt;&lt;/a&gt; を呼ぶ必要がある。&lt;/p&gt;
-impl&lt;T&gt; for Vec&lt;T&gt; {
-    pub fn into_iter(self) -&gt; IntoIter&lt;T&gt; {
-        let Vec {
-            ptr: buf,
-            cap,
-            len,
-            alloc,
-        } = self;
-
-        // Make sure not to drop Vec since that will free the buffer
-        mem::forget(self);
-
-        IntoIter {
-            buf,
-            cap,
-            start: buf.as_ptr(),
-            end: if cap == 0 {
-                // can&#39;t offset off this pointer, it&#39;s not allocated!
-                buf.as_ptr()
-            } else {
-                unsafe { buf.as_ptr().offset(len as isize) }
-            },
-            alloc,
-        }
-    }
-}
-
-&lt;p&gt;&lt;code&gt;IntoIter&lt;/code&gt; に、イテレータの機能を実装していく。
-まずは &lt;code&gt;Iterator&lt;/code&gt; traitを忘れてはいけない。
-&lt;code&gt;Iterator&lt;/code&gt; traitの実装に最低限必要なのは、&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/iter/trait.Iterator.html#tymethod.next&#34;&gt;&lt;code&gt;next()&lt;/code&gt;&lt;/a&gt; である。
-前方イテレータが指す要素を取り出し、イテレータを進める。
-すでに全要素が消費されていたら（&lt;code&gt;start == end&lt;/code&gt; のとき）&lt;code&gt;None&lt;/code&gt; を返す。&lt;/p&gt;
-
-&lt;p&gt;必須ではないが実装しておくことが望ましいメソッドとして、&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/iter/trait.Iterator.html#method.size_hint&#34;&gt;&lt;code&gt;size_hint()&lt;/code&gt;&lt;/a&gt; がある。
-イテレータが管理している要素の個数を、最小値と最大値（存在すれば）のペアで返す関数で、正しく実装すれば他の関数が最適化のヒントに用いることができる。
-今回は &lt;code&gt;start&lt;/code&gt; と &lt;code&gt;end&lt;/code&gt; で挟まれた部分を数えれば、要素数が正しく求まる。&lt;/p&gt;
-use std::ptr;
-use std::mem;
-use std::heap::{Alloc, Heap};
-
-impl&lt;T&gt; Iterator for IntoIter&lt;T&gt; {
-    type Item = T;
-
-    fn next(&amp;mut self) -&gt; Option&lt;T&gt; {
-        if self.start == self.end {
-            None
-        } else {
-            unsafe {
-                let result = ptr::read(self.start);
-                self.start = self.start.offset(1);
-                Some(result)
-            }
-        }
-    }
-
-    fn size_hint(&amp;self) -&gt; (usize, Option&lt;usize&gt;) {
-        let len = (self.end as usize - self.start as usize) / mem::size_of::&lt;T&gt;();
-        (len, Some(len))
-    }
-}
-
-&lt;p&gt;次に &lt;code&gt;DoubleEndedIterator&lt;/code&gt; traitを実装する。
-必須のメソッドは、後方イテレータ（のひとつ前）が指す要素を取り出しイテレータを（後ろに）進める
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/iter/trait.DoubleEndedIterator.html#tymethod.next_back&#34;&gt;&lt;code&gt;next_back()&lt;/code&gt;&lt;/a&gt; のみである。
-&lt;code&gt;Iterator::next()&lt;/code&gt; と同様に実装すればよい。
-デフォルト実装が提供される他のメソッドを自前で実装する必要はなさそうだ。&lt;/p&gt;
-impl&lt;T&gt; DoubleEndedIterator for IntoIter&lt;T&gt; {
-    fn next_back(&amp;mut self) -&gt; Option&lt;T&gt; {
-        if self.start == self.end {
-            None
-        } else {
-            unsafe {
-                self.end = self.end.offset(-1);
-                Some(ptr::read(self.end))
-            }
-        }
-    }
-}
-
-&lt;p&gt;忘れてはならないのが、&lt;code&gt;Drop&lt;/code&gt; を実装し、&lt;code&gt;Vec&lt;/code&gt; から管理を移したメモリ領域を解放することである。
-&lt;code&gt;Vec&lt;/code&gt; のときは &lt;code&gt;pop()&lt;/code&gt; によって要素ごとのdropをおこなっていたが、イテレータの場合、すべて走査することで代えることができる。&lt;/p&gt;
-impl&lt;T&gt; Drop for IntoIter&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        if self.cap == 0 {
-            return;
-        }
-
-        if mem::needs_drop::&lt;T&gt;() {
-            for _ in &amp;mut *self {}
-        }
-
-        unsafe {
-            if self.cap == 1 {
-                self.alloc.dealloc_one(self.buf.as_non_null());
-            } else {
-                let e = self.alloc.dealloc_array(self.buf.as_non_null(), self.cap);
-                if let Err(e) = e {
-                    self.alloc.oom(e);
-                }
-            }
-        }
-    }
-}
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) IntoIter</description>
     </item>
     
     <item>
@@ -677,81 +54,7 @@ impl&lt;T&gt; Drop for IntoIter&lt;T&gt; {
       <pubDate>Wed, 21 Feb 2018 00:00:03 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/insert_and_remove/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/deref&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;insert-and-remove-https-doc-rust-lang-org-nomicon-vec-insert-remove-html:6fc5d28cf2f4e8837bab8804a7d6fe7c&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-insert-remove.html&#34;&gt;Insert and Remove&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;スライスへのderef.で提供されないメソッドとして、例えば &lt;code&gt;insert()&lt;/code&gt; や &lt;code&gt;remove()&lt;/code&gt; がある。
-これらを追加する。&lt;/p&gt;
-
-&lt;p&gt;まず &lt;code&gt;Vec::insert()&lt;/code&gt; である。
-この関数は、要素を指定したインデックスに挿入する。
-指定したインデックスと、それより右にあった要素は右にシフトされる。
-インデックスが &lt;code&gt;len&lt;/code&gt; を越えていたら &lt;code&gt;panic!()&lt;/code&gt; する。&lt;/p&gt;
-
-&lt;p&gt;実装は以下のようになる。
-インデックスの範囲チェック後、確保したメモリが足りなければ再確保する。
-&lt;code&gt;index &amp;lt; self.len&lt;/code&gt; のとき（つまり、&lt;code&gt;index == self.len&lt;/code&gt; でないとき）は、もともとあった要素のシフトが必要になる。
-この操作は &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/ptr/fn.copy.html&#34;&gt;&lt;code&gt;ptr::copy()&lt;/code&gt;&lt;/a&gt; でできる。
-&lt;code&gt;ptr::copy()&lt;/code&gt; はC言語でいう &lt;code&gt;memmove&lt;/code&gt; で、アドレスからアドレスへ指定要素だけその中身をコピーする。
-コピー元・先で領域がオーバーラップしていても正しく扱ってくれる。
-もともとあった要素をシフトした後は、挿入する要素をメモリに書き込み、&lt;code&gt;len&lt;/code&gt; をインクリメントして終了である。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn insert(&amp;mut self, index: usize, elem: T) {
-        assert!(index &lt;= self.len, &#34;index out of bounds&#34;);
-
-        if self.len == self.cap {
-            self.grow();
-        }
-
-        unsafe {
-            if index &lt; self.len {
-                // ptr::copy(src, dest, len): &#34;copy from source to dest len elems&#34;
-                ptr::copy(
-                    self.ptr.as_ptr().offset(index as isize),
-                    self.ptr.as_ptr().offset(index as isize + 1),
-                    self.len - index,
-                );
-            }
-
-            ptr::write(self.ptr.as_ptr().offset(index as isize), elem);
-        }
-
-        self.len += 1;
-    }
-
-&lt;p&gt;次に &lt;code&gt;Vec::remove()&lt;/code&gt; を実装する。
-&lt;code&gt;insert()&lt;/code&gt; とは逆に、指定したインデックスの要素を削除し返す。
-もともとあった要素は左にシフトされる。
-&lt;code&gt;insert()&lt;/code&gt; と同じように、素直に実装すればよい。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn remove(&amp;mut self, index: usize) -&gt; T {
-        assert!(index &lt; self.len, &#34;index out of bounds&#34;);
-
-        self.len -= 1;
-
-        unsafe {
-            let result = ptr::read(self.ptr.as_ptr().offset(index as isize));
-            ptr::copy(
-                self.ptr.as_ptr().offset(index as isize + 1),
-                self.ptr.as_ptr().offset(index as isize),
-                self.len - index,
-            );
-            result
-        }
-    }
-}
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Insert</description>
     </item>
     
     <item>
@@ -760,49 +63,7 @@ impl&lt;T&gt; Vec&lt;T&gt; {
       <pubDate>Wed, 21 Feb 2018 00:00:02 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/deref/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/deallocating&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;deref-https-doc-rust-lang-org-nomicon-vec-deref-html:88ca6c8a2288f56ce93994ebd0001e7c&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-deref.html&#34;&gt;Deref&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/vec/struct.Vec.html&#34;&gt;標準ライブラリのドキュメント&lt;/a&gt; を見ると、
-&lt;code&gt;Vec&lt;/code&gt; に適用できるかなりのメソッドはスライスへのderef.を経由して呼べることが分かる。
-&lt;code&gt;Vec&lt;/code&gt; の中身は同じ型を集めた配列なので、スライスへderef.するのは自然である。&lt;/p&gt;
-
-&lt;p&gt;そこで、&lt;code&gt;Deref&amp;lt;Target = [T]&amp;gt; for Vec&amp;lt;T&amp;gt;&lt;/code&gt; を実装する。
-簡単で、&lt;a href=&#34;https://doc.rust-lang.org/nightly/alloc/slice/fn.from_raw_parts.html&#34;&gt;&lt;code&gt;slice::from_raw_parts()&lt;/code&gt;&lt;/a&gt; を呼ぶだけである。
-はじめのアドレスと要素数を渡すとスライスを作ってくれる。
-要素数が0のときも正しく動作するようだ。&lt;/p&gt;
-use std::ops::Deref;
-
-impl&lt;T&gt; Deref for Vec&lt;T&gt; {
-    type Target = [T];
-
-    fn deref(&amp;self) -&gt; &amp;[T] {
-        unsafe { ::std::slice::from_raw_parts(self.ptr.as_ptr(), self.len) }
-    }
-}
-
-&lt;p&gt;&lt;code&gt;&amp;amp;mut [T]&lt;/code&gt; にderef.する &lt;code&gt;DerefMut&lt;/code&gt; 版もつくっておく。
-今度は &lt;a href=&#34;https://doc.rust-lang.org/nightly/alloc/slice/fn.from_raw_parts_mut.html&#34;&gt;&lt;code&gt;slice::from_raw_parts_mut()&lt;/code&gt;&lt;/a&gt; を呼ぶ。
-&lt;code&gt;DerefMut: Deref&lt;/code&gt; なので、&lt;code&gt;Target&lt;/code&gt; の指定は必要ない。&lt;/p&gt;
-use std::ops::{Deref, DerefMut};
-
-impl&lt;T&gt; DerefMut for Vec&lt;T&gt; {
-    fn deref_mut(&amp;mut self) -&gt; &amp;mut [T] {
-        unsafe { ::std::slice::from_raw_parts_mut(self.ptr.as_ptr(), self.len) }
-    }
-}
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Deref</description>
     </item>
     
     <item>
@@ -811,63 +72,7 @@ impl&lt;T&gt; DerefMut for Vec&lt;T&gt; {
       <pubDate>Wed, 21 Feb 2018 00:00:01 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/deallocating/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/push_and_pop&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;deallocating-https-doc-rust-lang-org-nomicon-vec-dealloc-html:2de0bf3ea219adede37cfcca051487ab&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-dealloc.html&#34;&gt;Deallocating&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;確保したメモリは使わなくなったら解放しなくてはいけない。
-&lt;code&gt;Drop for Vec&lt;/code&gt; を実装し、その中で解放処理を書くことにする。
-ここでも新しい &lt;a href=&#34;https://github.com/rust-lang/rfcs/pull/1398&#34;&gt;メモリアロケータAPI&lt;/a&gt; を使う。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;self.cap == 0&lt;/code&gt; のときはメモリ確保していないので、解放もしなくてよい。
-&lt;code&gt;self.cap == 1&lt;/code&gt; のときは、&lt;code&gt;pop()&lt;/code&gt; することで要素をdropし、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.dealloc_one&#34;&gt;&lt;code&gt;Alloc::dealloc_one&amp;lt;T&amp;gt;()&lt;/code&gt;&lt;/a&gt; を使う。
-それ以外の場合は、すべての要素を順に &lt;code&gt;pop()&lt;/code&gt; することでdropし、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.dealloc_array&#34;&gt;&lt;code&gt;Alloc::dealloc_array&amp;lt;T&amp;gt;()&lt;/code&gt;&lt;/a&gt; を呼ぶ。&lt;/p&gt;
-impl&lt;T&gt; Drop for Vec&lt;T&gt; {
-    fn drop(&amp;mut self) {
-        if self.cap == 0 {
-            return;
-        }
-
-        while let Some(_) = self.pop() {}
-
-        unsafe {
-            if self.cap == 1 {
-                self.alloc.dealloc_one(self.ptr.as_non_null());
-            } else {
-                let e = self.alloc.dealloc_array(self.ptr.as_non_null(), self.cap);
-                if let Err(e) = e {
-                    self.alloc.oom(e);
-                }
-            }
-        }
-    }
-}
-
-&lt;p&gt;なお、&lt;code&gt;T: !Drop&lt;/code&gt; の場合は &lt;code&gt;pop()&lt;/code&gt; を呼ぶ処理を省略できる。
-&lt;code&gt;T: Drop&lt;/code&gt; かどうかは &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/mem/fn.needs_drop.html&#34;&gt;&lt;code&gt;mem::needs_drop()&lt;/code&gt;&lt;/a&gt; で判定できる。&lt;/p&gt;
-if mem::needs_drop::&lt;T&gt;() {
-    while let Some(_) = self.pop() {}
-}
-
-&lt;p&gt;しかし、この最適化を施しても効果はほぼ見られなかった。
-LLVMの最適化がかなり強いらしい。&lt;/p&gt;
-
-&lt;p&gt;ちなみに、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/src/alloc/vec.rs.html#2108-2116&#34;&gt;標準ライブラリの &lt;code&gt;Drop for Vec&lt;/code&gt; の実装&lt;/a&gt; では、
-&lt;code&gt;ptr::drop_in_place()&lt;/code&gt; を使って &lt;code&gt;Drop for [T]&lt;/code&gt; にフォールバックしているようだ。&lt;/p&gt;
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Deallocating</description>
     </item>
     
     <item>
@@ -876,90 +81,7 @@ LLVMの最適化がかなり強いらしい。&lt;/p&gt;
       <pubDate>Wed, 21 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/push_and_pop/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/allocating_memory&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;push-and-pop-https-doc-rust-lang-org-nomicon-vec-push-pop-html:c8c6a45ab74a63250532d84be36c96ef&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-push-pop.html&#34;&gt;Push and Pop&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;メモリ確保ができるようになったので、push, popを実装する。&lt;/p&gt;
-
-&lt;p&gt;便利メソッドとして &lt;code&gt;OwnedPtr&lt;/code&gt; から &lt;code&gt;*mut T&lt;/code&gt; を取り出す関数を作っておく。&lt;/p&gt;
-impl&lt;T: ?Sized&gt; OwnedPtr&lt;T&gt; {
-    pub(crate) fn as_ptr(&amp;self) -&gt; *mut T {
-        self.ptr.as_ptr()
-    }
-}
-
-&lt;p&gt;まずは &lt;code&gt;Vec::push()&lt;/code&gt; だが、素直に実装すればよい。
-確保したメモリ領域が足りなくなったら伸ばし、&lt;code&gt;ptr::write()&lt;/code&gt; で要素を書き込む。
-書き込むアドレスは、&lt;code&gt;OwnedPtr&lt;/code&gt; から取り出した &lt;code&gt;*mut T&lt;/code&gt; に &lt;code&gt;self.len&lt;/code&gt; だけオフセットを加えたものとする。
-&lt;code&gt;ptr::write()&lt;/code&gt; 時にpanicした場合を考慮して、&lt;code&gt;self.len&lt;/code&gt; のインクリメントは最後におこなう。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn push(&amp;mut self, elem: T) {
-        if self.len == self.cap {
-            self.grow();
-        }
-
-        unsafe {
-            let ptr_last = self.ptr.as_ptr().offset(self.len as isize);
-            ptr::write(ptr_last, elem);
-        }
-
-        self.len += 1;
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Vec::pop()&lt;/code&gt; も同様に、&lt;code&gt;ptr::read()&lt;/code&gt; を使い実装する。
-読み込むアドレスは、&lt;code&gt;OwnedPtr&lt;/code&gt; から取り出した &lt;code&gt;*mut T&lt;/code&gt; に &lt;code&gt;self.len&lt;/code&gt; だけオフセットを加えたものとする。&lt;/p&gt;
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn pop(&amp;mut self) -&gt; Option&lt;T&gt; {
-        if self.len == 0 {
-            None
-        } else {
-            self.len -= 1;
-
-            unsafe {
-                let ptr_last = self.ptr.as_ptr().offset(self.len as isize);
-                Some(ptr::read(ptr_last))
-            }
-        }
-    }
-}
-
-&lt;p&gt;簡単なテストを書き、動作確認しておく。&lt;/p&gt;
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn push_pop() {
-        let mut v = Vec::new();
-
-        const ELEM_NUM: usize = 32;
-        let elems = 0..ELEM_NUM;
-
-        for (i, e) in elems.clone().enumerate() {
-            v.push(e);
-            assert_eq!(v.len(), i + 1);
-        }
-
-        for (i, e) in elems.rev().enumerate() {
-            let p = v.pop();
-            assert!(p.is_some() &amp;&amp; p.unwrap() == e);
-            assert_eq!(v.len(), ELEM_NUM - 1 - i);
-        }
-    }
-}
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Push</description>
     </item>
     
     <item>
@@ -968,138 +90,7 @@ mod tests {
       <pubDate>Tue, 20 Feb 2018 00:00:01 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/allocating_memory/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;No page found with path or logical name &#34;post/ImplementingVecInRust/layout&#34;.
-&#34;&gt;前回&lt;/a&gt; に引き続き、
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;allocating-memory-https-doc-rust-lang-org-nomicon-vec-alloc-html:abeecce82fc499abb72f8c982f00e742&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-alloc.html&#34;&gt;Allocating Memory&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;この節に書かれているアロケータ周りのAPIは古い。
-現在のRustでは、メモリアロケータ周りのAPIについて &lt;a href=&#34;https://github.com/rust-lang/rfcs/pull/1398&#34;&gt;RFC&lt;/a&gt; がマージされ、
-&lt;a href=&#34;https://github.com/rust-lang/rust/issues/32838&#34;&gt;詳細な設計と実装が進んでいる&lt;/a&gt;｡
-今回の実装では、このAPIを使っていく。&lt;/p&gt;
-
-&lt;p&gt;まず、上で定義した &lt;code&gt;Vec&lt;/code&gt; 構造体を修正する必要がある。
-新しいメモリアロケータAPIでは、アロケータが構造体として提供されるようになった（もともとは &lt;code&gt;heap::allocate()&lt;/code&gt; のような関数だった）。
-今回はデフォルトのアロケータ &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/struct.Heap.html&#34;&gt;&lt;code&gt;heap::Heap&lt;/code&gt;&lt;/a&gt; を用いる。&lt;/p&gt;
-use std::heap::Heap;
-
-pub struct Vec&lt;T&gt; {
-    ptr: OwnedPtr&lt;T&gt;,
-    cap: usize,
-    len: usize,
-    alloc: Heap,
-}
-
-&lt;p&gt;メモリ領域を割り当てていく。
-本来、&lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; は &lt;code&gt;T&lt;/code&gt; が &lt;a href=&#34;https://doc.rust-lang.org/nomicon/exotic-sizes.html#zero-sized-types-zsts&#34;&gt;ZST (Zero Sized Type)&lt;/a&gt; のときにも対応しないといけないが、
-特殊な対応が必要になるので、とりあえず今のところはZSTでないことを前提とする。&lt;/p&gt;
-use std::mem;
-
-impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn new() -&gt; Self {
-        assert!(mem::size_of::&lt;T&gt;() != 0, &#34;We&#39;re not ready to handle ZSTs&#34;);
-
-        Vec {
-            ptr: OwnedPtr::empty(),
-            cap: 0,
-            len: 0,
-            alloc: Heap,
-        }
-    }
-}
-
-&lt;p&gt;&lt;code&gt;Vec::push()&lt;/code&gt; などで実際にメモリ領域をアロケーションし伸ばしていくときの動作を実装する。
-先に実装を見せる。&lt;/p&gt;
-impl&lt;T: ?Sized&gt; OwnedPtr&lt;T&gt; {
-    pub(crate) fn with_non_null(ptr: NonNull&lt;T&gt;) -&gt; Self {
-        OwnedPtr {
-            ptr,
-            _marker: PhantomData,
-        }
-    }
-
-    pub(crate) fn as_non_null(&amp;self) -&gt; NonNull&lt;T&gt; {
-        self.ptr
-    }
-}
-use std::heap::{Alloc, Heap};
-
-impl&lt;T&gt; Vec&lt;T&gt; {
-    fn grow(&amp;mut self) {
-        let (new_cap, ptr) = if self.cap == 0 {
-            (1, self.alloc.alloc_one::&lt;T&gt;())
-        } else {
-            let old_num_bytes = self.cap * mem::size_of::&lt;T&gt;();
-            assert!(                                                // (*) explained below
-                old_num_bytes &lt;= (::std::isize::MAX as usize) / 2,
-                &#34;capacity overflow&#34;
-            );
-
-            unsafe {
-                let new_cap = self.cap * 2;
-                let ptr = self.alloc
-                    .realloc_array::&lt;T&gt;(self.ptr.as_non_null(), self.cap, new_cap);
-                (new_cap, ptr)
-            }
-        };
-
-        if let Err(e) = ptr {
-            self.alloc.oom(e);
-        }
-
-        self.ptr = OwnedPtr::with_non_null(ptr.unwrap());
-        self.cap = new_cap;
-    }
-}
-
-&lt;p&gt;最初の要素をpushするとき（&lt;code&gt;self.cap == 0&lt;/code&gt; のとき）は、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.alloc_one&#34;&gt;&lt;code&gt;Alloc::alloc_one&amp;lt;T&amp;gt;()&lt;/code&gt;&lt;/a&gt; を利用する。
-&lt;code&gt;T&lt;/code&gt; 型の値を一つおける領域を確保してくれる。&lt;/p&gt;
-
-&lt;p&gt;またpushするときは、&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.realloc_array&#34;&gt;&lt;code&gt;Alloc::realloc_array&amp;lt;T&amp;gt;()&lt;/code&gt;&lt;/a&gt; を呼ぶ。
-要素を指定の個数おける領域を再確保する。&lt;/p&gt;
-
-&lt;h3 id=&#34;メモリ確保失敗:abeecce82fc499abb72f8c982f00e742&#34;&gt;メモリ確保失敗&lt;/h3&gt;
-
-&lt;p&gt;Rustでのメモリアロケーションでは、いくつか考慮すべき事項がある。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;Alloc::alloc_one&amp;lt;T&amp;gt;()&lt;/code&gt; などの戻り値の型は &lt;code&gt;Result&amp;lt;NonNull&amp;lt;T&amp;gt;, AllocErr&amp;gt;&lt;/code&gt; である。
-OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/enum.AllocErr.html&#34;&gt;&lt;code&gt;AllocErr&lt;/code&gt;&lt;/a&gt; が返る。&lt;/p&gt;
-
-&lt;p&gt;Rustの標準ライブラリでは、メモリ確保に失敗した場合 &lt;code&gt;abort&lt;/code&gt; する。
-&lt;code&gt;panic!()&lt;/code&gt; でないのは、&lt;code&gt;panic!()&lt;/code&gt; に伴うスタックの巻き戻し操作自体にメモリアロケーションが必要になるからである。&lt;/p&gt;
-
-&lt;p&gt;この &lt;code&gt;abort&lt;/code&gt; 処理は &lt;a href=&#34;https://doc.rust-lang.org/nightly/std/heap/trait.Alloc.html#method.oom&#34;&gt;&lt;code&gt;Alloc::oom()&lt;/code&gt;&lt;/a&gt; で実行できる。&lt;/p&gt;
-
-&lt;h3 id=&#34;llvmのメモリアロケーション:abeecce82fc499abb72f8c982f00e742&#34;&gt;LLVMのメモリアロケーション&lt;/h3&gt;
-
-&lt;p&gt;RustコンパイラがバックエンドとしているLLVMにおけるアドレス管理には少々クセがあり、配列のインデックスが符号付きで表されるらしい。
-従って、確保できる要素数は最大で &lt;code&gt;isize::MAX (= usize::MAX / 2)&lt;/code&gt; となる。
-実際には、2 byte以上の型は先にアドレスが &lt;code&gt;usize::MAX&lt;/code&gt; を超えるため、要素数による制限は1 byteの型についてのみ考慮すればよいが、
-配列のreinterpret操作などに起因するコーナーケースを潰すため、標準ライブラリではすべての型について要素数を &lt;code&gt;isize::MAX&lt;/code&gt; に制限している &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:abeecce82fc499abb72f8c982f00e742:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:abeecce82fc499abb72f8c982f00e742:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
-
-&lt;p&gt;上で定義した &lt;code&gt;Vec::grow()&lt;/code&gt; におけるアサーション &lt;code&gt;(*)&lt;/code&gt; は、この制限をチェックしている。
-&lt;code&gt;old_num_bytes &amp;lt;= isize::MAX / 2&lt;/code&gt; のとき &lt;code&gt;new_cap &amp;lt;= isize::MAX &amp;amp;&amp;amp; new_num_bytes &amp;lt;= usize::MAX&lt;/code&gt; が満たされる。&lt;/p&gt;
-&lt;div class=&#34;footnotes&#34;&gt;
-
-&lt;hr /&gt;
-
-&lt;ol&gt;
-&lt;li id=&#34;fn:abeecce82fc499abb72f8c982f00e742:1&#34;&gt;ここでは64 bit環境を考える。現在の64 bitマシンはアドレス空間が実際には64 bitではなく44 bitや48 bitなので、アドレスのオーバーフローより先にOOMが起こる。
- &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:abeecce82fc499abb72f8c982f00e742:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-</description>
+      <description>前回 に引き続き、 The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 $ rustc --version rustc 1.25.0-nightly (27a046e93 2018-02-18) Allocating</description>
     </item>
     
     <item>
@@ -1108,198 +99,7 @@ OOM (Out of Memory)状態に陥るなどしてメモリ確保に失敗すると
       <pubDate>Tue, 20 Feb 2018 00:00:00 +0900</pubDate>
       
       <guid>/post/implementingvecinrust/layout/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon&#34;&gt;The Rustnomicon&lt;/a&gt; の &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec.html&#34;&gt;Implementing &lt;code&gt;Vec&lt;/code&gt;&lt;/a&gt; をやってみる。&lt;/p&gt;
-
-&lt;p&gt;コード全体は &lt;a href=&#34;https://github.com/ordovicia/rustnomicon_vec.git&#34;&gt;GitHub上のリポジトリ&lt;/a&gt; にある。&lt;/p&gt;
-
-&lt;p&gt;rustcのバージョンは以下のとおり。
-このバージョンに基づいて書いていく。&lt;/p&gt;
-$ rustc --version
-rustc 1.25.0-nightly (27a046e93 2018-02-18)
-
-&lt;h2 id=&#34;subtyping-and-variance-https-doc-rust-lang-org-nomicon-subtyping-html:66b86657894595ae36af47f31c365fda&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/subtyping.html&#34;&gt;Subtyping and Variance&lt;/a&gt;&lt;/h2&gt;
-
-&lt;h3 id=&#34;部分型-subtyping:66b86657894595ae36af47f31c365fda&#34;&gt;部分型 (subtyping)&lt;/h3&gt;
-
-&lt;p&gt;&amp;ldquo;Implementing &lt;code&gt;Vec&lt;/code&gt;&amp;rdquo; の最初の節は &lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-layout.html&#34;&gt;Layout&lt;/a&gt; だが、
-事前知識のため変性 (variance)の節から見ていく。&lt;/p&gt;
-
-&lt;p&gt;Rustには &lt;a href=&#34;https://en.wikipedia.org/wiki/Structural_type_system&#34;&gt;構造的部分型 (structural subtyping)&lt;/a&gt; は存在しないが、lifetimeについて部分型が採用されている。
-Lifetime &lt;code&gt;&#39;a&lt;/code&gt; が &lt;code&gt;&#39;b&lt;/code&gt; を「含む」あるいは「より長い」ことを意味する &lt;code&gt;&#39;a: &#39;b&lt;/code&gt; が成り立っていれば、 &lt;code&gt;&#39;a&lt;/code&gt; は &lt;code&gt;&#39;b&lt;/code&gt; の部分型である。
-「&lt;code&gt;&#39;a&lt;/code&gt; が &lt;code&gt;&#39;b&lt;/code&gt; を含む」のに「部分型である」というのは直感に反するようだが、&lt;code&gt;&#39;a&lt;/code&gt; は &lt;code&gt;&#39;b&lt;/code&gt; に暗黙的に変換できる（置換できる）ので部分型だといえる。&lt;/p&gt;
-
-&lt;h3 id=&#34;変性-variance:66b86657894595ae36af47f31c365fda&#34;&gt;変性 (variance)&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science&#34;&gt;変性 (variance)&lt;/a&gt;) は、
-型コンストラクタがもつ性質で、引数にとる型やlifetimeの派生関係が、出力される型にどのように伝搬するかを表したもの。
-例えば、 &lt;code&gt;&#39;a: &#39;b&lt;/code&gt; ならば &lt;code&gt;&amp;amp;&#39;a T&lt;/code&gt; は &lt;code&gt;&amp;amp;&#39;b T&lt;/code&gt; に暗黙的に変換できる。
-このように半順序が保存されて伝搬するとき、&lt;strong&gt;共変 (variant)&lt;/strong&gt; と言う。
-これ以外の場合、&lt;strong&gt;非変 (invariant)&lt;/strong&gt; と言う &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:66b86657894595ae36af47f31c365fda:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:66b86657894595ae36af47f31c365fda:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;&amp;amp;&#39;a T&lt;/code&gt; は &lt;code&gt;&#39;a&lt;/code&gt;, &lt;code&gt;T&lt;/code&gt; どちらについても共変である。
-&lt;code&gt;&#39;a&lt;/code&gt; について共変であることで、&lt;code&gt;&#39;a: &#39;b&lt;/code&gt; のとき（&lt;code&gt;&#39;a&lt;/code&gt; が &lt;code&gt;&#39;b&lt;/code&gt; より長いとき） &lt;code&gt;&amp;amp;&#39;a T&lt;/code&gt; が &lt;code&gt;&amp;amp;&#39;b T&lt;/code&gt; に暗黙的に置き換えられる。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;&amp;amp;&#39;a mut T&lt;/code&gt; は &lt;code&gt;&#39;a&lt;/code&gt; については共変だが、&lt;code&gt;T&lt;/code&gt; について非変である。
-これにより、ある種のdangling pointerが回避されている。
-例として、次のコードを考える。&lt;/p&gt;
-fn overwrite&lt;T: Copy&gt;(input: &amp;mut T, new: &amp;mut T) {
-    *input = *new;
-}
-
-fn main() {
-    let mut forever_str: &amp;&#39;static str = &#34;hello&#34;;
-    {
-        let string = String::from(&#34;world&#34;);
-        overwrite(&amp;mut forever_str, &amp;mut &amp;*string);
-    }
-    // Oops, printing free&#39;d memory
-    println!(&#34;{}&#34;, forever_str);
-}
-
-&lt;p&gt;&lt;code&gt;string&lt;/code&gt; のlifetimeを &lt;code&gt;&#39;s&lt;/code&gt; と名付けることにする。
-&lt;code&gt;&amp;amp;&#39;a T&lt;/code&gt; は &lt;code&gt;&#39;a&lt;/code&gt; について共変なので、&lt;code&gt;&amp;amp;&#39;static str&lt;/code&gt; は &lt;code&gt;&amp;amp;&#39;s str&lt;/code&gt; に置き換えられる。
-従って、もし &lt;code&gt;&amp;amp;mut T&lt;/code&gt; が &lt;code&gt;T&lt;/code&gt; について共変だったとすると、 &lt;code&gt;&amp;amp;mut &amp;amp;&#39;static str&lt;/code&gt; は &lt;code&gt;&amp;amp;mut &amp;amp;&#39;s str&lt;/code&gt; の部分型となる。
-すると、&lt;code&gt;&amp;amp;mut forever_str&lt;/code&gt; は &lt;code&gt;&amp;amp;mut &amp;amp;*string&lt;/code&gt; と同じ型 &lt;code&gt;&amp;amp;mut &amp;amp;*string&lt;/code&gt; に暗黙的に変換でき、コード中の &lt;code&gt;overwrite()&lt;/code&gt; の呼び出しが有効になる。
-そして、ブロックを抜けて &lt;code&gt;string&lt;/code&gt; が破棄されたとき、 &lt;code&gt;forever_str&lt;/code&gt; はdangling pointerとなる。
-つまり、 &lt;code&gt;&amp;amp;mut T&lt;/code&gt; を &lt;code&gt;T&lt;/code&gt; について非変にすることで、 &lt;code&gt;&amp;amp;mut T&lt;/code&gt; のスコープが狭くなりdangling pointerが発生することを防いでいる。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;&amp;amp;&#39;a mut T&lt;/code&gt; と同様に、内部可変性 (interior mutability) をもつ型 &lt;code&gt;UnsafeCell&amp;lt;T&amp;gt;&lt;/code&gt;, &lt;code&gt;Cell&amp;lt;T&amp;gt;&lt;/code&gt;, &lt;code&gt;RefCell&amp;lt;T&amp;gt;&lt;/code&gt;, &lt;code&gt;Mutex&amp;lt;T&amp;gt;&lt;/code&gt; も &lt;code&gt;T&lt;/code&gt; について非変となっている。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;Fn(T) -&amp;gt; U&lt;/code&gt; は、 &lt;code&gt;T&lt;/code&gt; については非変、&lt;code&gt;U&lt;/code&gt; については共変となっている。
-&lt;code&gt;T&lt;/code&gt; について非変であることにより、例えば &lt;code&gt;fn f(&amp;amp;&#39;a str s)&lt;/code&gt; が &lt;code&gt;fn f(&amp;amp;&#39;static str s)&lt;/code&gt; の部分型となる。
-もし共変だったとすると、逆に &lt;code&gt;fn f(&amp;amp;&#39;static str s)&lt;/code&gt; が &lt;code&gt;fn f(&amp;amp;&#39;a str s)&lt;/code&gt; で置換できることになり、より強いlifetime制約を要求してしまう。
-一方、&lt;code&gt;U&lt;/code&gt; について共変であることにより、例えば &lt;code&gt;fn f(&amp;amp;&#39;a str) -&amp;gt; &amp;amp;&#39;static str&lt;/code&gt; は &lt;code&gt;fn f(&amp;amp;&#39;a str) -&amp;gt; &amp;amp;&#39;a str&lt;/code&gt; に変換できる。&lt;/p&gt;
-
-&lt;h2 id=&#34;phantomdata-https-doc-rust-lang-org-nomicon-phantom-data-html:66b86657894595ae36af47f31c365fda&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/phantom-data.html&#34;&gt;&lt;code&gt;PhantomData&lt;/code&gt;&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;さらに事前知識をおさらいする。&lt;/p&gt;
-
-&lt;p&gt;Rustでは、ジェネリックな構造体などの定義における型引数・lifetime引数がフィールドで使われていないとコンパイルエラーになる。
-何らかの理由で未使用の引数を定義に含める必要がある場合、&lt;code&gt;PhantomData&lt;/code&gt; が使われる。&lt;/p&gt;
-
-&lt;p&gt;例えば、スライス &lt;code&gt;&amp;amp;&#39;a [T]&lt;/code&gt; の &lt;code&gt;Iter&lt;/code&gt; は次のように定義されている。&lt;/p&gt;
-use std::marker;
-
-struct Iter&lt;&#39;a, T: &#39;a&gt; {
-    ptr: *const T,
-    end: *const T,
-    _marker: marker::PhantomData&lt;&amp;&#39;a T&gt;
-}
-
-&lt;p&gt;（&lt;a href=&#34;https://doc.rust-lang.org/nightly/src/core/slice/mod.rs.html#1390-1394&#34;&gt;現在の実装&lt;/a&gt; も同様）&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;PhantomData&lt;/code&gt; の型引数におくものを注意深く設定することで、&lt;code&gt;PhantomData&lt;/code&gt; がもつ性質をうまくコントロールできる。
-&lt;a href=&#34;https://doc.rust-lang.org/nomicon/phantom-data.html#table-of-phantomdata-patterns&#34;&gt;PhantomDataの使いかたの表&lt;/a&gt; にまとまっているが、
-重要なものを抜粋する。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;PhantomData&amp;lt;T&amp;gt;&lt;/code&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; について共変&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; 型の値を所有する&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;PhantomData&amp;lt;fn() -&amp;gt; T&amp;gt;&lt;/code&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; について共変&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; 型の値を所有しない&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;layout-https-doc-rust-lang-org-nomicon-vec-layout-html:66b86657894595ae36af47f31c365fda&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/vec-layout.html&#34;&gt;Layout&lt;/a&gt;&lt;/h2&gt;
-
-&lt;p&gt;やっと &amp;ldquo;Implementing &lt;code&gt;Vec&lt;/code&gt;&amp;rdquo; の最初の節。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; は「連続領域に確保された、動的に要素数の変わる配列」なので、ナイーブには次のように実装しようと考える。&lt;/p&gt;
-pub struct Vec&lt;T&gt; {
-    ptr: *mut T,    // pointer to contiguous region elements are stored on
-    cap: usize,     // capacity of the region
-    len: usize,     // number of elements actually stored
-}
-
-&lt;p&gt;しかし、この実装には以下の問題がある。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; は &lt;code&gt;T&lt;/code&gt; について共変であるべきだが、&lt;code&gt;*mut T&lt;/code&gt; は &lt;code&gt;T&lt;/code&gt; について非変なので、&lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; も非変になってしまう
-
-&lt;ul&gt;
-&lt;li&gt;フィールドが一つでも非変だと構造体全体が非変になる&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; 型の値を所有していない&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;さらに、以下の二点が満たされているとよい。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;T: Send&lt;/code&gt; なら &lt;code&gt;Vec&amp;lt;T&amp;gt;: Send&lt;/code&gt; としたい
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;Sync&lt;/code&gt; についても同様&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;ptr&lt;/code&gt; はnullにならないことを型レベルで保証したい
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://doc.rust-lang.org/nomicon/repr-rust.html&#34;&gt;null-pointer-optimization&lt;/a&gt; のため、&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;そこで、&lt;code&gt;ptr&lt;/code&gt; として &lt;code&gt;ptr::NonNull&lt;/code&gt; と &lt;code&gt;PhantomData&lt;/code&gt; を組み合わせて用いることにする。
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/ptr/struct.NonNull.html&#34;&gt;&lt;code&gt;NonNull&lt;/code&gt;&lt;/a&gt; は1.25.0から安定化される生ポインタのラッパ構造体で、&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;T&lt;/code&gt; について共変&lt;/li&gt;
-&lt;li&gt;Nullになってはいけない&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;という特性をもつ。
-&lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; が要素を所有することを表しdrop checkerを正しく動作させるため、 &lt;code&gt;PhantomData&amp;lt;T&amp;gt;&lt;/code&gt; を用いる。&lt;/p&gt;
-use std::marker::PhantomData;
-use std::ptr::NonNull;
-
-pub(crate) struct OwnedPtr&lt;T: ?Sized&gt; {
-    ptr: NonNull&lt;T&gt;,
-    _marker: PhantomData&lt;T&gt;,
-}
-
-unsafe impl&lt;T: ?Sized + Send&gt; Send for OwnedPtr&lt;T&gt; {}
-unsafe impl&lt;T: ?Sized + Sync&gt; Sync for OwnedPtr&lt;T&gt; {}
-
-pub struct Vec&lt;T&gt; {
-    ptr: OwnedPtr&lt;T&gt;,
-    cap: usize,
-    len: usize,
-}
-
-&lt;p&gt;&lt;code&gt;Vec::new()&lt;/code&gt; の際、空の &lt;code&gt;Vec&lt;/code&gt; にメモリを割り当てないようにすると、&lt;code&gt;Vec::ptr&lt;/code&gt; や &lt;code&gt;OwnedPtr::ptr&lt;/code&gt; はnullになってしまう。
-実のところ、&lt;code&gt;NonNull&lt;/code&gt; がnullになってはいけないという制約は、nullをdereferenceしてはいけないという意味で、deref.しないならnullになること自体は問題ない。
-&lt;code&gt;Vec&lt;/code&gt; の場合、&lt;code&gt;cap&lt;/code&gt;, &lt;code&gt;len&lt;/code&gt; のチェックが必要になるので、null pointer deref.の発生は防ぎやすい。
-Nullとなっている（がアライメントは整っている） &lt;code&gt;NonNull&lt;/code&gt; は、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/ptr/struct.NonNull.html#method.dangling&#34;&gt;&lt;code&gt;NonNull::dangling()&lt;/code&gt;&lt;/a&gt; で作れる。&lt;/p&gt;
-impl&lt;T&gt; OwnedPtr&lt;T&gt; {
-    pub(crate) fn empty() -&gt; Self {
-        OwnedPtr {
-            ptr: NonNull::dangling(),
-            _marker: PhantomData,
-        }
-    }
-}
-
-&lt;p&gt;なお、&lt;code&gt;NonNull&lt;/code&gt; が持つ特性と &lt;code&gt;Send&lt;/code&gt;, &lt;code&gt;Sync&lt;/code&gt;, &lt;code&gt;T&lt;/code&gt; の所有をすべて備える構造体として、
-&lt;a href=&#34;https://doc.rust-lang.org/nightly/std/ptr/struct.Unique.html&#34;&gt;&lt;code&gt;ptr::Unique&lt;/code&gt;&lt;/a&gt; があり、現在は使うことができる。
-しかし、&lt;a href=&#34;https://github.com/rust-lang/rust/pull/46952&#34;&gt;&lt;code&gt;Unique&lt;/code&gt; は &lt;code&gt;NonNull&lt;/code&gt; に置き換えられ、今後安定化することはない&lt;/a&gt;。&lt;/p&gt;
-&lt;div class=&#34;footnotes&#34;&gt;
-
-&lt;hr /&gt;
-
-&lt;ol&gt;
-&lt;li id=&#34;fn:66b86657894595ae36af47f31c365fda:1&#34;&gt;この説明はかなり簡略化されたもの。ここでのvariantは実際にはcovariantと呼ばれる。また、半順序が逆向きに伝搬するとき、&lt;strong&gt;反変 (contravariant)&lt;/strong&gt; と言う。&lt;code&gt;fn(T)&lt;/code&gt; は &lt;code&gt;T&lt;/code&gt; について反変である。
- &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:66b86657894595ae36af47f31c365fda:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-</description>
+      <description>The Rustnomicon の Implementing Vec をやってみる。 コード全体は GitHub上のリポジトリ にある。 rustcのバージョンは以下のとおり。 このバージョンに基づいて書いてい</description>
     </item>
     
     <item>
@@ -1308,77 +108,7 @@ impl&lt;T&gt; OwnedPtr&lt;T&gt; {
       <pubDate>Wed, 03 Jan 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/add_syscall/</guid>
-      <description>
-
-&lt;p&gt;NetBSDにシステムコールを追加してみます。&lt;/p&gt;
-
-&lt;h2 id=&#34;環境:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;環境&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;DELL Latitude E6540
-
-&lt;ul&gt;
-&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
-&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;NetBSD 7.1&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;システムコールの追加:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;システムコールの追加&lt;/h2&gt;
-
-&lt;p&gt;まずは&lt;code&gt;sys/kern/syscalls.master&lt;/code&gt;に、追加するシステムコールのプロトタイプ情報を追記します。
-今回は何もしない&lt;code&gt;nop&lt;/code&gt;システムコールを追加します。
-引数はとらず、即座に0を返します。&lt;/p&gt;
-481 STD RUMP    { int|sys||nop(void); }
-
-&lt;p&gt;追記後、&lt;code&gt;sys/kern/makesyscalls.sh&lt;/code&gt;を実行します。
-これがおおかたの作業をやってくれるようです。&lt;/p&gt;
-# sh makesyscalls.sh syscalls.conf syscalls.master
-
-&lt;p&gt;&lt;code&gt;nop&lt;/code&gt;システムコールのなかみを忘れずに定義しておきます。
-ここでは新しいファイル&lt;code&gt;sys/kern/sys_nop.c&lt;/code&gt;を追加しました。&lt;/p&gt;
-#include &lt;sys/syscallargs.h&gt;
-#include &lt;sys/systm.h&gt;
-
-int	sys_nop(struct lwp* _lwp, const void* _args, register_t* _regs)
-{
-    printf(&#34;nop called\n&#34;);
-    return 0;
-}
-
-&lt;p&gt;nopとは言うものの、デバッグ用に&lt;code&gt;printf()&lt;/code&gt;しています。
-&lt;code&gt;sys/systm.h&lt;/code&gt;のインクルードはそのためです。&lt;/p&gt;
-
-&lt;p&gt;関数プロトタイプは、&lt;code&gt;makesyscalls.sh&lt;/code&gt;を実行したときに&lt;code&gt;sys/sys/syscallargs.h&lt;/code&gt;に追記されたものに合わせます。&lt;/p&gt;
-
-&lt;p&gt;今回は新しいファイルを追加したので、ビルドするファイルのリストにそのファイルを追加しておきます。
-編集するファイルは&lt;code&gt;sys/conf/files&lt;/code&gt;です。&lt;/p&gt;
-file    kern/sys_nop.c
-
-&lt;h2 id=&#34;ビルド:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;ビルド&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;/post/netbsd/build_kernel/&#34;&gt;NetBSDカーネルのビルド&lt;/a&gt;を参照してください。
-いちど&lt;code&gt;configure&lt;/code&gt;からやり直すとうまくいくようです。&lt;/p&gt;
-
-&lt;h2 id=&#34;動作確認:47e5798739914980ff8a0ec0e9d1451f&#34;&gt;動作確認&lt;/h2&gt;
-
-&lt;p&gt;libcにラッパーを用意していないので、&lt;code&gt;syscall(2)&lt;/code&gt;で呼び出すことにします。
-&lt;code&gt;sys/kern/syscalls.master&lt;/code&gt;に&lt;code&gt;nop&lt;/code&gt;を追加したときのシステムコール番号を指定します。&lt;/p&gt;
-#include &lt;stdio.h&gt;
-#include &lt;sys/syscall.h&gt;
-
-int main(void)
-{
-    int ret = syscall(481);
-    printf(&#34;%d\n&#34;, ret);
-
-    return 0;
-}
-
-&lt;p&gt;コンパイルして実行し、以下のような出力があれば成功です。&lt;/p&gt;
-nop called
-0
-</description>
+      <description>NetBSDにシステムコールを追加してみます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) NetBSD 7.1 システムコールの追加 まずはsys/kern/syscalls.ma</description>
     </item>
     
     <item>
@@ -1387,97 +117,7 @@ nop called
       <pubDate>Thu, 28 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/build_kernel/</guid>
-      <description>
-
-&lt;p&gt;NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。&lt;/p&gt;
-
-&lt;h2 id=&#34;参考:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;参考&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/updating.html&#34;&gt;安定版 NetBSD リリースの更新 - The NetBSD Project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/kernel.html&#34;&gt;NetBSD ドキュメンテーション: カーネル - The NetBSD Project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://qiita.com/furandon_pig/items/d9b2782372edc1b93263&#34;&gt;NetBSDカーネルをビルドしてみる - furandon_pigさんのQiita記事&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;環境:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;環境&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;DELL Latitude E6540
-
-&lt;ul&gt;
-&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;NetBSD 7.1&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;ソースコードの取得:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;ソースコードの取得&lt;/h2&gt;
-
-&lt;p&gt;まずはカーネルのソースコードを取得します。
-配布されているISOを展開する方法もありますが、今回はCVSをつかいました。&lt;/p&gt;
-# cd /usr
-# export CVS_RSH=ssh
-# export CVSROOT=&#34;anoncvs@anoncvs.NetBSD.org:/cvsroot&#34;
-# cvs checkout -r netbsd-7-1-RELEASE -P src
-
-&lt;p&gt;&lt;code&gt;-r netbsd-7-1&lt;/code&gt; オプションでバージョンが指定できるようです。
-ダウンロードにかなり時間がかかるので寝てる間に走らせておくといいです。&lt;/p&gt;
-
-&lt;h2 id=&#34;ツールチェインのビルド-今回は必要ない:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;ツールチェインのビルド（今回は必要ない）&lt;/h2&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;current のカーネルに更新する場合や、より新しいメジャーリリースに更新したい場合には、 はじめに、新しいツールチェインをコンパイルする必要があります。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&amp;ndash; &lt;a href=&#34;http://www.jp.netbsd.org/ja/docs/kernel.html&#34;&gt;NetBSD ドキュメンテーション: カーネル - The NetBSD Project&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;今回は同じバージョン使うので必要ありませんが、必要な場合は以下のようにすればツールチェインがビルドできます。&lt;/p&gt;
-# mkdir /usr/obj /usr/tools
-# cd /usr/src
-# ./build.sh -O /usr/obj -T /usr/tools -U -u tools
-
-&lt;h2 id=&#34;カーネルのビルド:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;カーネルのビルド&lt;/h2&gt;
-
-&lt;p&gt;それではカーネルをビルドしていきます。&lt;/p&gt;
-
-&lt;p&gt;まずは、必要なデバイスドライバやオプションを設定するconfigファイルを用意します。
-amd64の場合、configファイルは &lt;code&gt;/usr/src/sys/arch/amd64/conf&lt;/code&gt; にあります。
-ISOとかUSBイメージでインストールされるカーネルはGENERIC configファイルで設定されているもののようです。
-configファイルを自分用に編集したい場合はこれをもとにするといいでしょう。&lt;/p&gt;
-# cd /usr/src/sys/arch/amd64/conf/
-# cp GENERIC MYCONF
-
-&lt;p&gt;使いたいconfigファイルを指定して &lt;code&gt;config&lt;/code&gt; を走らせると、コンパイル用のディレクトリが生成されます。&lt;/p&gt;
-# config MYCONF
-Build directory is ../compile/MYCONF
-Don&#39;t forget to run &#34;make depend&#34;
-
-&lt;p&gt;そしてこのディレクトリの中で &lt;code&gt;make depend&lt;/code&gt;, &lt;code&gt;make&lt;/code&gt; を走らせます。&lt;/p&gt;
-# cd ../compile/MYCONF/
-# make depend
-# make
-
-&lt;p&gt;環境によりますが、5分くらいでビルドできました。&lt;/p&gt;
-
-&lt;p&gt;できたカーネルは &lt;code&gt;netbsd&lt;/code&gt; という名前になっています。
-これをファイルシステムのルートにおけば、起動時にカーネルとして選択できます。&lt;/p&gt;
-
-&lt;p&gt;今回は、既存のカーネルを上書きしないよう違う名前でおいておきます。&lt;/p&gt;
-# cp netbsd /my_netbsd
-# ls /*netbsd
-/netbsd	    /my_netbsd
-
-&lt;h2 id=&#34;起動:8f5c852ab1b49f3cc68be1604dcd3a55&#34;&gt;起動&lt;/h2&gt;
-
-&lt;p&gt;再起動します。
-起動時に、いつもブートオプションを選択する画面が出てくると思います。
-ここで &lt;code&gt;5. Drop to boot prompt&lt;/code&gt; を選択し、プロンプトに移ります。&lt;/p&gt;
-
-&lt;p&gt;プロンプト上で &lt;code&gt;ls&lt;/code&gt; を実行すると、&lt;code&gt;my_netbsd&lt;/code&gt; が見えるはずです。
-そこで、&lt;code&gt;boot my_netbsd&lt;/code&gt; でカーネルを指定して起動します。&lt;/p&gt;
-
-&lt;p&gt;起動後、&lt;code&gt;uname -a&lt;/code&gt; を実行すると、自分で作ったconfigファイルによるカーネルであることが確認できます。&lt;/p&gt;
-NetBSD user 7.1.1 NetBSD 7.1.1 (MYCONF) #0: Thu Dec 28 13:54:49 JST 2017  root@user:/usr/src/sys/arch/amd64/compile/MYCONF amd64
-</description>
+      <description>NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。 参考 安定版 NetBSD</description>
     </item>
     
     <item>
@@ -1486,101 +126,7 @@ NetBSD user 7.1.1 NetBSD 7.1.1 (MYCONF) #0: Thu Dec 28 13:54:49 JST 2017  root@u
       <pubDate>Mon, 25 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/initial_setup/</guid>
-      <description>
-
-&lt;p&gt;NetBSDの初期設定についてメモしておきます。
-&lt;a href=&#34;https://qiita.com/furandon_pig/items/5479293cb21d6fd9f17c&#34;&gt;NetBSDインストール後の環境設定 - furandon_pigさんのQiita記事&lt;/a&gt;を参考にしています。&lt;/p&gt;
-
-&lt;p&gt;基本的にrootで作業します。&lt;/p&gt;
-
-&lt;h2 id=&#34;環境:ad3d94928460cf368a4ab82568476234&#34;&gt;環境&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;DELL Latitude E6540
-
-&lt;ul&gt;
-&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
-&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;NetBSD 7.1&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;コンソール上でcaps-lockをctrlにする:ad3d94928460cf368a4ab82568476234&#34;&gt;コンソール上でCaps LockをCtrlにする&lt;/h2&gt;
-
-&lt;p&gt;以下を実行すると、コンソール上でCaps LockがCtrlとしてふるまいます。&lt;/p&gt;
-/sbin/wsconsctl -w map+=&#39;keysym Caps_Lock = Control_R&#39; &gt; /dev/null
-
-&lt;p&gt;起動時にこれを自動で設定するために、&lt;code&gt;/etc/rc.local&lt;/code&gt; にこの行を追記します。&lt;/p&gt;
-
-&lt;h2 id=&#34;dhcp環境下での有線lan設定:ad3d94928460cf368a4ab82568476234&#34;&gt;DHCP環境下での有線LAN設定&lt;/h2&gt;
-
-&lt;h3 id=&#34;ホスト名の設定:ad3d94928460cf368a4ab82568476234&#34;&gt;ホスト名の設定&lt;/h3&gt;
-
-&lt;p&gt;&lt;code&gt;/etc/myname&lt;/code&gt; に好きなホスト名を書き込みます。&lt;/p&gt;
-
-&lt;h3 id=&#34;dhcpクライアントの自動起動:ad3d94928460cf368a4ab82568476234&#34;&gt;DHCPクライアントの自動起動&lt;/h3&gt;
-
-&lt;p&gt;&lt;code&gt;/etc/rc.conf&lt;/code&gt; に、以下の行を追記します。&lt;/p&gt;
-dhcpcd=yes
-
-&lt;p&gt;&lt;code&gt;dhcpcd&lt;/code&gt;というのがDHCPクライアントのようです。
-DHCPサーバーの&lt;code&gt;dhcpd&lt;/code&gt;ではありません。&lt;/p&gt;
-
-&lt;p&gt;NetBSDの再起動後、&lt;code&gt;ifconfig&lt;/code&gt;でIPアドレスが振られていることが確認できます。&lt;/p&gt;
-
-&lt;h2 id=&#34;パッケージマネージャの設定:ad3d94928460cf368a4ab82568476234&#34;&gt;パッケージマネージャの設定&lt;/h2&gt;
-
-&lt;p&gt;NetBSDのパッケージマネージャは、&lt;code&gt;PKG_PATH&lt;/code&gt;環境変数に格納されているURLからパッケージをダウンロードします。
-この環境変数は&lt;code&gt;~/.profile&lt;/code&gt;にかかれているのですが、コメントアウトされているので修正します。&lt;/p&gt;
-
-&lt;p&gt;まず、&lt;code&gt;~/.profile&lt;/code&gt;の書き込み権限を追加します。&lt;/p&gt;
-# chmod +w ~/.profile
-
-&lt;p&gt;次に、&lt;code&gt;~/.profile&lt;/code&gt;を編集します。&lt;/p&gt;
-#export PKG_PATH=ftp://ftp.NetBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -m)/7.0/All
-
-&lt;p&gt;のような行があるので、このコメントアウトを外します。&lt;/p&gt;
-
-&lt;h3 id=&#34;動作確認:ad3d94928460cf368a4ab82568476234&#34;&gt;動作確認&lt;/h3&gt;
-
-&lt;p&gt;その後、ログアウトして再ログインすれば、&lt;code&gt;~/.profile&lt;/code&gt;が読み込まれます。
-&lt;code&gt;echo $PKG_PATH&lt;/code&gt;で環境変数が設定されていることを確認しておきます。&lt;/p&gt;
-
-&lt;p&gt;パッケージのインストールは、&lt;/p&gt;
-# pkg_add sudo
-
-&lt;p&gt;のようにすればOKです。&lt;/p&gt;
-
-&lt;h2 id=&#34;sudoの設定:ad3d94928460cf368a4ab82568476234&#34;&gt;sudoの設定&lt;/h2&gt;
-
-&lt;p&gt;上でインストールしたsudoを、&lt;code&gt;wheel&lt;/code&gt;グループに属するユーザーが使えるようにします。&lt;/p&gt;
-
-&lt;p&gt;Linuxの&lt;code&gt;/etc/sudoers&lt;/code&gt;に相当するファイルが、NetBSDでは&lt;code&gt;/usr/pkg/etc/sudoers&lt;/code&gt;として存在します。
-そこでこのファイルを開き、&lt;/p&gt;
-# %wheel ALL=(ALL) ALL
-
-&lt;p&gt;のコメントを外します。&lt;/p&gt;
-
-&lt;h2 id=&#34;pkgin-の導入:ad3d94928460cf368a4ab82568476234&#34;&gt;&lt;code&gt;pkgin&lt;/code&gt;の導入&lt;/h2&gt;
-
-&lt;p&gt;上で使っている&lt;code&gt;pkg_add&lt;/code&gt;など、NetBSD標準のパッケージマネージャは正直使いづらいです。
-そこで&lt;code&gt;pkgin&lt;/code&gt;を導入します。&lt;/p&gt;
-# pkg_add -v pkgin
-# pkgin update
-
-&lt;p&gt;Debian系での&lt;code&gt;apt&lt;/code&gt;と同じ感覚で使えます。
-たとえば、&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;リポジトリの更新 &lt;code&gt;pkgin update&lt;/code&gt; （省略形 &lt;code&gt;pkgin up&lt;/code&gt;）&lt;/li&gt;
-&lt;li&gt;インストール済みパッケージの更新 &lt;code&gt;pkgin upgrade&lt;/code&gt; （省略形 &lt;code&gt;pkgin ug&lt;/code&gt;）&lt;/li&gt;
-&lt;li&gt;パッケージのインストール &lt;code&gt;pkgin install package&lt;/code&gt; （省略形 &lt;code&gt;pkgin in&lt;/code&gt;）&lt;/li&gt;
-&lt;li&gt;パッケージの削除 &lt;code&gt;pkgin remove package&lt;/code&gt; （省略形 &lt;code&gt;pkgin rm&lt;/code&gt;）&lt;/li&gt;
-&lt;li&gt;パッケージの検索 &lt;code&gt;pkgin search keywords&lt;/code&gt; （省略形 &lt;code&gt;pkgin se&lt;/code&gt;）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;などが使えます。&lt;/p&gt;
-</description>
+      <description>NetBSDの初期設定についてメモしておきます。 NetBSDインストール後の環境設定 - furandon_pigさんのQiita記事を参考にし</description>
     </item>
     
     <item>
@@ -1589,70 +135,7 @@ DHCPサーバーの&lt;code&gt;dhcpd&lt;/code&gt;ではありません。&lt;/p&
       <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/netbsd/dualboot_linux_and_netbsd/</guid>
-      <description>
-
-&lt;p&gt;LinuxとNetBSDをデュアルブートする方法をメモしておきます。&lt;/p&gt;
-
-&lt;h2 id=&#34;環境:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;環境&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;DELL Latitude E6540
-
-&lt;ul&gt;
-&lt;li&gt;Intel Core i7-4610M (Haswell)&lt;/li&gt;
-&lt;li&gt;BIOS (Legacy boot)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;linuxのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;Linuxのインストール&lt;/h2&gt;
-
-&lt;p&gt;Linuxのディストーションとして、今回はUbuntu Desktop 16.04をインストールします。
-Ubuntuは通常どおり、&lt;a href=&#34;http://releases.ubuntu.com/16.04/&#34;&gt;公式のリリースページ&lt;/a&gt;からISOファイルをダウンロードし、USBメモリなどに焼いてインストールすればOKです。
-ただしあとでNetBSDをインストールするパーティションを確保しておきましょう。&lt;/p&gt;
-
-&lt;h2 id=&#34;netbsdのインストール:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのインストール&lt;/h2&gt;
-
-&lt;p&gt;まずは&lt;a href=&#34;https://www.netbsd.org/releases/index.html&#34;&gt;公式のリリースページ&lt;/a&gt;からUSBメモリ用のイメージをダウンロードし、焼きます。
-USBメモリから起動してインストーラを実行します。
-基本的な流れは、&lt;a href=&#34;https://www.netbsd.org/docs/guide/en/chap-exinst.html&#34;&gt;NetBSD公式のインストールガイド&lt;/a&gt;や
-&lt;a href=&#34;https://www.webzoit.net/hp/it/internet/homepage/env/os/bsd_unix_linux/netbsd/03_install&#34;&gt;webzoit.netさん&lt;/a&gt;がたいへん参考になります。
-そこで、デュアルブートのために必要な手順のみ説明します。&lt;/p&gt;
-
-&lt;p&gt;ちなみに、インストールの終盤でユーザーを追加できます。
-&lt;code&gt;wheel&lt;/code&gt;グループへの追加などもできるので、ここで設定しておくと便利です。&lt;/p&gt;
-
-&lt;h3 id=&#34;netbsdのブートローダをインストールしない:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;NetBSDのブートローダをインストールしない&lt;/h3&gt;
-
-&lt;p&gt;NetBSDのインストール中に、「bootselect codeをインストールするか？」と聞かれるステップがあります。
-これはUbuntuで使っているブートローダを上書きしてしまうので、Noと答えます。&lt;/p&gt;
-
-&lt;h3 id=&#34;ubuntuのgrubからnetbsdが起動できるよう設定:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;UbuntuのGRUBからNetBSDが起動できるよう設定&lt;/h3&gt;
-
-&lt;p&gt;NetBSDのブートローダは使わずに、Ubuntuの領域にインストールしたGRUBからNetBSDがブートできるように設定します。&lt;/p&gt;
-
-&lt;p&gt;まず、&lt;code&gt;/etc/grub.d/40-custom&lt;/code&gt; に以下のようなエントリーを追記します。&lt;/p&gt;
-menuentry `NetBSD 7.1 on sda3` {
-    insmod bsd
-    set root=(hd0,3)
-    chainloader (hd0,3)+1
-}
-
-&lt;p&gt;エントリーの名前は好きなものに設定してください。
-&lt;code&gt;root&lt;/code&gt;, &lt;code&gt;chainloader&lt;/code&gt;で設定するパーティションは、NetBSDをインストールしたところ指すように設定するため、環境によって変わります。
-NetBSDをインストールしたパーティションの番号や&lt;code&gt;fdisk&lt;/code&gt;の結果から決めてください。&lt;/p&gt;
-
-&lt;p&gt;次に、&lt;code&gt;/etc/default/grub&lt;/code&gt; を編集します。
-7, 8行目付近に &lt;code&gt;GRUB_HIDDEN_TIMEOUT&lt;/code&gt; を含む二行があるので、これをコメントアウトします。
-GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリーを選べるようにするためです。&lt;/p&gt;
-
-&lt;p&gt;最後に &lt;code&gt;sudo update-grub&lt;/code&gt; を実行し、GRUBの設定を更新します。&lt;/p&gt;
-
-&lt;h2 id=&#34;動作確認:2abe23f7b58f34c50a23fec248447ecf&#34;&gt;動作確認&lt;/h2&gt;
-
-&lt;p&gt;以上でデュアルブートの設定は終わりです。
-再起動してGRUBのメニューにNetBSDが現れることを確認しましょう。&lt;/p&gt;
-</description>
+      <description>LinuxとNetBSDをデュアルブートする方法をメモしておきます。 環境 DELL Latitude E6540 Intel Core i7-4610M (Haswell) BIOS (Legacy boot) Ubuntu Desktop 16.04 と NetBSD 7.1 をデュアルブート Linuxのインスト</description>
     </item>
     
     <item>
@@ -1661,137 +144,304 @@ GRUBのメニューで勝手にUbuntuを起動させず、NetBSDのエントリ�
       <pubDate>Thu, 12 Oct 2017 00:00:00 +0000</pubDate>
       
       <guid>/post/shell_in_rust/</guid>
-      <description>
-
-&lt;h2 id=&#34;概要:158b60adfcba82f928c98a0450cbf948&#34;&gt;概要&lt;/h2&gt;
-
-&lt;p&gt;Rustで簡単なシェルを書きました。
-コードは &lt;a href=&#34;https://github.com/ordovicia/rush.git&#34;&gt;github&lt;/a&gt; にあります。&lt;/p&gt;
-
-&lt;p&gt;インタラクティブでのみ動作し、リダイレクトとパイプが使えます。
-ビルトインコマンドは &lt;code&gt;cd&lt;/code&gt; のみ実装されています。&lt;/p&gt;
-
-&lt;h2 id=&#34;入力:158b60adfcba82f928c98a0450cbf948&#34;&gt;入力&lt;/h2&gt;
-
-&lt;p&gt;Readline alternativeの &lt;a href=&#34;https://github.com/antirez/linenoise&#34;&gt;linenoise&lt;/a&gt; を使ったことがあったので、それに似ている &lt;a href=&#34;https://crates.io/crates/rustyline&#34;&gt;rustyline&lt;/a&gt; を使いました。
-一行読んでパーサに渡しているだけです。&lt;/p&gt;
-
-&lt;h2 id=&#34;パース:158b60adfcba82f928c98a0450cbf948&#34;&gt;パース&lt;/h2&gt;
-
-&lt;p&gt;パーサコンビネータの &lt;a href=&#34;https://crates.io/crates/nom&#34;&gt;nom&lt;/a&gt; を使いました。
-だいたい以下のような文法です。&lt;/p&gt;
-arg_list     := token+
-
-redir_in     := &#34;&lt;&#34; token
-redir_trunc  := &#34;&gt;&#34; token
-redir_append := &#34;&gt;&gt;&#34; token
-redir_out    := redir_trunc
-              | redir_append
-
-proc_cdr     := arg_list proc_out?
-pipe_proc    := &#34;|&#34; proc_cdr
-proc_out     := pipe_proc
-              | redir_out
-
-proc_car     := arg_list
-              | arg_list proc_out
-              | arg_list redir_in proc_out?
-
-end_job      := eof | &#34;;&#34; | &#34;\n&#34; | &#34;\r&#34;
-job          := proc_car &#34;&amp;&#34;? end_job
-
-&lt;p&gt;nomを使うと簡単にパーサーが書けるのですが、今回は失敗だったと思っています。
-というのも、シェルはリダイレクトの位置に自由度があるからです。
-例えば &lt;code&gt;cmd &amp;lt; file0 &amp;gt; file1&lt;/code&gt; は &lt;code&gt;&amp;lt; file0 cmd &amp;gt; file1&lt;/code&gt; とも書けます。
-nomでこれに対応するのは面倒なので、今回は &lt;code&gt;cmd0 &amp;lt; file0 &amp;gt; file1&lt;/code&gt; の形式（にパイプを加えたもの）のみ認識するようになっています。&lt;/p&gt;
-
-&lt;p&gt;シェルの文法はそんなに難しくないので、パーサーを手書きすれば自由度にうまく対処できたのではないかと思います。&lt;/p&gt;
-
-&lt;h2 id=&#34;ジョブ実行:158b60adfcba82f928c98a0450cbf948&#34;&gt;ジョブ実行&lt;/h2&gt;
-
-&lt;p&gt;ジョブとプロセスの構造は次のようになっています。&lt;/p&gt;
-
-&lt;p&gt;プロセスは &lt;code&gt;Input::Pipe&lt;/code&gt;, &lt;code&gt;Output::Pipe&lt;/code&gt; によって他のプロセスとパイプで繋がり、&lt;code&gt;Input::Redirect&lt;/code&gt;, &lt;code&gt;Input::Redirect&lt;/code&gt; によってファイルリダイレクションを表しています。&lt;/p&gt;
-pub(super) struct Job {
-    process_list: process::Process,
-    mode: JobMode,
-}
-
-pub(crate) struct Process {
-    argument_list: Vec&lt;String&gt;,
-    input: Input,
-    output: Output,
-}
-
-pub(crate) enum Input {
-    Inherit,
-    Redirect(String),
-    Pipe,
-}
-
-pub(crate) enum Output {
-    Inherit,
-    Redirect(OutputRedirect),
-    Pipe(Box&lt;Process&gt;),
-}
-
-&lt;p&gt;実行は &lt;code&gt;std::process&lt;/code&gt; を使っています。
-&lt;code&gt;Process::spawn()&lt;/code&gt;, &lt;code&gt;spawn_rec()&lt;/code&gt; が &lt;code&gt;Input&lt;/code&gt;, &lt;code&gt;Output&lt;/code&gt; に従って入出力を設定し、&lt;code&gt;spawn_one()&lt;/code&gt; がspawnします。&lt;/p&gt;
-
-&lt;p&gt;パイプやリダイレクトから &lt;code&gt;std::process::Stdin&lt;/code&gt; を作るには、生のファイルディスクリプタを経由する必要があるようです。
-この操作はunsafeになっています。&lt;/p&gt;
-use std::process as stdproc;
-
-pub(super) fn spawn(&amp;self) -&gt; Result&lt;ChildList&gt; {
-    let stdin = match self.input {
-        Input::Inherit =&gt; stdproc::Stdio::inherit(),
-        Input::Redirect(ref file_name) =&gt; ...,
-        Input::Pipe =&gt; unreachable!(),
-    };
-
-    self.spawn_rec(stdin)
-}
-
-fn spawn_rec(&amp;self, stdin: stdproc::Stdio) -&gt; Result&lt;ChildList&gt; {
-    let (head, piped) = match self.output {
-        Output::Inherit =&gt; {
-            let head = self.spawn_one(stdin, stdproc::Stdio::inherit())?;
-            (head, None)
-        }
-        Output::Redirect(ref redir_out) =&gt; {
-            let file = ...;
-            let head = self.spawn_one(stdin, file)?;
-            (head, None)
-        }
-        Output::Pipe(ref piped) =&gt; {
-            let head = self.spawn_one(stdin, stdproc::Stdio::piped())?;
-            let stdin = ...;
-            let piped = piped.spawn_rec(stdin)?;
-            (head, Some(Box::new(piped)))
-        }
-    };
-
-    Ok(ChildList { head, piped })
-}
-
-fn spawn_one(&amp;self, stdin: stdproc::Stdio, stdout: stdproc::Stdio) -&gt; Result&lt;Child&gt; {
-    ...
-
-    stdproc::Command::new(&amp;self.argument_list[0])
-        .args(&amp;self.argument_list[1..])
-        .stdin(stdin)
-        .stdout(stdout)
-        .spawn()
-        .map(Child::External)
-        .map_err(Error::from)
-}
-
-&lt;h2 id=&#34;future-work-バックグラウンド実行:158b60adfcba82f928c98a0450cbf948&#34;&gt;Future Work: バックグラウンド実行&lt;/h2&gt;
-
-&lt;p&gt;バックグラウンド実行にも対応しようと思ったのですが、 &lt;code&gt;std::process&lt;/code&gt; だけではできず、libcバインディングが必要になるようでした。&lt;/p&gt;
-
-&lt;p&gt;バックグラウンド実行くらいは対応しないとシェルを書いたとは言えないですね&amp;hellip;&amp;hellip;。&lt;/p&gt;
-</description>
+      <description>概要 Rustで簡単なシェルを書きました。 コードは github にあります。 インタラクティブでのみ動作し、リダイレクトとパイプが使えます。 ビルトインコマン</description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43; - Python Interoperation</title>
+      <link>/post/cpp_python_interop/</link>
+      <pubDate>Mon, 03 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/cpp_python_interop/</guid>
+      <description>C++とPythonを結ぶ方法について少し調べました。 コードは GitHub にあります。 バージョン情報 OS X El Capitan (10.11.6) CMake 3.8.2 g++ 7.1.0 Python 3.6.1 Boost 1.64.0 Call C++ from Python 主に二つの方法が</description>
+    </item>
+    
+    <item>
+      <title>MardownをPDFに変換する</title>
+      <link>/post/convert_markdown_to_pdf/</link>
+      <pubDate>Thu, 29 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/convert_markdown_to_pdf/</guid>
+      <description>HackMD というサービスをよく使っています。 これで書いたものをPDF化したくなったことがあったので、その方法について調べたことをメモしておきます。 も</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Fri, 26 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/about/</guid>
+      <description>CV</description>
+    </item>
+    
+    <item>
+      <title>xv6の紹介</title>
+      <link>/post/introducing_xv6/</link>
+      <pubDate>Mon, 24 Apr 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/introducing_xv6/</guid>
+      <description>xv6とは xv6は、MITで教材用に作られたコンパクトなOSです。 他のいくつかの大学でも使われているようです[xv6 - Wikipedia]。</description>
+    </item>
+    
+    <item>
+      <title>Jetson TX1 セットアップ</title>
+      <link>/post/jetson_tx1_initial_setup/</link>
+      <pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/jetson_tx1_initial_setup/</guid>
+      <description>Jetson TX1を買いました。 セットアップの手順を記録しておきます。 JetPackを使ったインストール ホストOSはUbuntu14.04を使います。</description>
+    </item>
+    
+    <item>
+      <title>パトリシア木の実装 in Rust</title>
+      <link>/post/implementing_patricia_tree_in_rust/</link>
+      <pubDate>Mon, 09 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/implementing_patricia_tree_in_rust/</guid>
+      <description>Rustでパトリシア木を書きました。 写経以外でRustを書くのは初めてです。 パトリシア木とは パトリシア木(Patricia tree)または基</description>
+    </item>
+    
+    <item>
+      <title>整礎順序集合</title>
+      <link>/post/well_founded_induction/</link>
+      <pubDate>Sat, 31 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/post/well_founded_induction/</guid>
+      <description>五十嵐淳『プログラミング言語の基礎概念』を読んでいます。 整礎順序集合 集合とその上の順序が整礎であるとは、（真の）無限降下列が存在しないことを</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Lifetime</title>
+      <link>/post/learningrust/lifetime/</link>
+      <pubDate>Wed, 06 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/lifetime/</guid>
+      <description>Syntax and Semantics Lifetimes ずっと後回しにしてきましたが、今回はlifetimeを扱います。 Rustのlifetimeは、リソースの寿命に名前をつけて明確にし、</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Deref Coercions</title>
+      <link>/post/learningrust/deref_coercions/</link>
+      <pubDate>Sun, 03 Jan 2016 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/deref_coercions/</guid>
+      <description>Syntax and Semantics Deref coercions 前回はtraitによる演算子のoverloadを扱いました。 Overloadできる演算子には、間接参照演算子*を実装する、Dere</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Operators and Overloading</title>
+      <link>/post/learningrust/operators_and_overloading/</link>
+      <pubDate>Sun, 03 Jan 2016 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/operators_and_overloading/</guid>
+      <description>Syntax and Semantics Operators and Overloading Rustには一般的な関数のoverload機能はありませんが、 いくつかの演算子はoverloadすることができます。 演算子のov</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Associated Types</title>
+      <link>/post/learningrust/associated_types/</link>
+      <pubDate>Sat, 02 Jan 2016 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/associated_types/</guid>
+      <description>Syntax and Semantics Associated Types いきなりですが、抽象的なグラフに関するtraitを作りたいとします。 例えば以下のように書きますよね。 Nがnode, Eがedgeです</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Misc.</title>
+      <link>/post/learningrust/misc/</link>
+      <pubDate>Sat, 02 Jan 2016 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/misc/</guid>
+      <description>Syntax and Semantics Rustのsyntaxとsemanticsについて、いくつか細かい事項をまとめて紹介します。 const and static Const変数とstatic変数は、</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Universal Function Call Syntax</title>
+      <link>/post/learningrust/universal_function_call_syntax/</link>
+      <pubDate>Fri, 01 Jan 2016 14:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/universal_function_call_syntax/</guid>
+      <description>Syntax and Semantics Universal Function Call Syntax 別々のtraitが同名の関数を持っていることがありますね。 fn main() { trait Foo { fn f(&amp;amp;self); } trait Bar { fn f(&amp;amp;self); } struct Baz; impl Foo for Baz { fn f(&amp;amp;self) { println!(</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Closures</title>
+      <link>/post/learningrust/closures/</link>
+      <pubDate>Fri, 01 Jan 2016 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/closures/</guid>
+      <description>Syntax and Semantics Closures Rustにも言語レベルでclosureの機能があります。 今回はそのclosureを学びます。 Syntax まず、closureの基本的なsynt</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Trait Objects</title>
+      <link>/post/learningrust/trait_objects/</link>
+      <pubDate>Fri, 01 Jan 2016 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/trait_objects/</guid>
+      <description>Syntax and Semantics Trait objects 関数に多相性をもたせるときは、実際にその関数はなんの型について実行されているのか判定され、 適切なバージョンの関数が呼ばれなければい</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - If let</title>
+      <link>/post/learningrust/if_let/</link>
+      <pubDate>Wed, 30 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/if_let/</guid>
+      <description>Syntax and Semantics if let if letは、ある種のパターンマッチのwrapperです。 Overheadをなくす効果もあるそうです。 match option { Some(x) =&amp;gt; { foo(x) }, None =&amp;gt; {}, } のよう</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Traits</title>
+      <link>/post/learningrust/traits/</link>
+      <pubDate>Wed, 30 Dec 2015 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/traits/</guid>
+      <description>Syntax and Semantics Traits Traitは、Haskellでいう型クラスであり、 C++でいうコンセプト(C++14時点では提案のみっぽいですが)です。 ジェネリクス</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Generics</title>
+      <link>/post/learningrust/generics/</link>
+      <pubDate>Fri, 25 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/generics/</guid>
+      <description>Syntax and Semantics 今回はRustのジェネリクスのはなしです。 ジェネリクスがでてくると、佳境に入った気がしますね。 私はC++でテンプレートに慣れているので</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Method Syntax</title>
+      <link>/post/learningrust/method_syntax/</link>
+      <pubDate>Wed, 23 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/method_syntax/</guid>
+      <description>Syntax and Semantics Method syntax Rustでのメソッドのsyntaxについて学びます。 まず、Rustにはclassはありません。 が、オブジェクト指向プログラミングは</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Vectors and Strings</title>
+      <link>/post/learningrust/vectors_and_strings/</link>
+      <pubDate>Wed, 23 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/vectors_and_strings/</guid>
+      <description>Syntax and Semantics 今回は、Rustのvectorと文字列を学びます。 Vectorの使いかたはわかりやすいですが、Rustの文字列は他の言語とすこし違うよ</description>
+    </item>
+    
+    <item>
+      <title>OS X Yosemite上でBoostをGCCでビルドする</title>
+      <link>/post/gcc_build_boost_on_osx_yosemite/</link>
+      <pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/gcc_build_boost_on_osx_yosemite/</guid>
+      <description>Mac OSX Yosemite(10.10.5)上で、 Boost1.60.0をGCC5.3でビルドするのが大変だったので記録しておきます。 背景 GCCで</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Match and Patterns</title>
+      <link>/post/learningrust/match_and_patterns/</link>
+      <pubDate>Mon, 21 Dec 2015 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/match_and_patterns/</guid>
+      <description>Syntax and Semantics Rustには強力なパターンマッチがあります。 今回はその紹介です。 Match まずは簡単な例から。matchのsyntaxは以下のようになっていま</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Mutability</title>
+      <link>/post/learningrust/mutability/</link>
+      <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/mutability/</guid>
+      <description>Syntax and Semantics Mutability これまで話してきたとおり、Rustはデフォルトでimmutableです。 今回は、Rustのmutabilityについて確認しておきま</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Structs and Enums</title>
+      <link>/post/learningrust/structs_and_enums/</link>
+      <pubDate>Mon, 21 Dec 2015 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/structs_and_enums/</guid>
+      <description>Syntax and Semantics 今回は、型を組み合わせて新しい型を作る方法を扱います。 Structs まずはstructです。 次のコードを見ればだいたいわかりますね。 struct Point { x: i32, y: i32,</description>
+    </item>
+    
+    <item>
+      <title>Arch Linux on Raspberry Pi 2 - 開発用セットアップ</title>
+      <link>/post/archlinuxonraspi/devel_setup/</link>
+      <pubDate>Mon, 21 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/archlinuxonraspi/devel_setup/</guid>
+      <description>開発環境のセットアップ 前回作成したユーザーcyanで作業します。 基本的な開発用ソフトウェア群 まずは基本的なソフトウェア群をインストールします</description>
+    </item>
+    
+    <item>
+      <title>Arch Linux on Raspberry Pi 2 - 初期セットアップ</title>
+      <link>/post/archlinuxonraspi/initial_setup/</link>
+      <pubDate>Thu, 10 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/archlinuxonraspi/initial_setup/</guid>
+      <description>先日Raspberry Pi 2を買いました。 試してみたかったArch Linuxをインストールしてみたのでその作業を記録しておきます。 Arch Linux</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Ownership</title>
+      <link>/post/learningrust/ownership/</link>
+      <pubDate>Thu, 03 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/ownership/</guid>
+      <description>Syntax and Semantics 今回扱うのは、Rustのリソース管理システムであるownershipの概念です。 このシステムによる解析はすべてコンパイル時におこなわれ</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - If and Loops</title>
+      <link>/post/learningrust/if_and_loops/</link>
+      <pubDate>Tue, 24 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/if_and_loops/</guid>
+      <description>ひさびさのRustです。 というか最近更新サボり気味ですね。 Syntax and Semantics 引き続いてRustのsyntaxとsemanticsを学びます。 If 条件分岐で</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Primitive Types and Comments</title>
+      <link>/post/learningrust/primitive_types_and_comments/</link>
+      <pubDate>Thu, 12 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/primitive_types_and_comments/</guid>
+      <description>Syntax and Semantics 前々回につづけて、 syntaxとsemanticsのドキュメント を読んでいきます。 Primitive Types 組み込み型の紹介です。 よくある型に加えて、Rus</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Dining Philosophers</title>
+      <link>/post/learningrust/dining_philosophers/</link>
+      <pubDate>Wed, 11 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/dining_philosophers/</guid>
+      <description>Learn Rust 前回扱うつもりで飛ばしてしまった、overview的なチュートリアル&amp;rdquo;Dining Philosophers&amp;rdquo; を扱います。 Dining Philosophers 並列計算に関する問題です</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Variable Bindings and Functions</title>
+      <link>/post/learningrust/variable_bindings_and_functions/</link>
+      <pubDate>Mon, 09 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/post/learningrust/variable_bindings_and_functions/</guid>
+      <description>Syntax and Semantics 前回に続いて、Rustのoverview的なチュートリアル&amp;rdquo;Dining Philosophers&amp;rdquo;を扱うつもり</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Guessing Game</title>
+      <link>/post/learningrust/guessing_game/</link>
+      <pubDate>Sat, 07 Nov 2015 13:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/guessing_game/</guid>
+      <description>公式ドキュメント にしたがってRustを学んでいこうと思います。 Learn Rust Rustのoverview的なチュートリアルです。 Guessing Game Dining Philosophers Rust Inside Other Language という3</description>
+    </item>
+    
+    <item>
+      <title>Learning Rust - Introduction</title>
+      <link>/post/learningrust/introduction/</link>
+      <pubDate>Sat, 07 Nov 2015 12:00:00 +0900</pubDate>
+      
+      <guid>/post/learningrust/introduction/</guid>
+      <description>Rustというプログラミング言語があります。 Mozillaによって開発中で、1.0が2015年5月16日にリリースされました。 syntaxは</description>
     </item>
     
   </channel>

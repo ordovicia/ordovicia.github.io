@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Jetson TX1 セットアップ &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -231,7 +231,7 @@
 <p>Jetson TX1を買いました。
 セットアップの手順を記録しておきます。</p>
 
-<h1 id="jetpackを使ったインストール:561e8f0a0ba03963f266df0b103a8848">JetPackを使ったインストール</h1>
+<h1 id="jetpackを使ったインストール">JetPackを使ったインストール</h1>
 
 <p>ホストOSはUbuntu14.04を使います。
 最初Ubuntu16.04で試したのですが、OpenCV4Tegraのビルドに失敗したので、14.04で作業しました。</p>
@@ -240,22 +240,20 @@
 デフォルトの構成だと10GBほどダウンロードされるので、ネットワーク速度が十分な環境で作業しましょう。</p>
 
 <p>インストール後、Jetsonの電源を入れ直して、</p>
-$ ssh ubuntu@tegra-ubuntu.local
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ssh ubuntu@tegra-ubuntu.local</code></pre></div>
 <p>でログインできればOKです。</p>
 
-<h1 id="リカバリー用sdカード作成:561e8f0a0ba03963f266df0b103a8848">リカバリー用SDカード作成</h1>
+<h1 id="リカバリー用sdカード作成">リカバリー用SDカード作成</h1>
 
 <p>SDカードをさし、マウントします。<code>/dev/mmcblk1</code>がSDカードになっています。
 ext4でフォーマットします。</p>
 
 <p><a href="https://developer.nvidia.com/embedded/downloads">NVIDIA</a>から、TX1用のDriver PackageとSample Root Filesystemをダウンロードし、</p>
-$ sudo tar -vxjf <Driver Package>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo tar -vxjf &lt;Driver Package&gt;
 $ cd Linux_for_Tegra/rootfs
-$ sudo tar jxpf ../../<Sample Root Filesystem>
+$ sudo tar jxpf ../../&lt;Sample Root Filesystem&gt;
 $ cd ..
-$ sudo ./apply_binaries.sh
-
+$ sudo ./apply_binaries.sh</code></pre></div>
 <p>を実行します。
 SDカードに<code>rootfs</code>以下をまるごとコピーすると完了です。
 このときroot権限で操作しないと、sudoがつかえなくなって詰みます。</p>
@@ -267,17 +265,19 @@ SDカードに<code>rootfs</code>以下をまるごとコピーすると完了�
 
 <p>起動後、dfなどでディスクを確認しておきます。</p>
 
-<h1 id="ssdからのブート:561e8f0a0ba03963f266df0b103a8848">SSDからのブート</h1>
+<h1 id="ssdからのブート">SSDからのブート</h1>
 
 <p>SDカードからブートしたとき、eMMCには<code>/dev/mmcblk0p1</code>からアクセスできます。
 SATAポートに繋いだSSDは<code>/dev/sda</code>に見えます。
 ともにマウントしたあと、<code>/dev/mmcblk0p1</code>を<code>/dev/sda1</code>にまるごとコピーして、eMMCの<code>/boot/extlinux/extlinux.conf</code>を編集して終わりです。</p>
 
-<h1 id="wi-fiアクセスポイント設定:561e8f0a0ba03963f266df0b103a8848">Wi-Fiアクセスポイント設定</h1>
+<h1 id="wi-fiアクセスポイント設定">Wi-Fiアクセスポイント設定</h1>
 
 <p>JetsonTX1は、単体でWi-Fiのアクセスポイントになることが出来ます。
 <code>/etc/modprobe.d/bcmdhd.conf</code>に、</p>
-options bcmdhd op_mode=2
+
+<pre><code>options bcmdhd op_mode=2
+</code></pre>
 
 <p>と追記してから、<a href="https://seravo.fi/2014/create-wireless-access-point-hostapd">こちら</a>に従って設定します。
 パスフレーズを8文字以上にすることと、WPAをパーソナルモード(PSK, PSK-SHA-256)にすることに注意しましょう。</p>

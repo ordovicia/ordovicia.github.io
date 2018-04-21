@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Associated Types &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,91 +230,84 @@
 
   
 
-<h1 id="syntax-and-semantics:5a7aac40c9d108cb1578188fb9fe1d7c">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
-<h2 id="associated-types:5a7aac40c9d108cb1578188fb9fe1d7c">Associated Types</h2>
+<h2 id="associated-types">Associated Types</h2>
 
 <p>いきなりですが、抽象的なグラフに関するtraitを作りたいとします。
 例えば以下のように書きますよね。
 <code>N</code>がnode, <code>E</code>がedgeです。</p>
-trait Graph<N, E> {
-    fn has_edge(&self, &N, &N) -> bool;
-    fn edges(&self, &N) -> Vec<E>;
-    // etc
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> Graph<span style="color:#f92672">&lt;</span>N, E<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">has_edge</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>N, <span style="color:#f92672">&amp;</span>N) -&gt; <span style="color:#66d9ef">bool</span>;
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">edges</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>N) -&gt; Vec<span style="color:#f92672">&lt;</span>E<span style="color:#f92672">&gt;</span>;
+    <span style="color:#75715e">// etc
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>で、<code>Graph</code>を受け取る関数を作ります(Traitに含めてもいいんですが、それはおいといて)。
 Node間の距離を計算する関数です。</p>
-fn distance<N, E, G: Graph<N, E>>(graph: &G, start: &N, end: &N) -> u32 {
-    //
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">distance</span><span style="color:#f92672">&lt;</span>N, E, G: <span style="color:#a6e22e">Graph</span><span style="color:#f92672">&lt;</span>N, E<span style="color:#f92672">&gt;&gt;</span>(graph: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">G</span>, start: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">N</span>, end: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">N</span>) -&gt; <span style="color:#66d9ef">u32</span> {
+    <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>このように、シグネチャに<code>N, E</code>が何度も登場します。
 <code>Graph</code>の型がわかれば<code>N, E</code>もわかるので、これは無駄っぽいですね。</p>
 
 <p>そこで、<code>Graph</code>にnodeとedgeを関連付けます。
 このとき使う機能が、&rsquo;associated type&rsquo;です。</p>
-trait Graph {
-    type N;
-    type E;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">trait</span> Graph {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">N</span>;
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">E</span>;
 
-    fn has_edge(&self, &Self::N, &Self::N) -> bool;
-    fn edges(&self, &Self::N) -> Vec<Self::E>;
-    // etc
-}
-
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">has_edge</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>Self::N, <span style="color:#f92672">&amp;</span>Self::N) -&gt; <span style="color:#66d9ef">bool</span>;
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">edges</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>Self::N) -&gt; Vec<span style="color:#f92672">&lt;</span>Self::E<span style="color:#f92672">&gt;</span>;
+    <span style="color:#75715e">// etc
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>Syntaxは上のように、<code>trait</code>内に<code>type N</code>のように記述します。
 さきほどの<code>distance()</code>関数のシグネチャは次のように変わります。</p>
-fn distance<G: Graph>(graph: &G, start: &G::N, end: &G::N) -> u32 { ... }
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">distance</span><span style="color:#f92672">&lt;</span>G: <span style="color:#a6e22e">Graph</span><span style="color:#f92672">&gt;</span>(graph: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">G</span>, start: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">G</span>::N, end: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">G</span>::N) -&gt; <span style="color:#66d9ef">u32</span> { ... }</code></pre></div>
 <p>すこしすっきりしましたね。
 しかも、不要だった<code>E</code>の記述がなくなっています。</p>
 
-<h3 id="defining-associated-types:5a7aac40c9d108cb1578188fb9fe1d7c">Defining associated types</h3>
+<h3 id="defining-associated-types">Defining associated types</h3>
 
 <p>Associated typesの定義時に、引数の型のように、あるtraitをimplしていることを要求できます。
 Syntaxは引数のときと同じです。</p>
-use std::fmt;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::fmt;
 
-trait Graph {
-    type N: fmt::Display;
-    type E;
+<span style="color:#66d9ef">trait</span> Graph {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">N</span>: <span style="color:#a6e22e">fmt</span>::Display;
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">E</span>;
 
-    fn has_edge(&self, &Self::N, &Self::N) -> bool;
-    fn edges(&self, &Self::N) -> Vec<Self::E>;
-}
-
-<h3 id="implementing-associated-types:5a7aac40c9d108cb1578188fb9fe1d7c">Implementing associated types</h3>
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">has_edge</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>Self::N, <span style="color:#f92672">&amp;</span>Self::N) -&gt; <span style="color:#66d9ef">bool</span>;
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">edges</span>(<span style="color:#f92672">&amp;</span>self, <span style="color:#f92672">&amp;</span>Self::N) -&gt; Vec<span style="color:#f92672">&lt;</span>Self::E<span style="color:#f92672">&gt;</span>;
+}</code></pre></div>
+<h3 id="implementing-associated-types">Implementing associated types</h3>
 
 <p>Associated typesをもっているtraitをimplするときも、これまでとあまり変わりません。</p>
-struct Node;
-struct Edge;
-struct MyGraph;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Node</span>;
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Edge</span>;
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">MyGraph</span>;
 
-impl Graph for MyGraph {
-    type N = Node;
-    type E = Edge;
+<span style="color:#66d9ef">impl</span> Graph <span style="color:#66d9ef">for</span> MyGraph {
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> Node;
+    <span style="color:#66d9ef">type</span> <span style="color:#a6e22e">E</span> <span style="color:#f92672">=</span> Edge;
 
-    fn has_edge(&self, n1: &Node, n2: &Node) -> bool {
-        true
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">has_edge</span>(<span style="color:#f92672">&amp;</span>self, n1: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Node</span>, n2: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Node</span>) -&gt; <span style="color:#66d9ef">bool</span> {
+        <span style="color:#66d9ef">true</span>
     }
 
-    fn edges(&self, n: &Node) -> Vec<Edge> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">edges</span>(<span style="color:#f92672">&amp;</span>self, n: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Node</span>) -&gt; Vec<span style="color:#f92672">&lt;</span>Edge<span style="color:#f92672">&gt;</span> {
         Vec::new()
     }
-}
-
+}</code></pre></div>
 <p>Associated typesである<code>N, E</code>に具体的な型を指定し、
 指定した型をつかってメソッドを定義していきます。</p>
 
-<h3 id="trait-objects-with-associated-types:5a7aac40c9d108cb1578188fb9fe1d7c">Trait objects with associated types</h3>
+<h3 id="trait-objects-with-associated-types">Trait objects with associated types</h3>
 
 <p>Associated typesをもつtraitのtrait objectに変換するときは、
 associated typesが具体的には何の型なのか指定する必要があります。
 どの型に対するimplか分からなくなりますからね。</p>
-let graph = MyGraph;
-let obj = Box::new(graph) as Box<Graph<N = Node, E = Edge>>;
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> graph <span style="color:#f92672">=</span> MyGraph;
+<span style="color:#66d9ef">let</span> obj <span style="color:#f92672">=</span> Box::new(graph) <span style="color:#66d9ef">as</span> Box<span style="color:#f92672">&lt;</span>Graph<span style="color:#f92672">&lt;</span>N <span style="color:#f92672">=</span> Node, E <span style="color:#f92672">=</span> Edge<span style="color:#f92672">&gt;&gt;</span>;</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

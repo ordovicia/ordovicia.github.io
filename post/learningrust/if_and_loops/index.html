@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - If and Loops &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -233,31 +233,29 @@
 <p>ひさびさのRustです。
 というか最近更新サボり気味ですね。</p>
 
-<h1 id="syntax-and-semantics:ba3c5f1493871089b75c8122262138aa">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
 <p>引き続いてRustのsyntaxとsemanticsを学びます。</p>
 
-<h2 id="if:ba3c5f1493871089b75c8122262138aa">If</h2>
+<h2 id="if">If</h2>
 
 <p>条件分岐ですね。以下のようなsyntaxです。</p>
-let x = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
-if x == 5 {
-    println!("x is five!");
-} else if x == 6 {
-    println!("x is six!");
-} else {
-    println!("x is not five or six :(");
-}
-
+<span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span> {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x is five!&#34;</span>);
+} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">6</span> {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x is six!&#34;</span>);
+} <span style="color:#66d9ef">else</span> {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x is not five or six :(&#34;</span>);
+}</code></pre></div>
 <p>条件式の<code>()</code>はつけないが、then節、else節には<code>{}</code>が必要なようです。
 もちろんelse節は省略できます。</p>
 
 <p>実は<code>if</code>はexpressionなので、値を返します。
 例えば、</p>
-let x = 5;
-let y = if x == 5 { 10 } else { 15 }; // y = 10
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span> { <span style="color:#ae81ff">10</span> } <span style="color:#66d9ef">else</span> { <span style="color:#ae81ff">15</span> }; <span style="color:#f92672">//</span> y <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span></code></pre></div>
 <p>となります。
 then節、else節にstatementを書くと空tuple<code>()</code>が返るようです。
 もちろんthen節とelse節に違う型のexpressionを書くことはできません。</p>
@@ -272,7 +270,7 @@ then節、else節にstatementを書くと空tuple<code>()</code>が返るよう�
 Rust v1.4でif-expressionの値を代入するとき、
 else節を省略するとコンパイルエラーになりました。</p>
 
-<h2 id="loop:ba3c5f1493871089b75c8122262138aa">Loop</h2>
+<h2 id="loop">Loop</h2>
 
 <p>条件式とならんで制御構文を代表する繰り返し構文です。
 Rustには3つの方法があります。
@@ -280,40 +278,37 @@ Rustには3つの方法があります。
 
 <p>(<code>until</code>や<code>unless</code>があるとよかったのですが、かえってわかりにくいでしょうか)</p>
 
-<h3 id="loop-1:ba3c5f1493871089b75c8122262138aa"><code>loop</code></h3>
+<h3 id="loop-1"><code>loop</code></h3>
 
 <p><code>loop</code>キーワードは無限ループを作ります。
 <code>break</code>や<code>return</code>で抜けることができます。</p>
-loop {
-    println!("Loop forever!");
-}
-
-<h3 id="while:ba3c5f1493871089b75c8122262138aa"><code>while</code></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">loop</span> {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;Loop forever!&#34;</span>);
+}</code></pre></div>
+<h3 id="while"><code>while</code></h3>
 
 <p>おなじみ<code>while</code>は、条件が満たされるまで繰り返します。</p>
-let mut x = 5;
-let mut done = false;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> done <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
 
-while !done {
-    x += x - 3;
-    println!("{}", x);
+<span style="color:#66d9ef">while</span> <span style="color:#f92672">!</span>done {
+    x <span style="color:#f92672">+=</span> x <span style="color:#f92672">-</span> <span style="color:#ae81ff">3</span>;
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);
 
-    if x % 5 == 0 {
-        done = true;
+    <span style="color:#66d9ef">if</span> x <span style="color:#f92672">%</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+        done <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
     }
-}
-
+}</code></pre></div>
 <p>上述の<code>loop</code>は<code>while true</code>と同値でしょうか？
 実は(少なくともv1.4の)Rustでは、
 <code>loop</code>は<code>while true</code>の単なる置き換えではありません。
 例えば、</p>
-let mut a;
-loop {
-    a = 1;
-    break;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> a;
+<span style="color:#66d9ef">loop</span> {
+    a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+    <span style="color:#66d9ef">break</span>;
 }
-println!("{}", a);
-
+println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, a);</code></pre></div>
 <p>は正しいコードですが、<code>loop</code>を<code>while true</code>で置き換えると、
 <code>a</code>が未初期化であるとのコンパイルエラーになります。
 というのは、<code>loop</code>キーワードを使うと、
@@ -323,78 +318,70 @@ println!("{}", a);
 <p>でも、コンパイラが<code>while true</code>を見つけたら
 <code>loop</code>とみなすのではダメなんでしょうか？</p>
 
-<h2 id="for:ba3c5f1493871089b75c8122262138aa"><code>for</code></h2>
+<h2 id="for"><code>for</code></h2>
 
 <p><code>for</code>はある範囲を走査しながら繰り返す構文です。
 syntaxは以下のようになっています。</p>
-for var in expression {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">for</span> var <span style="color:#66d9ef">in</span> expression {
     code
-}
-
+}</code></pre></div>
 <p>C++とかにもある形ですが、
 <code>var, expression</code>に適用できるものパターンが強力になっています。</p>
 
 <p>まずはC++にもある、数値を動かしていくもの。</p>
-for i in 0..10 {
-    println!("{}", i);
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">10</span> {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, i);
+}</code></pre></div>
 <p>は、想像通り0から9を順に出力します。</p>
 
 <p>vectorの要素を辿っていくこともできます。</p>
-let nums = vec![1, 2, 3];
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> nums <span style="color:#f92672">=</span> vec<span style="color:#f92672">!</span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>];
 
-for num in &nums {
-    println!("{}", num);
-}
-
+<span style="color:#66d9ef">for</span> num <span style="color:#66d9ef">in</span> <span style="color:#f92672">&amp;</span>nums {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, num);
+}</code></pre></div>
 <p>便利ですね。
 もっとも、C++11にもrange-based-forがあって同じ書き方はできますが。</p>
 
-<h3 id="enumerate:ba3c5f1493871089b75c8122262138aa">Enumerate</h3>
+<h3 id="enumerate">Enumerate</h3>
 
 <p>「何番目まで走査しているか」を知りたいときは、<code>enumerate()</code>関数が使えます。
 rangeに対しては、</p>
-for (i, j) in (5..10).enumerate() {
-    println!("The {}st number is {}.", i, j)
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">for</span> (i, j) <span style="color:#66d9ef">in</span> (<span style="color:#ae81ff">5</span>..<span style="color:#ae81ff">10</span>).enumerate() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;The {}st number is {}.&#34;</span>, i, j)
+}</code></pre></div>
 <p>で、<code>0: 5</code>などの出力が得られ、</p>
-let lines = "hello\nworld!".line();
-for (linenumber, line) in lines.enumerate() {
-    println!("{}: {}", linenumber, line);
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> lines <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">world!&#34;</span>.line();
+<span style="color:#66d9ef">for</span> (linenumber, line) <span style="color:#66d9ef">in</span> lines.enumerate() {
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}: {}&#34;</span>, linenumber, line);
+}</code></pre></div>
 <p>は、</p>
-0: hello
-1: world!
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">0: hello
+1: world!</code></pre></div>
 <p>を出力します。</p>
 
-<h2 id="ending-iteration-early:ba3c5f1493871089b75c8122262138aa">Ending iteration early</h2>
+<h2 id="ending-iteration-early">Ending iteration early</h2>
 
 <p>上述の通り、<code>break</code>や<code>return</code>を使えばループを抜けられます。
 よって、上に挙げた<code>while</code>の例は以下のように書き換えられます。</p>
-let mut x = 5;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
 
-loop {
-    x += x - 3;
-    println!("{}", x);
+<span style="color:#66d9ef">loop</span> {
+    x <span style="color:#f92672">+=</span> x <span style="color:#f92672">-</span> <span style="color:#ae81ff">3</span>;
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);
 
-    if x % 5 == 0 { break; }
-}
-
+    <span style="color:#66d9ef">if</span> x <span style="color:#f92672">%</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> { <span style="color:#66d9ef">break</span>; }
+}</code></pre></div>
 <p><code>continue</code>は次のイテレーションに進みます。
 よって次のコードは奇数のみ出力します。</p>
-for x in 0..10 {
-    if x % 2 == 0 { continue; }
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">for</span> x <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">10</span> {
+    <span style="color:#66d9ef">if</span> x <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> { <span style="color:#66d9ef">continue</span>; }
 
-    println!("{}", x);
-}
-
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);
+}</code></pre></div>
 <p><code>break, continue</code>どちらもご存知のとおりでしたね。</p>
 
-<h2 id="loop-label:ba3c5f1493871089b75c8122262138aa">Loop label</h2>
+<h2 id="loop-label">Loop label</h2>
 
 <p>最後はRust特有の機能でしょうか。私は見たことがありませんでした。</p>
 
@@ -405,14 +392,13 @@ for x in 0..10 {
 <p>そこでRustでは、ループに名前をつけることができます。
 以下のように、<code>outer</code>や<code>inner</code>というラベルをつけ、<code>continue 'outer</code>
 のようにすれば、外側のループを次に進めることができます。</p>
-'outer: for x in 0..10 {
-    'inner: for y in 0..10 {
-        if x % 2 == 0 { continue 'outer; } // continues the loop over x
-        if y % 2 == 0 { continue 'inner; } // continues the loop over y
-        println!("x: {}, y: {}", x, y);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#a6e22e">&#39;outer</span>: <span style="color:#a6e22e">for</span> x <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">10</span> {
+    <span style="color:#a6e22e">&#39;inner</span>: <span style="color:#a6e22e">for</span> y <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..<span style="color:#ae81ff">10</span> {
+        <span style="color:#66d9ef">if</span> x <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> { <span style="color:#66d9ef">continue</span> &#39;outer; } <span style="color:#75715e">// continues the loop over x
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> y <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> { <span style="color:#66d9ef">continue</span> &#39;inner; } <span style="color:#75715e">// continues the loop over y
+</span><span style="color:#75715e"></span>        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;x: {}, y: {}&#34;</span>, x, y);
     }
-}
-
+}</code></pre></div>
 <hr />
 
 <p>今回はここまでです。

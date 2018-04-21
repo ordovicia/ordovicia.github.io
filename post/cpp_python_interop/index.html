@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>C&#43;&#43; - Python Interoperation &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -220,7 +220,7 @@
     
       <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
     
-      <a class="post-taxonomy-tag" href="/tags/c">C&#43;&#43;</a>&nbsp;&#47;
+      <a class="post-taxonomy-tag" href="/tags/c&#43;&#43;">C&#43;&#43;</a>&nbsp;&#47;
     
       <a class="post-taxonomy-tag" href="/tags/python">Python</a>
     
@@ -235,7 +235,7 @@
 <p>C++とPythonを結ぶ方法について少し調べました。
 コードは <a href="https://github.com/ordovicia/cplusplus-ffi.git">GitHub</a> にあります。</p>
 
-<h2 id="バージョン情報:6dbaf25571c59f18af2335417ebb6a82">バージョン情報</h2>
+<h2 id="バージョン情報">バージョン情報</h2>
 
 <ul>
 <li>OS X El Capitan (10.11.6)</li>
@@ -245,7 +245,7 @@
 <li>Boost 1.64.0</li>
 </ul>
 
-<h2 id="call-c-from-python:6dbaf25571c59f18af2335417ebb6a82">Call C++ from Python</h2>
+<h2 id="call-c-from-python">Call C++ from Python</h2>
 
 <p>主に二つの方法があります。</p>
 
@@ -254,7 +254,7 @@
 <li>Boost.Python</li>
 </ul>
 
-<h3 id="swig:6dbaf25571c59f18af2335417ebb6a82">SWIG</h3>
+<h3 id="swig">SWIG</h3>
 
 <p>SWIGは、C/C++プログラムを、他の言語で呼べるように変換してくれるツールです。
 Pythonを対象にするときは、Pythonモジュールとして使える形のラッパーを自動で作ってくれるので、それを共有ライブラリにコンパイルして使います。
@@ -263,82 +263,78 @@ Python以外にも多くの言語に対応しています。</p>
 <p>詳細は、<a href="http://www.swig.org/doc.html">公式ドキュメント</a> を参照してください。</p>
 
 <p>以下のC++（実質C言語）プログラムを例に取ります。</p>
-// example.hpp
-
-#pragma once
-
-int fact(int n);
-// example.cpp
-
-#include "example.hpp"
-
-int fact(int n)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// example.hpp
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#pragma once
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">fact</span>(<span style="color:#66d9ef">int</span> n);
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// example.cpp
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;example.hpp&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">fact</span>(<span style="color:#66d9ef">int</span> n)
 {
-    return n <= 0 ? 1 : n * fact(n - 1);
+    <span style="color:#66d9ef">return</span> n <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">?</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">:</span> n <span style="color:#f92672">*</span> fact(n <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>);
 }
-
+</code></pre></div>
 <p>SWIGでは、「インターフェイスファイル」というものを作ります。
 上のプログラムのインターフェイスファイルは次のようになります。</p>
-// example.i
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swig" data-lang="swig">// example.i
 
 %module example
 
 %{
 
 #define SWIG_FILE_WITH_INIT
-#include "example.hpp"
+#include &#34;example.hpp&#34;
 
 %}
 
-%include "example.hpp"
-
+%include &#34;example.hpp&#34;</code></pre></div>
 <p>基本的には、</p>
-%module module_name
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-swig" data-lang="swig">%module module_name
 
 %{
 #define SWIG_FILE_WITH_INIT
 #include module_header
 %}
 
-%include module_header
-
+%include module_header</code></pre></div>
 <p>と書きます。</p>
 
 <p>ビルドにはdistutilを使うのが一般的だと思いますが、ここではCMakeを使ってみます。
 次のような <code>CMakeLists.txt</code> を用意します。
 ファイル名が変わってもそのまま使えるようになっています。</p>
-cmake_minimum_required(VERSION 3.8.0)
-
-find_package(SWIG REQUIRED)
-include(${SWIG_USE_FILE})
-
-find_package(PythonLibs 3 REQUIRED)
-include_directories(${PYTHON_INCLUDE_PATH})
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-set(CMAKE_SWIG_FLAGS "")
-
-file(GLOB SWIG_FILES *.i)
-file(GLOB SRC_FILES *.cpp)
-
-set_source_files_properties(${SWIG_FILES} PROPERTIES CPLUSPLUS ON)
-set_source_files_properties(${SWIG_FILES} PROPERTIES SWIG_FLAGS "-includeall")
-
-swig_add_library(example
-    LANGUAGE python
-    SOURCES ${SWIG_FILES} ${SRC_FILES})
-swig_link_libraries(example ${PYTHON_LIBRARIES})
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake">cmake_minimum_required(<span style="color:#e6db74">VERSION</span> <span style="color:#e6db74">3.8.0</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>find_package(<span style="color:#e6db74">SWIG</span> <span style="color:#e6db74">REQUIRED</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>include(<span style="color:#f92672">${</span>SWIG_USE_FILE<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>find_package(<span style="color:#e6db74">PythonLibs</span> <span style="color:#e6db74">3</span> <span style="color:#e6db74">REQUIRED</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>include_directories(<span style="color:#f92672">${</span>PYTHON_INCLUDE_PATH<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>include_directories(<span style="color:#f92672">${</span>CMAKE_CURRENT_SOURCE_DIR<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>set(<span style="color:#e6db74">CMAKE_SWIG_FLAGS</span> <span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>file(<span style="color:#e6db74">GLOB</span> <span style="color:#e6db74">SWIG_FILES</span> <span style="color:#e6db74">*.i</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>file(<span style="color:#e6db74">GLOB</span> <span style="color:#e6db74">SRC_FILES</span> <span style="color:#e6db74">*.cpp</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>set_source_files_properties(<span style="color:#f92672">${</span>SWIG_FILES<span style="color:#f92672">}</span> <span style="color:#e6db74">PROPERTIES</span> <span style="color:#e6db74">CPLUSPLUS</span> <span style="color:#e6db74">ON</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>set_source_files_properties(<span style="color:#f92672">${</span>SWIG_FILES<span style="color:#f92672">}</span> <span style="color:#e6db74">PROPERTIES</span> <span style="color:#e6db74">SWIG_FLAGS</span> <span style="color:#e6db74">&#34;-includeall&#34;</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>swig_add_library(<span style="color:#e6db74">example</span>
+    <span style="color:#e6db74">LANGUAGE</span> <span style="color:#e6db74">python</span>
+    <span style="color:#e6db74">SOURCES</span> <span style="color:#f92672">${</span>SWIG_FILES<span style="color:#f92672">}</span> <span style="color:#f92672">${</span>SRC_FILES<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>swig_link_libraries(<span style="color:#e6db74">example</span> <span style="color:#f92672">${</span>PYTHON_LIBRARIES<span style="color:#f92672">}</span>)</code></pre></div>
 <p>（CMakeが3.8より古いと <code>swig_add_library</code> ではなく <code>swig_add_module</code> を使う必要があります。その際 <code>LANGUAGE</code>, <code>SOURCES</code> は除いてください。）</p>
 
 <p>あとは <code>cmake, make</code> すれば <code>_example.so</code> が生成され、Pythonからインポートして使えます。</p>
-import example
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> example
 
-for i in range(10):
-    print(example.fact(i))
-
-<h3 id="boost-python:6dbaf25571c59f18af2335417ebb6a82">Boost.Python</h3>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">10</span>):
+    <span style="color:#66d9ef">print</span>(example<span style="color:#f92672">.</span>fact(i))</code></pre></div>
+<h3 id="boost-python">Boost.Python</h3>
 
 <p>詳細は <a href="http://www.boost.org/doc/libs/1_64_0/libs/python/doc/html/index.html">公式ドキュメント</a> を参照してください。
 <a href="https://github.com/TNG/boost-python-examples">こちらの例</a> も参考になります。</p>
@@ -348,54 +344,52 @@ for i in range(10):
 
 <p>ちなみに、Boost.Python 1.64.0 からnumpyサポートがmaster入りしたようです。</p>
 
-<h4 id="ビルド方法:6dbaf25571c59f18af2335417ebb6a82">ビルド方法</h4>
+<h4 id="ビルド方法">ビルド方法</h4>
 
 <p>macOSでのPython3を対象とします。</p>
 
 <p>まず、Boost.PythonをHomebrewでインストールするのですが、Python3に対応させるために、<code>--with-python3</code> オプションを付けます。</p>
-$ brew install boost-python --with-python3 --c++11
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-console" data-lang="console">$ brew install boost-python --with-python3 --c++11</code></pre></div>
 <p>GCCを使いたい場合は <code>--cc=gcc-7</code> のようなオプションを追加してください。</p>
 
 <p>ビルドにはCMakeを使うことにします。
 次のような<code>CMakeLists.txt</code>を用意してください。
 ここでは、<code>mod.cpp</code> をPythonモジュールとしてビルドし、<code>test_mod.py</code> から使います。</p>
-cmake_minimum_required(VERSION 3.8.0)
-
-find_package(PythonInterp 3 REQUIRED)
-find_package(PythonLibs 3 REQUIRED)
-find_package(Boost COMPONENTS python3)
-
-include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-link_libraries(${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-
-python_add_module(mod mod.cpp)
-file(COPY test_mod.py DESTINATION .)
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake">cmake_minimum_required(<span style="color:#e6db74">VERSION</span> <span style="color:#e6db74">3.8.0</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>find_package(<span style="color:#e6db74">PythonInterp</span> <span style="color:#e6db74">3</span> <span style="color:#e6db74">REQUIRED</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>find_package(<span style="color:#e6db74">PythonLibs</span> <span style="color:#e6db74">3</span> <span style="color:#e6db74">REQUIRED</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>find_package(<span style="color:#e6db74">Boost</span> <span style="color:#e6db74">COMPONENTS</span> <span style="color:#e6db74">python3</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>include_directories(<span style="color:#f92672">${</span>Boost_INCLUDE_DIRS<span style="color:#f92672">}</span> <span style="color:#f92672">${</span>PYTHON_INCLUDE_DIRS<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>link_libraries(<span style="color:#f92672">${</span>Boost_LIBRARIES<span style="color:#f92672">}</span> <span style="color:#f92672">${</span>PYTHON_LIBRARIES<span style="color:#f92672">}</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>python_add_module(<span style="color:#e6db74">mod</span> <span style="color:#e6db74">mod.cpp</span>)<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span>file(<span style="color:#e6db74">COPY</span> <span style="color:#e6db74">test_mod.py</span> <span style="color:#e6db74">DESTINATION</span> <span style="color:#e6db74">.</span>)</code></pre></div>
 <p><code>cmake</code> を実行すると <code>FindBoost.cmake</code> がwarningを吐きますが、とりあえず気にしないでいいようです。</p>
 
-<h4 id="c-の関数を公開する:6dbaf25571c59f18af2335417ebb6a82">C++の関数を公開する</h4>
+<h4 id="c-の関数を公開する">C++の関数を公開する</h4>
 
-<h5 id="基本:6dbaf25571c59f18af2335417ebb6a82">基本</h5>
+<h5 id="基本">基本</h5>
 
 <p>例えば、次の関数 <code>mult2()</code> をPythonから使えるようにしてみます。</p>
-// fn.cpp
-
-int mult2(int x)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// fn.cpp
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">mult2</span>(<span style="color:#66d9ef">int</span> x)
 {
-    return x * 2;
+    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>;
 }
-
+</code></pre></div>
 <p>次の記述を加えるだけで完了です。</p>
-#include <boost/python.hpp>
-
-using namespace boost::python;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> boost<span style="color:#f92672">::</span>python;
 
 BOOST_PYTHON_MODULE(fn)
 {
-    def("mult2", mult2);
+    def(<span style="color:#e6db74">&#34;mult2&#34;</span>, mult2);
 }
-
+</code></pre></div>
 <p><code>BOOST_PYTHON_MODULE</code> マクロでPythonモジュールを作っています。
 ここでは <code>fn</code> モジュールと名付けました。</p>
 
@@ -403,19 +397,18 @@ BOOST_PYTHON_MODULE(fn)
 関数名はPython側で使いたいものなので好きに設定できます。</p>
 
 <p>Python側では次のように使えます。</p>
-import fn
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> fn
 
-for i in range(100):
-    assert(fn.mult2(i) == i * 2)
-
-<h5 id="デフォルト引数:6dbaf25571c59f18af2335417ebb6a82">デフォルト引数</h5>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">100</span>):
+    <span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>mult2(i) <span style="color:#f92672">==</span> i <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>)</code></pre></div>
+<h5 id="デフォルト引数">デフォルト引数</h5>
 
 <p>デフォルト引数を持つ、次の関数を考えます。</p>
-int sum(int x, int y = 0)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">sum</span>(<span style="color:#66d9ef">int</span> x, <span style="color:#66d9ef">int</span> y <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>)
 {
-    return x + y;
+    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">+</span> y;
 }
-
+</code></pre></div>
 <p>これを公開するには、<code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを使うのが便利です。
 このマクロに</p>
 
@@ -426,112 +419,110 @@ int sum(int x, int y = 0)
 </ul>
 
 <p>を渡し、<code>def()</code> を下の例のように呼びます。</p>
-BOOST_PYTHON_FUNCTION_OVERLOADS(sum_overloads, sum, 1, 2)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">BOOST_PYTHON_FUNCTION_OVERLOADS(sum_overloads, sum, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>)
 
 BOOST_PYTHON_MODULE(fn)
 {
-    def("sum", sum, sum_overloads());
+    def(<span style="color:#e6db74">&#34;sum&#34;</span>, sum, sum_overloads());
 }
-
+</code></pre></div>
 <p>Python側で、デフォルト引数が使えていることが確認できます。</p>
-assert(fn.sum(2) == 2)
-assert(fn.sum(2, 3) == 5)
-
-<h5 id="オーバーロード:6dbaf25571c59f18af2335417ebb6a82">オーバーロード</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>sum(<span style="color:#ae81ff">2</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span>)
+<span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>sum(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">5</span>)</code></pre></div>
+<h5 id="オーバーロード">オーバーロード</h5>
 
 <p>関数オーバーロードでも、<code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを使うのが便利です。
 次の関数群 <code>sub()</code> を考えます。</p>
-int sub(int x)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">sub</span>(<span style="color:#66d9ef">int</span> x)
 {
-    return x;
+    <span style="color:#66d9ef">return</span> x;
 }
 
-int sub(int x, int y)
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">sub</span>(<span style="color:#66d9ef">int</span> x, <span style="color:#66d9ef">int</span> y)
 {
-    return x - y;
+    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">-</span> y;
 }
-
+</code></pre></div>
 <p><code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> マクロを、デフォルト引数のときと同じように使います。</p>
 
 <p><code>def()</code> の記述は少し変わっています。
 第二引数に、最も多くの引数をとる関数シグネチャを次のように書きます。</p>
-BOOST_PYTHON_FUNCTION_OVERLOADS(sub_overloads, sub, 1, 2)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">BOOST_PYTHON_FUNCTION_OVERLOADS(sub_overloads, sub, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>)
 
 BOOST_PYTHON_MODULE(fn)
 {
-    def("sub", (int (*)(int, int))0, sub_overloads());
+    def(<span style="color:#e6db74">&#34;sub&#34;</span>, (<span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>)(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>))<span style="color:#ae81ff">0</span>, sub_overloads());
 }
-
-<h5 id="手動オーバーロード解決:6dbaf25571c59f18af2335417ebb6a82">手動オーバーロード解決</h5>
+</code></pre></div>
+<h5 id="手動オーバーロード解決">手動オーバーロード解決</h5>
 
 <p><code>sub()</code> の例では、すべての関数オーバーロードのシグネチャが、最も多くの引数をとる関数シグネチャに含まれるという形をとっていました。
 これが成り立たないようなオーバーロードは、現時点では自動では扱えないため、手動でラッパーを書く必要があります。</p>
 
 <p>例えば、次の関数を加えたいとします。</p>
-double sub(double x)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">double</span> <span style="color:#a6e22e">sub</span>(<span style="color:#66d9ef">double</span> x)
 {
-    return x;
+    <span style="color:#66d9ef">return</span> x;
 }
 
-double sub(double x, double y)
+<span style="color:#66d9ef">double</span> <span style="color:#a6e22e">sub</span>(<span style="color:#66d9ef">double</span> x, <span style="color:#66d9ef">double</span> y)
 {
-    return x - y;
+    <span style="color:#66d9ef">return</span> x <span style="color:#f92672">-</span> y;
 }
-
+</code></pre></div>
 <p>これを <code>BOOST_PYTHON_FUNCTION_OVERLOADS</code> で扱うことはできないため、次のように別名を付けてやります。</p>
-BOOST_PYTHON_MODULE(fn)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">BOOST_PYTHON_MODULE(fn)
 {
-    double (*sub_double_1)(double) = sub;
-    double (*sub_double_2)(double, double) = sub;
+    <span style="color:#66d9ef">double</span> (<span style="color:#f92672">*</span>sub_double_1)(<span style="color:#66d9ef">double</span>) <span style="color:#f92672">=</span> sub;
+    <span style="color:#66d9ef">double</span> (<span style="color:#f92672">*</span>sub_double_2)(<span style="color:#66d9ef">double</span>, <span style="color:#66d9ef">double</span>) <span style="color:#f92672">=</span> sub;
 
-    def("sub", sub_double_1);
-    def("sub", sub_double_2);
+    def(<span style="color:#e6db74">&#34;sub&#34;</span>, sub_double_1);
+    def(<span style="color:#e6db74">&#34;sub&#34;</span>, sub_double_2);
 }
-
-<h5 id="キーワード引数:6dbaf25571c59f18af2335417ebb6a82">キーワード引数</h5>
+</code></pre></div>
+<h5 id="キーワード引数">キーワード引数</h5>
 
 <p>C++の関数を、Python側でキーワード引数が使えるようにして公開することができます。
 次の関数を例に取ります。</p>
-double my_div(double dividend, double divisor)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">double</span> <span style="color:#a6e22e">my_div</span>(<span style="color:#66d9ef">double</span> dividend, <span style="color:#66d9ef">double</span> divisor)
 {
-    return dividend / divisor;
+    <span style="color:#66d9ef">return</span> dividend <span style="color:#f92672">/</span> divisor;
 }
-
+</code></pre></div>
 <p><code>BOOST_PYTHON_MODULE</code> 内に以下のように記述すると、キーワード引数が使えるようになります。</p>
-    def("div", my_div, (arg("dividend"), "divisor"));
-assert(fn.div(3.0, 2.0) == 1.5)
-assert(fn.div(dividend=3.0, divisor=2.0) == 1.5)
-assert(fn.div(divisor=2.0, dividend=3.0) == 1.5)
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    def(<span style="color:#e6db74">&#34;div&#34;</span>, my_div, (arg(<span style="color:#e6db74">&#34;dividend&#34;</span>), <span style="color:#e6db74">&#34;divisor&#34;</span>));
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>div(<span style="color:#ae81ff">3.0</span>, <span style="color:#ae81ff">2.0</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1.5</span>)
+<span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>div(dividend<span style="color:#f92672">=</span><span style="color:#ae81ff">3.0</span>, divisor<span style="color:#f92672">=</span><span style="color:#ae81ff">2.0</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1.5</span>)
+<span style="color:#66d9ef">assert</span>(fn<span style="color:#f92672">.</span>div(divisor<span style="color:#f92672">=</span><span style="color:#ae81ff">2.0</span>, dividend<span style="color:#f92672">=</span><span style="color:#ae81ff">3.0</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1.5</span>)</code></pre></div>
 <p>ちなみに、<code>arg(&quot;dividend&quot;) = 0</code> のように書くとデフォルト引数になります。</p>
 
-<h4 id="c-のクラスを公開する:6dbaf25571c59f18af2335417ebb6a82">C++のクラスを公開する</h4>
+<h4 id="c-のクラスを公開する">C++のクラスを公開する</h4>
 
-<h5 id="基本-1:6dbaf25571c59f18af2335417ebb6a82">基本</h5>
+<h5 id="基本-1">基本</h5>
 
 <p>例えば、次の <code>Person</code> クラスをPythonから使えるようにします。</p>
-// cls.cpp
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// cls.cpp
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">struct</span> Person {
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">explicit</span> Person(std<span style="color:#f92672">::</span>string name) <span style="color:#f92672">:</span> name(name) {}
+    <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string name;
 
-#include <string>
-
-struct Person {
-public:
-    explicit Person(std::string name) : name(name) {}
-    const std::string name;
-
-    std::string greet() const { return "My name is " + name; }
+    std<span style="color:#f92672">::</span>string greet() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;My name is &#34;</span> <span style="color:#f92672">+</span> name; }
 };
-
+</code></pre></div>
 <p>関数のときと同じように、次の記述を加えて完了です。</p>
-#include <boost/python.hpp>
-using namespace boost::python;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> boost<span style="color:#f92672">::</span>python;
 
 BOOST_PYTHON_MODULE(cls)
 {
-    class_<Person>("Person", init<std::string>())
-        .def("greet", &Person::greet);
+    class_<span style="color:#f92672">&lt;</span>Person<span style="color:#f92672">&gt;</span>(<span style="color:#e6db74">&#34;Person&#34;</span>, init<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>())
+        .def(<span style="color:#e6db74">&#34;greet&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>greet);
 }
-
+</code></pre></div>
 <p><code>class_</code> 関数テンプレートを、公開するクラスを型引数、名前を引数にして呼び出します。
 名前とともに <code>init</code> を渡すと、それがコンストラクタになります。</p>
 
@@ -539,147 +530,143 @@ BOOST_PYTHON_MODULE(cls)
 ここでは <code>Person::greet()</code> 関数を <code>greet</code> という名前で公開しています。</p>
 
 <p>すると、Pythonからは次のように使うことができます。</p>
-import cls
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> cls
 
-p = cls.Person("pohe")
-assert(p.greet() == "My name is pohe")
-
-<h5 id="コンストラクタ:6dbaf25571c59f18af2335417ebb6a82">コンストラクタ</h5>
+p <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>Person(<span style="color:#e6db74">&#34;pohe&#34;</span>)
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>greet() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;My name is pohe&#34;</span>)</code></pre></div>
+<h5 id="コンストラクタ">コンストラクタ</h5>
 
 <p>上述のようにコンストラクタを公開できましたが、オーバーロードするには、<code>def()</code> に <code>init</code> を渡していきます。</p>
-    ...
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    ...
 
-    explicit Person(std::string name, int age) : name(name), age(age) {}
-    int age = 0;
-    void grow() { age++; }
+    <span style="color:#66d9ef">explicit</span> Person(std<span style="color:#f92672">::</span>string name, <span style="color:#66d9ef">int</span> age) <span style="color:#f92672">:</span> name(name), age(age) {}
+    <span style="color:#66d9ef">int</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">grow</span>() { age<span style="color:#f92672">++</span>; }
 
     ...
 
 BOOST_PYTHON_MODULE(cls)
 {
-    class_<Person>("Person", init<std::string>())
-        .def(init<std::string, int>())
-        .def("greet", &Person::greet);
-
+    class_<span style="color:#f92672">&lt;</span>Person<span style="color:#f92672">&gt;</span>(<span style="color:#e6db74">&#34;Person&#34;</span>, init<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>())
+        .def(init<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>())
+        .def(<span style="color:#e6db74">&#34;greet&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>greet);
+</code></pre></div>
 <p>なお、コンストラクタを定義しない抽象クラスの場合は、<code>init</code> の代わりに <code>no_init</code> という変数を渡すようです。</p>
 
-<h5 id="メンバ変数:6dbaf25571c59f18af2335417ebb6a82">メンバ変数</h5>
+<h5 id="メンバ変数">メンバ変数</h5>
 
 <p>先程の例で <code>age</code> メンバ変数（と <code>grow()</code> メンバ関数）を追加しました。
 メンバ変数は以下のように <code>def()</code> チェーンにつなげていくことで公開できます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        ...
+
+        .def_readwrite(<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>age)
+        .def(<span style="color:#e6db74">&#34;grow&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>grow);
+
         ...
-
-        .def_readwrite("age", &Person::age)
-        .def("grow", &Person::grow);
-
-        ...
-
+</code></pre></div>
 <p><code>def_readwrite()</code> を使うと、メンバ変数が読み込み・書き込みともに可能な状態でPythonから扱えるようになります。
 <code>def_readonly()</code> を使うと、読み込みのみ可能にできます。</p>
-p = cls.Person("fuga", 1)
-assert(p.age == 1)
-p.age = 10
-assert(p.age == 10)
-p.grow()
-assert(p.age == 11)
-
-<h5 id="プロパティ:6dbaf25571c59f18af2335417ebb6a82">プロパティ</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">p <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>Person(<span style="color:#e6db74">&#34;fuga&#34;</span>, <span style="color:#ae81ff">1</span>)
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>age <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>)
+p<span style="color:#f92672">.</span>age <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>age <span style="color:#f92672">==</span> <span style="color:#ae81ff">10</span>)
+p<span style="color:#f92672">.</span>grow()
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>age <span style="color:#f92672">==</span> <span style="color:#ae81ff">11</span>)</code></pre></div>
+<h5 id="プロパティ">プロパティ</h5>
 
 <p>実際のC++では、メンバ変数はprivateにし、getter, setterを定義することが多いでしょう。</p>
 
 <p>上の例に <code>m_height</code>, <code>m_weight</code> メンバ変数を追加し、<code>m_height</code> のgetterとsetter, <code>m_weight</code> のgetterを定義します。</p>
-    ...
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    ...
 
-    int getHeight() const { return m_height; }
-    void setHeight(int height) { m_height = height; }
+    <span style="color:#66d9ef">int</span> getHeight() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> m_height; }
+    <span style="color:#66d9ef">void</span> setHeight(<span style="color:#66d9ef">int</span> height) { m_height <span style="color:#f92672">=</span> height; }
 
-    int getWeight() const { return m_weight; }
+    <span style="color:#66d9ef">int</span> getWeight() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> m_weight; }
 
-private:
-    int m_height = 0;
-    int m_weight = 50;
+<span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">int</span> m_height <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">int</span> m_weight <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>;
 };
-
+</code></pre></div>
 <p>Python側に公開するには、<code>add_property()</code> 関数を <code>def()</code> チェーンにつなげていきます。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        ...
+
+        .add_property(<span style="color:#e6db74">&#34;height&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>getHeight, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>setHeight)
+        .add_property(<span style="color:#e6db74">&#34;weight&#34;</span>, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>getWeight);
+
         ...
-
-        .add_property("height", &Person::getHeight, &Person::setHeight)
-        .add_property("weight", &Person::getWeight);
-
-        ...
-
+</code></pre></div>
 <p><code>add_property()</code> 関数に、プロパティ名、getter, setterを渡します。
 setterを省略すると読み込み専用になります。</p>
-p.height = 150
-assert(p.height == 150)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">p<span style="color:#f92672">.</span>height <span style="color:#f92672">=</span> <span style="color:#ae81ff">150</span>
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>height <span style="color:#f92672">==</span> <span style="color:#ae81ff">150</span>)
 
-assert(p.weight == 50)
-# p.weight = 100 # error
-
-<h5 id="オペレータ:6dbaf25571c59f18af2335417ebb6a82">オペレータ</h5>
+<span style="color:#66d9ef">assert</span>(p<span style="color:#f92672">.</span>weight <span style="color:#f92672">==</span> <span style="color:#ae81ff">50</span>)
+<span style="color:#75715e"># p.weight = 100 # error</span></code></pre></div>
+<h5 id="オペレータ">オペレータ</h5>
 
 <p>C++でのクラスに対する、<code>opeartor+</code> などのオペレータをPythonでも使えるようにします。
 次の <code>Person::opeartor+=</code> を例にします。</p>
-    Person& operator+=(int age)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    Person<span style="color:#f92672">&amp;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">+=</span>(<span style="color:#66d9ef">int</span> age)
     {
-        this->age += age;
-        return *this;
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>age <span style="color:#f92672">+=</span> age;
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">this</span>;
     }
-
+</code></pre></div>
 <p>これを公開するには、<code>def()</code> チェーンに次を追加するだけです。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    ...
+
+    .def(self <span style="color:#f92672">+=</span> <span style="color:#66d9ef">int</span>())
+
     ...
-
-    .def(self += int())
-
-    ...
-
+</code></pre></div>
 <p><code>self</code> が <code>Person</code>, <code>int()</code> が <code>operator+=</code> の引数に対応しています。
 他のオペレータでも同様に書けます。</p>
 
-<h5 id="特殊メソッド:6dbaf25571c59f18af2335417ebb6a82">特殊メソッド</h5>
+<h5 id="特殊メソッド">特殊メソッド</h5>
 
 <p>Pythonにはいくつか特殊メソッドがあります。
 ここでは、よく使う <code>__str__()</code> のみ紹介します。</p>
 
 <p>C++から公開するクラスに <code>___str__()</code> メソッドを定義したいとき、まずC++で <code>operator&lt;&lt;</code> を定義します。
 そして、<code>self_ns::str(self_ns::self)</code> を<code>def()</code> チェーンにわたします。</p>
-std::ostream& operator<<(std::ostream& os, Person p)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;&lt;</span>(std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> os, Person p)
 {
-    os << p.name;
-    return os;
+    os <span style="color:#f92672">&lt;&lt;</span> p.name;
+    <span style="color:#66d9ef">return</span> os;
 }
 
 ...
 
-        .def(self_ns::str(self_ns::self))
+        .def(self_ns<span style="color:#f92672">::</span>str(self_ns<span style="color:#f92672">::</span>self))
 
         ...
-
+</code></pre></div>
 <p>現時点での公式ドキュメントでは、<code>.def(str(self))</code> のように <code>self_ns</code> 名前空間の指定が書かれていませんが、これがないとコンパイルエラーになります。</p>
 
 <p>これによりPython側で <code>__str__()</code> メソッドが定義され、<code>print()</code> で好きな文字列を表示したりできます。</p>
 
-<h5 id="イテレータ:6dbaf25571c59f18af2335417ebb6a82">イテレータ</h5>
+<h5 id="イテレータ">イテレータ</h5>
 
 <p>C++でのクラスに、Pythonで使えるイテレータを定義することができます。
 あまりいい例ではないですが、<code>Person::name</code> を一文字ずつ走査するイテレータを考えます。</p>
 
 <p>Person<code>クラスにイテレータの最初と最後を返すメンバ関数を定義し、</code>def()` チェーンに次のように渡します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    ...
+
+    <span style="color:#66d9ef">auto</span> begin() { <span style="color:#66d9ef">return</span> name.begin(); }
+    <span style="color:#66d9ef">auto</span> end() { <span style="color:#66d9ef">return</span> name.end(); }
+
     ...
 
-    auto begin() { return name.begin(); }
-    auto end() { return name.end(); }
-
-    ...
-
-        .def("__iter__", range(&Person::begin, &Person::end));
-
+        .def(<span style="color:#e6db74">&#34;__iter__&#34;</span>, range(<span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>begin, <span style="color:#f92672">&amp;</span>Person<span style="color:#f92672">::</span>end));
+</code></pre></div>
 <p><code>range()</code> にイテレータの最初と最後を渡しています。
 <code>__iter__</code> という名前にすることで、Pythonでのfor文に <code>Person</code> 型が渡せるようになっていますが、
 別の名前にすれば、その名前のメソッドがイテレータを返すようになります。</p>
-for s in p:
-    print(s)
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">for</span> s <span style="color:#f92672">in</span> p:
+    <span style="color:#66d9ef">print</span>(s)</code></pre></div>
 <p>ちなみに、<code>vector</code> など</p>
 
 <ul>
@@ -690,7 +677,7 @@ for s in p:
 
 <p>をもつクラスについては、<code>range()</code> の代わりに <code>iterator&lt;Person&gt;()</code> を渡すこともできるようです。</p>
 
-<h4 id="紹介しなかったもの:6dbaf25571c59f18af2335417ebb6a82">紹介しなかったもの</h4>
+<h4 id="紹介しなかったもの">紹介しなかったもの</h4>
 
 <ul>
 <li>型変換</li>
@@ -702,7 +689,7 @@ for s in p:
 
 <p>紹介しなかったものや、詳細は <a href="http://www.boost.org/doc/libs/1_64_0/libs/python/doc/html/tutorial/tutorial/exposing.html">公式ドキュメント</a> を参照してください。</p>
 
-<h2 id="call-python-from-c:6dbaf25571c59f18af2335417ebb6a82">Call Python from C++</h2>
+<h2 id="call-python-from-c">Call Python from C++</h2>
 
 <p>これもBoost.Pythonを使います。</p>
 
@@ -712,21 +699,21 @@ Boost.Pythonも今のところ簡単なラッパーを提供するにとどま�
 <p>PythonのC APIを使う方法で面倒だったのがPythonオブジェクトの参照カウンタの扱いで、
 Boost.Pythonがこれを引き受けてくれるのが助かります。</p>
 
-<h3 id="準備:6dbaf25571c59f18af2335417ebb6a82">準備</h3>
+<h3 id="準備">準備</h3>
 
 <p>C++側で <code>boost/python.hpp</code> をインクルードし、<code>Py_Initialize()</code> を呼んで初期化します。</p>
-#include <iostream>
-#include <boost/python.hpp>
-
-int main()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;boost/python.hpp&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
 {
-    using namespace std;
-    namespace bp = boost::python;
+    <span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> std;
+    <span style="color:#66d9ef">namespace</span> bp <span style="color:#f92672">=</span> boost<span style="color:#f92672">::</span>python;
 
-    try {
+    <span style="color:#66d9ef">try</span> {
         Py_Initialize();
-
-<h3 id="モジュールの読み込みと操作:6dbaf25571c59f18af2335417ebb6a82">モジュールの読み込みと操作</h3>
+</code></pre></div>
+<h3 id="モジュールの読み込みと操作">モジュールの読み込みと操作</h3>
 
 <p><code>import()</code> 関数にPythonモジュール名を渡すと、そのモジュールが読み込まれます。
 <code>__main__</code> にすれば、白紙状態のメインモジュールになります。
@@ -734,36 +721,36 @@ int main()
 
 <p>モジュールの <code>__dict__</code> 属性を辞書として参照することで、そのモジュールの名前空間が得られます。
 Boost.Pythonの <code>extract()</code> 関数テンプレートは、PythonオブジェクトからC++側で使うある値を取り出すときに使います。</p>
-        bp::object py_main_module = bp::import("__main__");
-        bp::dict py_main_namespace
-            = bp::extract<bp::dict>(py_main_module.attr("__dict__"));
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        bp<span style="color:#f92672">::</span>object py_main_module <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>import(<span style="color:#e6db74">&#34;__main__&#34;</span>);
+        bp<span style="color:#f92672">::</span>dict py_main_namespace
+            <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>bp<span style="color:#f92672">::</span>dict<span style="color:#f92672">&gt;</span>(py_main_module.attr(<span style="color:#e6db74">&#34;__dict__&#34;</span>));
+</code></pre></div>
 <p>ちなみに、<code>__main__</code> 以外のモジュールは、相対パスの場合 <code>PYTHONPATH</code> 環境変数からのパスが使われるので、<code>setenv()</code> などでの設定が必要です。</p>
 
 <p>名前空間（実体は辞書）に、C++側で値の追加・変更ができます。
 辞書なので名前をキーとして <code>[]</code> でアクセスして代入するだけです。</p>
-        py_main_namespace["p"] = "po";
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        py_main_namespace[<span style="color:#e6db74">&#34;p&#34;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;po&#34;</span>;
+</code></pre></div>
 <p>PythonオブジェクトからC++での値を取り出すには、先述した <code>extract()</code> 関数テンプレートを使います。
 テンプレート引数にC++での型を指定します。</p>
 
 <p>ここで注意なのが、文字列(<code>std::string</code>)を取り出す際、<code>auto</code> で受けると他の型になってしまうので、戻り値の型を明示的に <code>std::string</code> に指定します。
 <code>int</code> や <code>double</code> などプリミティブな型は <code>auto</code> で大丈夫なようです。</p>
-        std::string p = bp::extract<std::string>(py_main_namespace["p"]);
-        cout << "Defined 'p = \"po\"'\n"
-             << "(C++) p = \"" << p << "\"\n" << endl;
-
-<h3 id="pythonの呼び出し:6dbaf25571c59f18af2335417ebb6a82">Pythonの呼び出し</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        std<span style="color:#f92672">::</span>string p <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>(py_main_namespace[<span style="color:#e6db74">&#34;p&#34;</span>]);
+        cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Defined &#39;p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">po</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+             <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> p <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
+</code></pre></div>
+<h3 id="pythonの呼び出し">Pythonの呼び出し</h3>
 
 <p>さて、C++からPythonを呼び出してみましょう。
 まずは、式を文字列で渡してPythonインタプリタで評価してみます。</p>
-        bp::object py_s2 = bp::eval("p + p", py_main_namespace);
-        p = bp::extract<std::string>(py_main_namespace["p"]);
-        std::string pp = bp::extract<std::string>(py_s2);
-        cout << "Evaluated 'p + p'; resulting in 'pp'\n"
-             << "(C++) p = \"" << p << "\"\n"
-             << "(C++) pp = \"" << pp << "\"\n" << endl;
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        bp<span style="color:#f92672">::</span>object py_s2 <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>eval(<span style="color:#e6db74">&#34;p + p&#34;</span>, py_main_namespace);
+        p <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>(py_main_namespace[<span style="color:#e6db74">&#34;p&#34;</span>]);
+        std<span style="color:#f92672">::</span>string pp <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>(py_s2);
+        cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Evaluated &#39;p + p&#39;; resulting in &#39;pp&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+             <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> p <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span>
+             <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) pp = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> pp <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
+</code></pre></div>
 <p><code>eval()</code> 関数にPythonの式を渡すと、評価結果がPythonオブジェクト（<code>boost::python::object</code>）で返ってきます。
 <code>eval()</code> 関数の引数は、</p>
 
@@ -791,19 +778,19 @@ Boost.Pythonの <code>extract()</code> 関数テンプレートは、Pythonオ�
 
 <p>次に、文を実行してみます。
 これには <code>exec()</code> 関数を使います。</p>
-        bp::exec(R"(
-def f():
-    global p
-    p = p + p
-    return p
-
-f()
-)",
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        bp<span style="color:#f92672">::</span>exec(R<span style="color:#e6db74">&#34;(</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">def f():</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    global p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    p = p + p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">    return p</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">f()</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#e6db74">)&#34;</span>,
             py_main_namespace);
-        p = bp::extract<std::string>(py_main_namespace["p"]);
-        cout << "Executed 'p = p + p'\n"
-             << "(C++) p = \"" << p << "\"\n" << endl;
-
+        p <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>(py_main_namespace[<span style="color:#e6db74">&#34;p&#34;</span>]);
+        cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Executed &#39;p = p + p&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+             <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) p = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> p <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
+</code></pre></div>
 <p><code>exec()</code> にPythonの文を渡すと、Pythonインタプリタで実行されます。
 第二、第三引数の仕様は <code>eval()</code> と同様です
 （<code>exec()</code> もPythonオブジェクトを返すのですが、文の実行結果なので <code>None</code> であり、これを使うことはないと思います）。</p>
@@ -812,19 +799,18 @@ f()
 
 <p>最後に、Pythonスクリプトファイルを読み込んで実行します。
 今回は、次のファイルを使います。</p>
-ppp = "po " + p
-print("(Python) ppp = " + ppp)
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">ppp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;po &#34;</span> <span style="color:#f92672">+</span> p
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;(Python) ppp = &#34;</span> <span style="color:#f92672">+</span> ppp)</code></pre></div>
 <p><code>exec_file()</code> にファイル名（相対パスの場合、実行している場所から）を渡すと、それが読み込まれて実行されます。
 第二、第三引数の仕様は <code>exec()</code> などと同様です。</p>
-        cout << "Executing 'embedding.py'" << endl;
-        bp::exec_file("embedding.py", py_main_namespace);
-        std::string ppp = bp::extract<std::string>(py_main_namespace["ppp"]);
-        cout << "(C++) ppp = \"" << ppp << "\"\n" << endl;
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">        cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Executing &#39;embedding.py&#39;&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
+        bp<span style="color:#f92672">::</span>exec_file(<span style="color:#e6db74">&#34;embedding.py&#34;</span>, py_main_namespace);
+        std<span style="color:#f92672">::</span>string ppp <span style="color:#f92672">=</span> bp<span style="color:#f92672">::</span>extract<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>(py_main_namespace[<span style="color:#e6db74">&#34;ppp&#34;</span>]);
+        cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) ppp = </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> ppp <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
+</code></pre></div>
 <p>ファイルが存在しない場合、<code>std::invalid_argument</code> 例外が投げられます。</p>
 
-<h3 id="pythonの例外:6dbaf25571c59f18af2335417ebb6a82">Pythonの例外</h3>
+<h3 id="pythonの例外">Pythonの例外</h3>
 
 <p>Pythonインタプリタの実行時に例外が発生すると、Boost.Pythonは <code>error_already_set</code> 例外を投げます。
 それ以降の例外処理は実装されていないらしく、<a href="https://docs.python.org/3/c-api/exceptions.html">PythonのC API</a> に従って処理する必要があるようです。
@@ -836,17 +822,17 @@ print("(Python) ppp = " + ppp)
 </ul>
 
 <p>といったAPIがあります。</p>
-    } catch (const bp::error_already_set& e) {
-        if (PyErr_ExceptionMatches(PyExc_ZeroDivisionError)) {
-            cerr << "(C++) ZeroDivisionError" << endl;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    } <span style="color:#66d9ef">catch</span> (<span style="color:#66d9ef">const</span> bp<span style="color:#f92672">::</span>error_already_set<span style="color:#f92672">&amp;</span> e) {
+        <span style="color:#66d9ef">if</span> (PyErr_ExceptionMatches(PyExc_ZeroDivisionError)) {
+            cerr <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;(C++) ZeroDivisionError&#34;</span> <span style="color:#f92672">&lt;&lt;</span> endl;
         }
         PyErr_Print();
-        return 1;
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
     }
 
-    return 0;
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-
+</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

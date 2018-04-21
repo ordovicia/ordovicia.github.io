@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Generics &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,7 +230,7 @@
 
   
 
-<h1 id="syntax-and-semantics:fb74e192d9074f7b2fcdd6c026123ffc">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
 <p>今回はRustのジェネリクスのはなしです。
 ジェネリクスがでてくると、佳境に入った気がしますね。</p>
@@ -238,18 +238,17 @@
 <p>私はC++でテンプレートに慣れているので、
 Rustのジェネリクスもスムーズに学べました。</p>
 
-<h2 id="generics:fb74e192d9074f7b2fcdd6c026123ffc">Generics</h2>
+<h2 id="generics">Generics</h2>
 
 <p>Rustの標準ライブラリには、たとえば<code>Option&lt;T&gt;</code>という型があります。
 ある正常な値をもっているか、あるいは不正かの情報をもち、
 <code>Option&lt;T&gt;</code>をつかうとエラー処理に統一感がでます。</p>
-enum Option<T> {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> Option<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
     Some(T),
     None,
 }
 
-let x: Option<i32> = Some(5);
-
+<span style="color:#66d9ef">let</span> x: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> Some(<span style="color:#ae81ff">5</span>);</code></pre></div>
 <p><code>&lt;T&gt;</code>がジェネリクスを表しています。
 このenumはいろんな型<code>T</code>のバージョンをつくることができるというわけです。
 正常な値をあらわす<code>Some</code>に、おなじ<code>T</code>型の値をいれます。</p>
@@ -258,80 +257,74 @@ let x: Option<i32> = Some(5);
 これは<code>Option&lt;T&gt;</code>に使う場面が似ていますが、
 エラーだった場合の情報を増やすために、エラーを表すstructが、
 単なるunit-like structではなく、tuple structになっています。</p>
-enum Result<T, E> {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">enum</span> Result<span style="color:#f92672">&lt;</span>T, E<span style="color:#f92672">&gt;</span> {
     Ok(T),
     Err(E),
-}
-
+}</code></pre></div>
 <p>このように、二つ以上のパラメータをもったジェネリクス型もつくれます。</p>
 
-<h3 id="generic-functions:fb74e192d9074f7b2fcdd6c026123ffc">Generic functions</h3>
+<h3 id="generic-functions">Generic functions</h3>
 
 <p>Enumだけでなく、ジェネリックな関数もつくれます。
 Syntaxは以下です。</p>
-fn takes_anything<T>(x: T) {
-    // do something with x
-}
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
+    <span style="color:#75715e">// do something with x
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>もちろん複数の引数をとったり、パラメータが複数になったりもできます。</p>
-fn takes_two_of_the_same_things<T>(x: T, y: T) {
-    // ...
-}
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_two_of_the_same_things</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">T</span>) {
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
 
-fn takes_two_things<T, U>(x: T, y: U) {
-    // ...
-}
-
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_two_things</span><span style="color:#f92672">&lt;</span>T, U<span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>, y: <span style="color:#a6e22e">U</span>) {
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}</code></pre></div>
 <p>ジェネリックな関数を呼ぶときは、型は推論されるようです。</p>
-fn main() {
-    trait Printable {
-        fn print(&self);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">trait</span> Printable {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self);
     }
 
-    impl Printable for i32 {
-        fn print(&self) {
-            println!("{}", self);
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">i32</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
+            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self);
         }
     }
 
-    impl Printable for f64 {
-        fn print(&self) {
-            println!("{}", self);
+    <span style="color:#66d9ef">impl</span> Printable <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">f64</span> {
+        <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>self) {
+            println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, self);
         }
     }
 
-    fn takes_anything<T: Printable>(x: T) {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">takes_anything</span><span style="color:#f92672">&lt;</span>T: <span style="color:#a6e22e">Printable</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#a6e22e">T</span>) {
         x.print();
     }
 
-    takes_anything(1);
-    takes_anything(1.0);
-}
-
+    takes_anything(<span style="color:#ae81ff">1</span>);
+    takes_anything(<span style="color:#ae81ff">1.0</span>);
+}</code></pre></div>
 <p>ただし、実際によぶときは多くの場合、
 上のコードのようにtraitの定義が必要でしょう。
 Traitについては次回に紹介します。</p>
 
-<h3 id="generic-structs:fb74e192d9074f7b2fcdd6c026123ffc">Generic structs</h3>
+<h3 id="generic-structs">Generic structs</h3>
 
 <p>さらにstructもジェネリクスが可能です。</p>
-struct Point<T> {
-    x: T,
-    y: T,
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#a6e22e">T</span>,
+    y: <span style="color:#a6e22e">T</span>,
 }
 
-let int_origin = Point { x: 0, y: 0 };
-let float_origin = Point { x: 0.0, y: 0.0 };
-
+<span style="color:#66d9ef">let</span> int_origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0</span>, y: <span style="color:#ae81ff">0</span> };
+<span style="color:#66d9ef">let</span> float_origin <span style="color:#f92672">=</span> Point { x: <span style="color:#ae81ff">0.0</span>, y: <span style="color:#ae81ff">0.0</span> };</code></pre></div>
 <p>これもパラメータは推論されるようですね。</p>
 
 <p>メソッドを定義するときは、<code>impl&lt;T&gt;</code>と書きます。</p>
-impl<T> Point<T> {
-    fn swap(&mut self) {
-        std::mem::swap(&mut self.x, &mut self.y);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Point<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self) {
+        std::mem::swap(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self.x, <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self.y);
     }
-}
-
+}</code></pre></div>
 <hr />
 
 <p>ジェネリクスは強力で、なくてはならない機能ですが、

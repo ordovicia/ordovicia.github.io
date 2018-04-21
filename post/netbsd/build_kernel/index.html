@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>NetBSDカーネルのビルド &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -232,7 +232,7 @@
 
 <p>NetBSD 7.1のカーネルに手を加える必要があったので、NetBSDのカーネルをビルドして新しいものに差し替える手順を記録しておきます。</p>
 
-<h2 id="参考:8f5c852ab1b49f3cc68be1604dcd3a55">参考</h2>
+<h2 id="参考">参考</h2>
 
 <ul>
 <li><a href="http://www.jp.netbsd.org/ja/docs/updating.html">安定版 NetBSD リリースの更新 - The NetBSD Project</a></li>
@@ -240,7 +240,7 @@
 <li><a href="https://qiita.com/furandon_pig/items/d9b2782372edc1b93263">NetBSDカーネルをビルドしてみる - furandon_pigさんのQiita記事</a></li>
 </ul>
 
-<h2 id="環境:8f5c852ab1b49f3cc68be1604dcd3a55">環境</h2>
+<h2 id="環境">環境</h2>
 
 <ul>
 <li>DELL Latitude E6540
@@ -251,19 +251,18 @@
 <li>NetBSD 7.1</li>
 </ul>
 
-<h2 id="ソースコードの取得:8f5c852ab1b49f3cc68be1604dcd3a55">ソースコードの取得</h2>
+<h2 id="ソースコードの取得">ソースコードの取得</h2>
 
 <p>まずはカーネルのソースコードを取得します。
 配布されているISOを展開する方法もありますが、今回はCVSをつかいました。</p>
-# cd /usr
-# export CVS_RSH=ssh
-# export CVSROOT="anoncvs@anoncvs.NetBSD.org:/cvsroot"
-# cvs checkout -r netbsd-7-1-RELEASE -P src
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd /usr
+</span><span style="color:#75715e"># export CVS_RSH=ssh
+</span><span style="color:#75715e"># export CVSROOT=&#34;anoncvs@anoncvs.NetBSD.org:/cvsroot&#34;
+</span><span style="color:#75715e"></span># cvs checkout -r netbsd-7-1-RELEASE -P src</code></pre></div>
 <p><code>-r netbsd-7-1</code> オプションでバージョンが指定できるようです。
 ダウンロードにかなり時間がかかるので寝てる間に走らせておくといいです。</p>
 
-<h2 id="ツールチェインのビルド-今回は必要ない:8f5c852ab1b49f3cc68be1604dcd3a55">ツールチェインのビルド（今回は必要ない）</h2>
+<h2 id="ツールチェインのビルド-今回は必要ない">ツールチェインのビルド（今回は必要ない）</h2>
 
 <blockquote>
 <p>current のカーネルに更新する場合や、より新しいメジャーリリースに更新したい場合には、 はじめに、新しいツールチェインをコンパイルする必要があります。</p>
@@ -272,11 +271,10 @@
 <p>&ndash; <a href="http://www.jp.netbsd.org/ja/docs/kernel.html">NetBSD ドキュメンテーション: カーネル - The NetBSD Project</a></p>
 
 <p>今回は同じバージョン使うので必要ありませんが、必要な場合は以下のようにすればツールチェインがビルドできます。</p>
-# mkdir /usr/obj /usr/tools
-# cd /usr/src
-# ./build.sh -O /usr/obj -T /usr/tools -U -u tools
-
-<h2 id="カーネルのビルド:8f5c852ab1b49f3cc68be1604dcd3a55">カーネルのビルド</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># mkdir /usr/obj /usr/tools
+</span><span style="color:#75715e"># cd /usr/src
+</span><span style="color:#75715e"></span># ./build.sh -O /usr/obj -T /usr/tools -U -u tools</code></pre></div>
+<h2 id="カーネルのビルド">カーネルのビルド</h2>
 
 <p>それではカーネルをビルドしていきます。</p>
 
@@ -284,30 +282,26 @@
 amd64の場合、configファイルは <code>/usr/src/sys/arch/amd64/conf</code> にあります。
 ISOとかUSBイメージでインストールされるカーネルはGENERIC configファイルで設定されているもののようです。
 configファイルを自分用に編集したい場合はこれをもとにするといいでしょう。</p>
-# cd /usr/src/sys/arch/amd64/conf/
-# cp GENERIC MYCONF
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd /usr/src/sys/arch/amd64/conf/
+</span><span style="color:#75715e"></span># cp GENERIC MYCONF</code></pre></div>
 <p>使いたいconfigファイルを指定して <code>config</code> を走らせると、コンパイル用のディレクトリが生成されます。</p>
-# config MYCONF
-Build directory is ../compile/MYCONF
-Don't forget to run "make depend"
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># config MYCONF
+</span><span style="color:#75715e"></span>Build directory is ../compile/MYCONF
+Don<span style="color:#960050;background-color:#1e0010">&#39;</span>t forget to run <span style="color:#e6db74">&#34;make depend&#34;</span></code></pre></div>
 <p>そしてこのディレクトリの中で <code>make depend</code>, <code>make</code> を走らせます。</p>
-# cd ../compile/MYCONF/
-# make depend
-# make
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd ../compile/MYCONF/
+</span><span style="color:#75715e"># make depend
+</span><span style="color:#75715e"></span># make</code></pre></div>
 <p>環境によりますが、5分くらいでビルドできました。</p>
 
 <p>できたカーネルは <code>netbsd</code> という名前になっています。
 これをファイルシステムのルートにおけば、起動時にカーネルとして選択できます。</p>
 
 <p>今回は、既存のカーネルを上書きしないよう違う名前でおいておきます。</p>
-# cp netbsd /my_netbsd
-# ls /*netbsd
-/netbsd	    /my_netbsd
-
-<h2 id="起動:8f5c852ab1b49f3cc68be1604dcd3a55">起動</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cp netbsd /my_netbsd
+</span><span style="color:#75715e"># ls /*netbsd
+</span><span style="color:#75715e"></span>/netbsd	    /my_netbsd</code></pre></div>
+<h2 id="起動">起動</h2>
 
 <p>再起動します。
 起動時に、いつもブートオプションを選択する画面が出てくると思います。
@@ -317,8 +311,7 @@ Don't forget to run "make depend"
 そこで、<code>boot my_netbsd</code> でカーネルを指定して起動します。</p>
 
 <p>起動後、<code>uname -a</code> を実行すると、自分で作ったconfigファイルによるカーネルであることが確認できます。</p>
-NetBSD user 7.1.1 NetBSD 7.1.1 (MYCONF) #0: Thu Dec 28 13:54:49 JST 2017  root@user:/usr/src/sys/arch/amd64/compile/MYCONF amd64
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">NetBSD user 7.1.1 NetBSD 7.1.1 (MYCONF) #0: Thu Dec 28 13:54:49 JST 2017  root@user:/usr/src/sys/arch/amd64/compile/MYCONF amd64</code></pre></div>
 
   
 <div class="prev-next-post pure-g">

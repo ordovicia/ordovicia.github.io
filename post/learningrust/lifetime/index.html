@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
-  <meta name="generator" content="Hugo 0.16-DEV" />
+  <meta name="generator" content="Hugo 0.39" />
 
   <title>Learning Rust - Lifetime &middot; 外部記憶</title>
 
@@ -65,12 +65,6 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
           <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
       
         </li>
@@ -84,6 +78,12 @@
       
         <li class="pure-menu-item">
           <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
@@ -230,9 +230,9 @@
 
   
 
-<h1 id="syntax-and-semantics:4d7c0e9f2f8c6afedc35b165aee74fb6">Syntax and Semantics</h1>
+<h1 id="syntax-and-semantics">Syntax and Semantics</h1>
 
-<h2 id="lifetimes:4d7c0e9f2f8c6afedc35b165aee74fb6">Lifetimes</h2>
+<h2 id="lifetimes">Lifetimes</h2>
 
 <p>ずっと後回しにしてきましたが、今回はlifetimeを扱います。
 Rustのlifetimeは、リソースの寿命に名前をつけて明確にし、
@@ -249,113 +249,104 @@ dangling pointerと、それによるuse after freeを防ぐ仕組みです。</
 これまでlifetimeが表舞台には登場してこなかったように、
 多くの場合、lifetimeの記述は省略できます(後述)。
 省略しない場合は、genericsの型パラメータと同じ所に記述します。</p>
-// implicit
-fn foo(x: &i32) {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">// implicit
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">i32</span>) {
 }
 
-// explicit
-fn bar<'a>(x: &'a i32) {
-}
-
+<span style="color:#75715e">// explicit
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span>) {
+}</code></pre></div>
 <p>Lifetimeは、<code>'a</code>のように、単一の<code>'</code>のあとになんらかの名前をつけてあらわします。
 二つ以上指定したり、<code>mut</code>と同時に使うときなどは次のようになります。</p>
-fn foo<'a, 'b>(x: &'a i32, y: &'b i32) { ... }
-fn bar<'a>(x: &'a mut i32) { ... }
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, <span style="color:#a6e22e">&#39;b</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span>, y: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;b</span> <span style="color:#66d9ef">i32</span>) { ... }
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">mut</span> <span style="color:#66d9ef">i32</span>) { ... }</code></pre></div>
 <p>戻り値にもlifetimeが指定できます。</p>
-fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str { ... }
-fn x_or_y<'a, 'b>(x: &'a str, y: &'b str) -> &'a str { ... }
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">x_or_y</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>, y: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span> { ... }
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">x_or_y</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, <span style="color:#a6e22e">&#39;b</span><span style="color:#f92672">&gt;</span>(x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>, y: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;b</span> <span style="color:#66d9ef">str</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span> { ... }</code></pre></div>
 <p>ひとつ目は、<code>x, y</code>が同じlifetimeをもち、さらに戻り値も同じになります。
 ふたつ目は、<code>x, y</code>が別々のlifetimeをもて、戻り値は<code>x</code>と同じlifetimeをもちます。</p>
 
 <p>なお、参照ではないものにはlifetimeは必要ありません。</p>
 
-<h3 id="in-struct-s:4d7c0e9f2f8c6afedc35b165aee74fb6">In <code>struct</code>s</h3>
+<h3 id="in-struct-s">In <code>struct</code>s</h3>
 
 <p>Structにもlifetimeを指定できます。
 フィールドが参照の場合、そのlifetimeを決定するためです。</p>
-struct Foo<'a> {
-    x: &'a i32,
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span>,
 }
 
-fn main() {
-    let y = &5; // this is the same as `let _y = 5; let y = &_y;`
-    let f = Foo { x: y };
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#ae81ff">5</span>; <span style="color:#75715e">// this is the same as `let _y = 5; let y = &amp;_y;`
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">let</span> f <span style="color:#f92672">=</span> Foo { x: <span style="color:#a6e22e">y</span> };
 
-    println!("{}", f.x);
-}
-
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, f.x);
+}</code></pre></div>
 <p>この場合、<code>f.x</code>は<code>y</code>と同じlifetimeを持ちます。</p>
 
 <p>メソッドをimplする際のsyntaxは、genericsのときと同じです。
 <code>impl</code>とstruct名両方に<code>&lt;&gt;</code>で囲ってlifetimeを記述します。</p>
-impl<'a> Foo<'a> {
-    fn x(&self) -> &'a i32 { self.x }
-}
-
-<h3 id="thinking-in-scopes:4d7c0e9f2f8c6afedc35b165aee74fb6">Thinking in scopes</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> Foo<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">x</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span> { self.x }
+}</code></pre></div>
+<h3 id="thinking-in-scopes">Thinking in scopes</h3>
 
 <p>Lifetimeは、言ってしまえば参照変数の有効範囲に名前をつけただけです。
 この有効範囲はソースコードの領域として可視化できます。</p>
 
 <p>まず、関数ローカルに参照を定義します。
 この参照のlifetimeは、この関数を抜けるまでです。</p>
-fn main() {
-    let y = &5;     // -+ y goes into scope
-                    //  |
-    // stuff        //  |
-                    //  |
-}                   // -+ y goes out of scope
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#ae81ff">5</span>;     <span style="color:#75715e">// -+ y goes into scope
+</span><span style="color:#75715e"></span>                    <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// stuff        //  |
+</span><span style="color:#75715e"></span>                    <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>}                   <span style="color:#f92672">//</span> <span style="color:#f92672">-+</span> y goes out of scope</code></pre></div>
 <p>参照をフィールドにもつstructを定義し、先ほどの参照でコンストラクトします。
 Struct<code>f</code>のlifetimeは、渡された<code>y</code>のlifetimeと同じ、つまり関数を抜けるまでです。</p>
-struct Foo<'a> {
-    x: &'a i32,
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span>,
 }
 
-fn main() {
-    let y = &5;           // -+ y goes into scope
-    let f = Foo { x: y }; // -+ f goes into scope
-    // stuff              //  |
-                          //  |
-}                         // -+ f and y go out of scope
-
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#ae81ff">5</span>;           <span style="color:#75715e">// -+ y goes into scope
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">let</span> f <span style="color:#f92672">=</span> Foo { x: <span style="color:#a6e22e">y</span> }; <span style="color:#75715e">// -+ f goes into scope
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// stuff              //  |
+</span><span style="color:#75715e"></span>                          <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>}                         <span style="color:#f92672">//</span> <span style="color:#f92672">-+</span> f and y go out of scope</code></pre></div>
 <p>この<code>y</code>と<code>f</code>を新たにスコープでくくると、<code>y, f</code>のlifetimeはそのスコープに狭まります。
 このスコープ外に参照変数を用意して、<code>f.x</code>を指すようにすると&hellip;&hellip;</p>
-struct Foo<'a> {
-    x: &'a i32,
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    x: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">i32</span>,
 }
 
-fn main() {
-    let x;                    // -+ x goes into scope
-                              //  |
-    {                         //  |
-        let y = &5;           // ---+ y goes into scope
-        let f = Foo { x: y }; // ---+ f goes into scope
-        x = &f.x;             //  | | error here
-    }                         // ---+ f and y go out of scope
-                              //  |
-    println!("{}", x);        //  |
-}                             // -+ x goes out of scope
-
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">let</span> x;                    <span style="color:#75715e">// -+ x goes into scope
+</span><span style="color:#75715e"></span>                              <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>    {                         <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span><span style="color:#ae81ff">5</span>;           <span style="color:#75715e">// ---+ y goes into scope
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">let</span> f <span style="color:#f92672">=</span> Foo { x: <span style="color:#a6e22e">y</span> }; <span style="color:#75715e">// ---+ f goes into scope
+</span><span style="color:#75715e"></span>        x <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>f.x;             <span style="color:#75715e">//  | | error here
+</span><span style="color:#75715e"></span>    }                         <span style="color:#75715e">// ---+ f and y go out of scope
+</span><span style="color:#75715e"></span>                              <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, x);        <span style="color:#75715e">//  |
+</span><span style="color:#75715e"></span>}                             <span style="color:#f92672">//</span> <span style="color:#f92672">-+</span> x goes out of scope</code></pre></div>
 <p><code>f.x</code>は狭いスコープでlifetimeが切れますが、それを指す<code>x</code>のlifetimeは続いています。
 ここでdangling pointerが起こっています。
 Rustコンパイラはこれを見逃さず、エラーメッセージを吐くことになります。</p>
 
-<h3 id="static:4d7c0e9f2f8c6afedc35b165aee74fb6"><code>'static</code></h3>
+<h3 id="static"><code>'static</code></h3>
 
 <p><code>'static</code>という特別なlifetimeがあります。
 名前からわかるように、このlifetimeは、プログラムの初めから終わりまでです。</p>
 
 <p>以前にでてきましたが、文字列リテラルは<code>'static</code>lifetimeを持ちます。
 他には、グローバルに定義した<code>static</code>変数を指す参照は、<code>'static</code>lifetimeを指定できます。</p>
-let x: &'static str = "Hello, world.";
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> x: <span style="color:#66d9ef">&amp;</span>&#39;static <span style="color:#66d9ef">str</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello, world.&#34;</span>;
 
-static FOO: i32 = 5;
-let x: &'static i32 = &FOO;
-
-<h3 id="lifetime-elision:4d7c0e9f2f8c6afedc35b165aee74fb6">Lifetime Elision</h3>
+<span style="color:#66d9ef">static</span> FOO: <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+<span style="color:#66d9ef">let</span> x: <span style="color:#66d9ef">&amp;</span>&#39;static <span style="color:#66d9ef">i32</span> <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>FOO;</code></pre></div>
+<h3 id="lifetime-elision">Lifetime Elision</h3>
 
 <p>上述したように、関数定義においてlifetimeの記述は多くの場合省略できます。
 この、「多くの場合」というのが、次で述べる3つのルールに当てはまる場合です。</p>
@@ -364,10 +355,9 @@ let x: &'static i32 = &FOO;
 &lsquo;Input lifetime&rsquo;と&rsquo;output lifetime&rsquo;です。
 その名の通り、input lifetimeは参照型の引数がもつlifetimeで、
 output lifetimeは戻り値がもつlifetimeです。</p>
-fn foo<'a>(bar: &'a str) { ... }
-fn foo<'a>() -> &'a str { ... }
-fn foo<'a>(bar: &'a str) -> &'a str { ... }
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(bar: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>) { ... }
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>() -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span> { ... }
+<span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(bar: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span> { ... }</code></pre></div>
 <p>ひとつ目の例では、input lifetimeがひとつ、
 ふたつ目の例では、output lifetimeがひとつ、
 みっつ目の例では、同一のinput lifetimeとoutput lifetimeがひとつずつあります。</p>
@@ -386,27 +376,23 @@ fn foo<'a>(bar: &'a str) -> &'a str { ... }
 <p>これらに当てはまらないときは、output lifetimeを省略できません。
 明示的に指定する必要があります。</p>
 
-<h3 id="examples:4d7c0e9f2f8c6afedc35b165aee74fb6">Examples</h3>
+<h3 id="examples">Examples</h3>
 
 <p>3つのルールに従って、省略されたlifetimeは実際にはどのように推論されるか見てみましょう。</p>
-fn substr(s: &str, until: u32) -> &str; // elided
-fn substr<'a>(s: &'a str, until: u32) -> &'a str; // expanded
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">substr</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, until: <span style="color:#66d9ef">u32</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>; <span style="color:#75715e">// elided
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">substr</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>, until: <span style="color:#66d9ef">u32</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>; <span style="color:#f92672">//</span> expanded</code></pre></div>
 <p>Input lifetmeがひとつなので、ルール2.によって、
 output lifetimeはinput lifetimeとおなじになります。</p>
-fn get_str() -> &str; // ILLEGAL, no inputs
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">get_str</span>() -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>; <span style="color:#f92672">//</span> ILLEGAL, no inputs</code></pre></div>
 <p>この例はどのルールにも当てはまらないので、output lifetimeを省略できません。
 コンパイルエラーになります。</p>
-fn frob(s: &str, t: &str) -> &str; // ILLEGAL, two inputs
-fn frob<'a, 'b>(s: &'a str, t: &'b str) -> &str; // Expanded: Output lifetime is ambiguous
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">frob</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, t: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>; <span style="color:#75715e">// ILLEGAL, two inputs
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">frob</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, <span style="color:#a6e22e">&#39;b</span><span style="color:#f92672">&gt;</span>(s: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">str</span>, t: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;b</span> <span style="color:#66d9ef">str</span>) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>; <span style="color:#f92672">//</span> Expanded: <span style="color:#a6e22e">Output</span> lifetime is ambiguous</code></pre></div>
 <p>まず、ルール1.によって<code>s</code>と<code>t</code>には別々のlifetimeが推論されます。
 しかし、input lifetimeが複数あるにも関わらず、どれも<code>&amp;self, &amp;mut self</code>ではないので、
 output lifetimeを省略できません。</p>
-fn args<T:ToCStr>(&mut self, args: &[T]) -> &mut Command; // elided
-fn args<'a, 'b, T:ToCStr>(&'a mut self, args: &'b [T]) -> &'a mut Command; // expanded
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">args</span><span style="color:#f92672">&lt;</span>T:<span style="color:#a6e22e">ToCStr</span><span style="color:#f92672">&gt;</span>(<span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> self, args: <span style="color:#66d9ef">&amp;</span>[T]) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">mut</span> Command; <span style="color:#75715e">// elided
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">args</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span>, <span style="color:#a6e22e">&#39;b</span>, T:<span style="color:#a6e22e">ToCStr</span><span style="color:#f92672">&gt;</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">mut</span> self, args: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;b</span> [T]) -&gt; <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">&#39;a</span> <span style="color:#66d9ef">mut</span> Command; <span style="color:#f92672">//</span> expanded</code></pre></div>
 <p>ルール1.によって、<code>&amp;mut self</code>と<code>args</code>は別々のlifetimeを持ちます。
 Input lifetimeの一つが<code>&amp;mut self</code>なので、ルール3.によって、戻り値のlifetimeは、
 <code>&amp;mut self</code>と同じになります。</p>
