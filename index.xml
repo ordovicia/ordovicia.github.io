@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Sat, 24 Feb 2018 00:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 05 Jan 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>nyanpass.com の推移を表示する webサイトを AWS でつくる</title>
+      <link>/post/nyanpass_count_aws/</link>
+      <pubDate>Sat, 05 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/nyanpass_count_aws/</guid>
+      <description>概要 にゃんぱすーボタン のカウントの推移を表示する非公式の webサイト をつくりました。 すべて AWS のサービス上で動いています。 Lambda関数を一</description>
+    </item>
     
     <item>
       <title>Vecの実装 in Rust - Handling Zero-Sized Types</title>

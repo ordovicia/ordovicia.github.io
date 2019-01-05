@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.40.1" />
+
+  <title>nyanpass.com の推移を表示する webサイトを AWS でつくる &middot; 外部記憶</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="/css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="/css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="/css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/about/"><i class='fa fa-user fa-fw'></i>About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/post/"><i class='fa fa-list fa-fw'></i>Posts</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/tags/"><i class='fa fa-tags fa-fw'></i>Tags</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/"><i class='fa fa-home fa-fw'></i>Home</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://twitter.com/ordovicia" target="_blank"><i class="fa fa-twitter-square fa-fw"></i>Twitter</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <li class="pure-menu-item">
+      <a class="pure-menu-link" href="https://github.com/ordovicia" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+    </li>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small>&copy; 2017. All rights reserved.</small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>nyanpass.com の推移を表示する webサイトを AWS でつくる</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>05 Jan 2019</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="/tags/aws">AWS</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/programming">Programming</a>&nbsp;&#47;
+    
+      <a class="post-taxonomy-tag" href="/tags/python">Python</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  
+
+<h3 id="概要">概要</h3>
+
+<p><a href="http://nyanpass.com">にゃんぱすーボタン</a> のカウントの推移を表示する非公式の <a href="http://nyanpass-count.s3-website-ap-northeast-1.amazonaws.com">webサイト</a> をつくりました。
+すべて AWS のサービス上で動いています。
+Lambda関数を一定時間ごとに呼び出してカウントを取得し、S3バケットにその値とグラフ画像を保存して、S3 でホストしているサイトから参照しています。</p>
+
+<h3 id="はじめに">はじめに</h3>
+
+<p><a href="http://nyanpass.com">にゃんぱすーボタン</a> という Webサイトがあります。
+このサイトに設置してあるボタンをクリックすると、グローバルなカウントを1ずつ増やすことができます。
+いまでも日々、カウンターは進んでいます。</p>
+
+<p>カウントの値はある API で取得できます。
+「こっそり」公開されているのでここでも明示はしませんが、探せば見つかります。</p>
+
+<p>今回、この API を一定時間ごとに呼び、記録したカウントの推移をグラフで表示する非公式の <a href="http://nyanpass-count.s3-website-ap-northeast-1.amazonaws.com">webサイト</a> をつくりました。
+このサイトはすべて AWS のサービス上で動いており、具体的には主に Lambda と S3 を使っています。</p>
+
+<p>この記事では、この webサイトの仕組みを簡単に説明します。</p>
+
+<h3 id="全体構成">全体構成</h3>
+
+<p>全体の構成は以下のようになっています。
+Lambda関数は Python 3.6 で実装しました。</p>
+
+
+<figure>
+    
+        <img src="/img/nyanpass_count_aws_arch.png" width="100%" />
+    
+    
+</figure>
+
+
+<p>およそ次の流れで動いています。</p>
+
+<ol>
+<li>CloudWatch Events が一定時間ごとに Lambda関数を呼び出す。</li>
+<li>Lambda関数が、
+
+<ol>
+<li>「にゃんぱすーボタン」からカウントを取得する。</li>
+<li>S3バケットに保存してある過去のデータをダウンロードし、新しいカウントを結合する。</li>
+<li>全体のデータをグラフ化し画像として <code>/tmp</code> に保存する。</li>
+<li>新しいカウントと画像を S3バケットにアップロードする。</li>
+</ol></li>
+<li>S3バケットでホストしている webサイトが画像を参照する。</li>
+</ol>
+
+<h3 id="lambda関数を一定時間ごとに呼び出す">Lambda関数を一定時間ごとに呼び出す</h3>
+
+<p>CloudWatch Events を用いると、Lambda関数を予め定めたスケジュールで起動できます。</p>
+
+<p>新しいトリガーを作り、ルールタイプを「スケジュール式」に設定します。
+今回はスケジュール式に cron を用い、一定時間ごとに呼び出すようにしました。
+<code>cron(0 * * * ? *)</code> と記述すれば一時間ごとに起動します。</p>
+
+<h3 id="lambda関数内でファイルを扱う">Lambda関数内でファイルを扱う</h3>
+
+<p>Lambda関数では、一時作業用のストレージとして <code>/tmp</code> ディレクトリが使えます。
+S3 からダウンロードしたファイルや、生成したグラフ画像はここに一時保存しました。</p>
+
+<p><a href="https://www.bokukoko.info/entry/2015/09/17/AWS_Lambda_を利用する上でしっておいたほうがよいこと">名前衝突の可能性があるため</a>、
+<code>os.path.join(os.sep, &quot;tmp&quot;, uuid4().hex)</code> などで一意なファイル名を生成するとよいでしょう。</p>
+
+<h3 id="s3-にアップロード-s3-からダウンロードする">S3 にアップロード、S3 からダウンロードする</h3>
+
+<p>Python用の AWS SDK として <a href="https://aws.amazon.com/jp/sdk-for-python">Boto3</a> を使いました。
+Boto3 は Lambdaランタイムに組み込まれているため、<code>import boto3</code> するだけで使えます。</p>
+
+<p>具体的な使いかたは <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html">Boto3公式ドキュメント</a> を参照してください。</p>
+
+<p>Lambda関数のロールに、対象となる S3バケットへアクセスできる権限を付与しておきましょう。</p>
+
+<h3 id="外部-pythonモジュール-matplotlib-pandas-を使う">外部 Pythonモジュール (Matplotlib, pandas) を使う</h3>
+
+<p>参考：<a href="https://aws.amazon.com/jp/premiumsupport/knowledge-center/build-python-lambda-deployment-package">AWS公式ドキュメント</a></p>
+
+<p>今回の実装では、データ整理に pandas を、グラフ化に Matplotlib を使っています。
+これら外部モジュールは Lambdaランタイムに組み込まれていないため、そのままインポートはできません。
+Lambda関数のデプロイパッケージに含める必要があります。</p>
+
+<p>まず、ローカルの開発用ディレクトリにすべての依存モジュールをインストールします。
+これは <code>$ pip install matplotlib -t &lt;dir&gt;</code> のように、<code>-t</code>（または <code>--target</code>）オプションでインストール先ディレクトリを指定することでできます。</p>
+
+<p>Lambda関数があるディレクトリ直下に外部モジュールがあると汚くなるので、今回は <code>vendor</code>ディレクトリを作り、そこにインストールしました。
+つまり、以下のような構成です。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">.
+├── lambda_function.py
+└── vendor
+    ├── matplotlib
+    ├── pandas
+    ...</code></pre></div>
+<p><code>vendor</code> ディレクトリをインポートパスに追加するため、以下のコードを Lambda関数スクリプト (<code>lambda_function.py</code>) の初めに追記します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> os
+<span style="color:#f92672">import</span> sys
+
+sys<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>append(
+    os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>abspath(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>dirname(__file__)), <span style="color:#e6db74">&#34;vendor&#34;</span>))</code></pre></div>
+<p>次に、スクリプトと依存モジュールを zip に固め、デプロイパッケージを作成します。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ zip -r lambda.zip lambda_function.py vendor</code></pre></div>
+<p>このデプロイパッケージを直接あるいは S3バケットを経由して Lambda関数としてアップロードします。
+Matplotlib と pandas を含めるとパッケージサイズは 30MB を超えます。</p>
+
+<p>ちなみに、依存モジュールを S3バケットにおいておき、Lambda関数が起動するごとにダウンロードしてきて動的にインポートすることも可能なようです。
+こうするとパッケージサイズが小さくなり、スクリプトをインラインで編集できるようになりそうです。</p>
+
+<h3 id="s3-で静的サイトをホストする">S3 で静的サイトをホストする</h3>
+
+<p>参考：<a href="https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/dev/WebsiteHosting.html">AWS公式ドキュメント</a></p>
+
+<p>S3 を使って静的webサイトをホスティングし公開することができます。
+今回は、グラフ画像が保存されているバケットに簡単な HTMLファイルを置き webサイトとしています。
+独自ドメインは使いません。</p>
+
+<p>まず、バケットの「プロパティ」から &ldquo;Static website hosting&rdquo; を有効にします。
+HTMLファイルの名前を「インデックスドキュメント」に指定します。</p>
+
+<p>次に、webサイトの読み取り操作ができるよう、「アクセス権限」からバケットポリシーを設定してパブリックアクセス権限を指定します。
+<code>index.html</code> と画像ファイルを公開する場合、次のように記述します（バケット名は適宜書き換えてください）。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;Version&#34;</span>: <span style="color:#e6db74">&#34;2012-10-17&#34;</span>,
+    <span style="color:#f92672">&#34;Statement&#34;</span>: [
+        {
+            <span style="color:#f92672">&#34;Sid&#34;</span>: <span style="color:#e6db74">&#34;PublicReadGetObject&#34;</span>,
+            <span style="color:#f92672">&#34;Effect&#34;</span>: <span style="color:#e6db74">&#34;Allow&#34;</span>,
+            <span style="color:#f92672">&#34;Principal&#34;</span>: <span style="color:#e6db74">&#34;*&#34;</span>,
+            <span style="color:#f92672">&#34;Action&#34;</span>: <span style="color:#e6db74">&#34;s3:GetObject&#34;</span>,
+            <span style="color:#f92672">&#34;Resource&#34;</span>: [
+                <span style="color:#e6db74">&#34;arn:aws:s3:::bucket-name/index.html&#34;</span>,
+                <span style="color:#e6db74">&#34;arn:aws:s3:::bucket-name/*.png&#34;</span>
+            ]
+        }
+    ]
+}</code></pre></div>
+<h3 id="lambda関数が失敗したときにアラームを送る">Lambda関数が失敗したときにアラームを送る</h3>
+
+<p>Lambda関数でエラーが発生したときにアラームが送られるように設定します。</p>
+
+<p>CloudWatch でアラームを作成し、メトリクスを「エラー &gt; 0 」と設定しました。
+また、何らかの理由で Lambda関数が起動しなかったときのため、データの欠落も不正な状態とみなしています。
+今回は、アラームの送り先を自分のメールアドレスにしました。</p>
+
+<h3 id="まとめ">まとめ</h3>
+
+<p><a href="http://nyanpass.com">にゃんぱすーボタン</a> のカウントの推移を表示する非公式の <a href="http://nyanpass-count.s3-website-ap-northeast-1.amazonaws.com">webサイト</a> をつくりました。
+AWS Lambda関数を一定時間ごとに起動してカウントを取得し、グラフ画像を生成して S3バケットでホストした webサイトから参照しています。</p>
+
+<p>ちなみに、『のんのんびより』を見たことはありません。</p>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="/post/implementingvecinrust/handling_zero-sized_types/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="/post/implementingvecinrust/handling_zero-sized_types/">Vecの実装 in Rust - Handling Zero-Sized Types</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+  </div>
+</div>
+
+
+
+  
+
+</div>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] }
+  });
+</script>
+<script
+    type="text/javascript"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
+</script>
+
